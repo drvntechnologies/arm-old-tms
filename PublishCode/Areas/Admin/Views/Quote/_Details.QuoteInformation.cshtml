@@ -1,0 +1,102 @@
+﻿@model QuoteDetailsModel
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-info"></i>
+            @T("Admin.Portal.Quote.QuoteInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.QuoteNumber))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.QuoteNumber")
+                </div>
+                <div class="input-name">
+                    @Model.QuoteNumber
+                </div>
+            </div>
+        }
+
+        <div class="custom-form-group status-container">
+            <div class="label-name">
+                @T("Admin.Portal.Quote.Status")
+            </div>
+            <div class="input-name">
+                <span class="@Model.Status">
+                    @Model.Status
+                </span>
+            </div>
+        </div>
+
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Portal.Quote.CreatedDate")
+            </div>
+            <div class="input-name">
+                @Model.CreatedDate
+            </div>
+        </div>
+
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Portal.Quote.RequestedDate")
+            </div>
+            <div class="input-name">
+                @Model.RequestedDate
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Reference))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.Reference")
+                </div>
+                <div class="input-name">
+                    @Model.Reference
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.TrailerType))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.TrailerType")
+                </div>
+                <div class="input-name">
+                    @Model.TrailerType
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.LoadingOptionText))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.LoadingOption")
+                </div>
+                <div class="input-name">
+                    @Model.LoadingOptionText
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.Notes")
+                </div>
+                <div class="input-name">
+                    @Model.Notes
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

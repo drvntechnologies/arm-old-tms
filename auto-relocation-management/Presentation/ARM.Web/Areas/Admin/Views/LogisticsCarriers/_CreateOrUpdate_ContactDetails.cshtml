@@ -1,0 +1,360 @@
+﻿@model LogisticsCarriersModel
+
+@{
+    var isCarrierDetailPage = Convert.ToBoolean(ViewData["IsCarrierDetailPage"] ?? false);
+}
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        if (!isCarrierDetailPage)
+        {
+            <div class="card-header with-border clearfix d-flex align-items-center">
+                <div class="ml-auto">
+                    <button type="button" id="create-contact" class="btn btn-primary">
+                        <i class="fa fa-plus"></i>
+                        @T("Admin.Carrier.Contact.AddContact")
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div class="card d-datatable m-0">
+            @await Html.PartialAsync("Table", new DataTablesModel
+            {
+                Name = "contact-grid",
+                UrlRead = new DataUrl("CarrierContactList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.CarrierContactSearchModel.CarrierId)] = Model.Id }),
+                Length = Model.CarrierContactSearchModel.PageSize,
+                LengthMenu = Model.CarrierContactSearchModel.AvailablePageSizes,
+                ColumnCollection = new List<ColumnProperty>
+                {
+                    new ColumnProperty(nameof(CarrierContactModel.Name))
+                    {
+                        Title = T("Admin.CarrierContact.Fields.Name").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierContactModel.Title))
+                    {
+                        Title = T("Admin.CarrierContact.Fields.Title").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierContactModel.Type))
+                    {
+                        Title = T("Admin.CarrierContact.Fields.Type").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierContactModel.Email))
+                    {
+                        Title = T("Admin.CarrierContact.Fields.Email").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierContactModel.PhoneNumber))
+                    {
+                        Title = T("Admin.CarrierContact.Fields.PhoneNumber").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierContactModel.Id))
+                    {
+                        Title = T("Admin.Common.Action").Text,
+                        Width = "100",
+                        ClassName = NopColumnClassDefaults.Button,
+                        Render = new RenderCustom("renderContactColumnEditDelete")
+                    }
+                }
+            })
+            <script>
+                function renderContactColumnEditDelete(data, type, row, meta) {
+                    return '<button type="button" data-contact-id="' + data + '" class="btn btn-default edit-contact"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                }
+
+                $("#contact-grid").on("click", ".delete-link", function (e) {
+                    const id = $(this).attr("data-deleteId");
+                    $("#delete-id").val(id);
+                    $("#delete-id").attr("data-url", "@Url.Action("CarrierContactDelete")")
+                                    .attr("data-tableId", "contact-grid");
+                });
+            </script>
+        </div>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.Carriers.Contact.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="contact-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="contact-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="contact-add-popup-title">@T("Admin.Carrier.Contact.AddNewContact")</h4>
+                    <button type="button" class="close" id="close-contact-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="ContactId" name="ContactId" type="hidden" />
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactName">@T("Admin.CarrierContact.Fields.Name")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ContactName" name="ContactName" type="text" placeholder="Enter Name"/>
+                                    <span class="field-validation-valid" data-valmsg-for="ContactName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactTitle">@T("Admin.CarrierContact.Fields.Title")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ContactTitle" name="ContactTitle" type="text" placeholder="Enter Title" />
+                                    <span class="field-validation-valid" data-valmsg-for="ContactTitle" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactType">@T("Admin.CarrierContact.Fields.Type")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <select class="form-select form-control no-kendo" id="ContactType" name="ContactType">
+                                    </select>
+                                    <span class="field-validation-valid" data-valmsg-for="ContactType" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactEmail">@T("Admin.CarrierContact.Fields.Email")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ContactEmail" name="ContactEmail" type="text" placeholder="Enter Email" />
+                                    <span class="field-validation-valid" data-valmsg-for="ContactEmail" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactPhone">@T("Admin.CarrierContact.Fields.PhoneNumber")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ContactPhone" name="ContactPhone" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="ContactPhone" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ContactMobileNumber">@T("Admin.CarrierContact.Fields.MobileNumber")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ContactMobileNumber" name="ContactMobileNumber" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="ContactMobileNumber" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="field-validation-error" id="add-edit-contact-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-contact" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#ContactPhone, #ContactMobileNumber");
+        removeSpecialCharactersAndNumber("#ContactName");
+        enforceLowerCase("#ContactEmail");
+
+        const dropdownDataForContact = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AvailableContactType));
+
+        $("#ContactType").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: dropdownDataForContact,
+        });
+
+        function resetContactForm() {
+            $("#ContactId").val("");
+            $("#ContactName").val("");
+            $("#ContactTitle").val("");
+            $("#ContactType").data("kendoDropDownList").value("");
+            $("#ContactEmail").val("");
+            $("#ContactPhone").val("");
+            $("#ContactMobileNumber").val("");
+
+            $('span[data-valmsg-for="ContactName"]').hide();
+            $('span[data-valmsg-for="ContactTitle"]').hide();
+            $('span[data-valmsg-for="ContactType"]').hide();
+            $('span[data-valmsg-for="ContactEmail"]').hide();
+            $('span[data-valmsg-for="ContactPhone"]').hide();
+            $('span[data-valmsg-for="ContactMobileNumber"]').hide();
+            $("#add-edit-contact-errorMessages").html("");
+        }
+
+        $(function () {
+            $('#save-contact').click(function () {
+                $('#save-contact').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id =  $("#ContactId");
+                const $contactName = $("#ContactName");
+                const $contactTitle = $("#ContactTitle");
+                const $contactType = $("#ContactType");
+                const $contactEmail = $("#ContactEmail");
+                const $contactPhone = $("#ContactPhone");
+                const $contactMobileNumber = $("#ContactMobileNumber");
+
+                let name = $contactName.val();
+				let title = $contactTitle.val();
+				let type = $contactType.val();
+				let email = $contactEmail.val();
+				let phone = $contactPhone.val();
+				let mobileNumber = $contactMobileNumber.val();
+
+                if (!name || name.trim() == "") {
+                    let message = "@T("Admin.Carriers.Contact.Name.Required")";
+                    var validationSpan = $('span[data-valmsg-for="ContactName"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="ContactName-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!email || email.trim() == "") {
+                    let message = "@T("Admin.Carriers.Contact.Email.Required")";
+                    var validationSpan = $('span[data-valmsg-for="ContactEmail"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="ContactEmail-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!type || type.trim() == "") {
+                    let message = "@T("Admin.Carriers.Contact.Type.Required")";
+                    var validationSpan = $('span[data-valmsg-for="ContactType"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="ContactType-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    $('#save-contact').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    CarrierId: "@Model.Id",
+                    Id: $id.val(),
+                    Name: name,
+                    Title: title,
+                    Type: type,
+                    Email: email,
+                    PhoneNumber: phone,
+                    MobileNumber: mobileNumber
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("CarrierContactCreate", "LogisticsCarriers", null))";
+                if($id.val() > 0){
+                    url = "@Html.Raw(Url.Action("CarrierContactEdit", "LogisticsCarriers", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#contact-grid');
+
+                            $("#close-contact-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";
+                            $.each(data.error, function (key, value) {
+                                if (value.errors) {
+                                    $.each(value.errors, function (index, error) {
+                                        errorMessages += "<p class='m-0'>" + error +"</p>";
+                                    });
+                                }
+                            });
+
+                            $("#add-edit-contact-errorMessages").html(errorMessages);
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-contact').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $(document).on('click', "#close-contact-add-popup",function () {
+            resetContactForm();
+            $("#contact-add-popup").modal('hide');
+        });
+
+        $(document).on('input change', "#ContactName, #ContactEmail, #ContactType", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-contact", function(e){
+            e.preventDefault();
+            $("#contact-add-popup-title").text("@T("Admin.Carrier.Contact.AddNewContact")");
+            resetContactForm();
+            $("#contact-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-contact", function(e){
+            e.preventDefault();
+            $("#add-edit-contact-errorMessages").html("");
+            var contactId = $(this).attr('data-contact-id');
+            if (contactId > 0){
+                $("#contact-add-popup-title").text("@T("Admin.Carrier.Contact.EditContact")");
+                $.get("@Html.Raw(Url.Action("CarrierContactEdit", "LogisticsCarriers"))", { id: contactId }, function (data) {
+                    if(data.Result){
+
+                        $("#ContactId").val(data.Id);
+                        $("#ContactName").val(data.Name);
+                        $("#ContactTitle").val(data.Title);
+                        $("#ContactType").data("kendoDropDownList").value(data.Type);
+                        $("#ContactEmail").val(data.Email);
+                        $("#ContactPhone").val(data.PhoneNumber);
+                        $("#ContactMobileNumber").val(data.MobileNumber);
+
+                        $("#contact-add-popup").modal('show');
+                    }
+                    else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

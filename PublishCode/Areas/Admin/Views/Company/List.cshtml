@@ -1,0 +1,193 @@
+﻿@model CompanySearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.CustomerManagement.Customers").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Client list");
+
+    const string hideSearchBlockAttributeName = "CustomerListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="Company" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.CustomerManagement.Customers")
+        </h1>
+        <div class="float-right">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search d-card-search d-card">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="Name" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="Name" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="Domain" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="Domain" html-attributes="@(new { placeholder = "Enter Company Domain" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="PhoneNumber" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="PhoneNumber" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="ZipCode" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="ZipCode" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="CountryId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="RegionTypeId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="RegionTypeId" asp-items="Model.AvailableRegionTypes" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-customers" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                        <button type="button" id="customer-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Clear")
+                                        </button>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#customer-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default d-datatable d-card m-0">
+                        <div class="card-body">
+
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Ordering = true,
+                                    Order = "0,'desc'",
+                                    Targets = "3,4,5",
+                                    Orderable = false,
+                                    Name = "company-grid",
+                                    UrlRead = new DataUrl("List", "Company", null),
+                                    SearchButtonId = "search-customers",
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    Filters = new List<FilterParameter>
+                                    {
+                                        new FilterParameter(nameof(Model.Name)),
+                                        new FilterParameter(nameof(Model.Domain)),
+                                        new FilterParameter(nameof(Model.PhoneNumber)),
+                                        new FilterParameter(nameof(Model.ZipCode)),
+                                        new FilterParameter(nameof(Model.CountryId)),
+                                        new FilterParameter(nameof(Model.RegionTypeId))
+                                    }
+                                };
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.Id))
+                                {
+                                    Title = "",
+                                    Visible = false
+                                });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.Name))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Company.Fields.Name").Text}</span>",
+                                    Render = new RenderLink(new DataUrl("Details", nameof(CompanyModel.Id)))
+                                });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.Domain))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.CompanySearch.Fields.Domain").Text}</span>",
+                                });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.PhoneNumber))
+                                {
+                                    Title = T("Admin.Company.Fields.PhoneNumber").Text
+                                });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.ZipCode))
+                                {
+                                    Title = T("Admin.CompanySearch.Fields.ZipCode").Text,
+                                });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CompanyModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "80",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("Edit"))
+                                });
+                            }
+                            @await Html.PartialAsync("Table", gridModel)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<script>
+    commonPhoneNumber("#PhoneNumber");
+    allowUniversalZip("#ZipCode");
+</script>

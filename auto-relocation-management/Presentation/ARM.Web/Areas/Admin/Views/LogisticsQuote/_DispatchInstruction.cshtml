@@ -1,0 +1,24 @@
+﻿@model LogisticsQuoteModel
+
+<div class="card card-primary card-outline">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="far fa-newspaper"></i>
+			@T("Admin.DispatchInformation")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="dispatch-information">
+				@if (!string.IsNullOrWhiteSpace(Model.DispatchInstructions))
+				{
+					@Model.DispatchInstructions
+				}
+				else
+				{
+					@T("Admin.LogisticsQuote.DispatchInstructions.NoData")
+				}
+			</div>
+		</div>
+	</div>
+</div>

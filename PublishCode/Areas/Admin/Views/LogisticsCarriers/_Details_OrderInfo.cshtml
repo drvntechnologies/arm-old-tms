@@ -1,0 +1,78 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card d-card m-0">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="nav-icon fas fa-shopping-cart"></i>
+            @T("Admin.carriers.carrier.OrderInfo")
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Id > 0)
+        {
+           
+            var gridModel = new DataTablesModel
+                {
+                    Ordering = true,
+                    Order = "0,'desc'",
+                    Targets = "2",
+                    Orderable = false,
+                    Name = "carrier-orderinfo-grid",
+                    UrlRead = new DataUrl("LogisticsOrderInfoList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsCarrierOrderInfoSearchModel.CarrierId)] = Model.Id }),
+                    Length = Model.LogisticsCarrierOrderInfoSearchModel.PageSize,
+                    LengthMenu = Model.LogisticsCarrierOrderInfoSearchModel.AvailablePageSizes,
+                };
+            gridModel.ColumnCollection = new List<ColumnProperty> { };
+            gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsCarrierOrderInfoModel.OrderDetail))
+                {
+                    Title = T("Admin.Carrier.OrderInfo.Fields.OrderDetail").Text,
+                    Width = "50",
+                    Encode = false
+                });
+            gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsCarrierOrderInfoModel.OriginAndDestinationAddress))
+                {
+                    Title = T("Admin.Carrier.OrderInfo.Fields.OriginAndDestinationAddress").Text,
+                    Width = "100",
+                    Encode = false
+                });
+            gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsCarrierOrderInfoModel.LeadId))
+                {
+                    Title = T("Admin.Common.View").Text,
+                    Width = "100",
+                    ClassName = NopColumnClassDefaults.Button,
+                    Render = new RenderButtonView(new DataUrl("~/Admin/Order/Details/"))
+                });
+            <div class="card d-datatable m-0">
+                <div class="card-body">
+                    @await Html.PartialAsync("Table", gridModel)
+                </div>
+            </div>
+            
+        }
+        else
+        {
+            <div class="card card-default m-0">
+                <div class="card-body">
+                    @T("Admin.Carriers.Carrier.OrderInfo.SaveBeforeEdit")
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@if (Model.Id > 0)
+{
+    <button type="submit" id="btnRefreshOrderInfo" style="display: none"></button>
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshOrderInfo').click(function () {
+                //refresh grid
+                updateTable('#carrier-orderinfo-grid');
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+}

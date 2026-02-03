@@ -1,0 +1,25 @@
+﻿@model PaymentDetailModel
+
+@if (!string.IsNullOrWhiteSpace(Model.AmountDue))
+{
+    <div class="custom-form-group">
+        <div class="label-name">
+            @T("ARM.Logistics.Payments.Square.PaymentDetail.Field.AmountDue")
+        </div>
+        <div class="input-name">
+            @Model.AmountDue
+        </div>
+    </div>
+
+}
+@if (!string.IsNullOrWhiteSpace(Model.AmountPaid))
+{
+    <div class="custom-form-group">
+        <div class="label-name">
+            @T("ARM.Logistics.Payments.Square.PaymentDetail.Field.AmountPaid")
+        </div>
+        <div class="input-name">
+            @Model.AmountPaid
+        </div>
+    </div>
+}

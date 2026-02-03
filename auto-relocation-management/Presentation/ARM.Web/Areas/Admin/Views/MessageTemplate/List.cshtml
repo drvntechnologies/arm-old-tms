@@ -1,0 +1,207 @@
+@using Nop.Core.Domain.Messages;
+@using Nop.Services;
+
+@model MessageTemplateSearchModel
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.ContentManagement.MessageTemplates").Text;
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Message templates");
+
+	const string hideSearchBlockAttributeName = "MessageTemplatesPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<div class="content-header clearfix">
+	<h1 class="float-left">
+		@T("Admin.ContentManagement.MessageTemplates")
+	</h1>
+	<div class="float-right">
+		&nbsp;
+		@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.MessageTemplateListButtons, additionalData = Model })
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="form-horizontal d-form-horizontal">
+			<div class="cards-group">
+				@*hide the entire search block if no elements are displayed*@
+				<div class="card card-default card-search d-card-search d-card">
+					<div class="card-body">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+							<div class="search-text">@T("Admin.Common.Search")</div>
+							<div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+						</div>
+
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
+							<div class="row">
+								<div class="col-md-6 col-lg-6 col-xl-4" @(Model.HideStoresList ? Html.Raw("style=\"display:none\"") : null)>
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="SearchStoreId" />
+										</div>
+										<div class="col-md-12">
+											<nop-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" class="form-select form-control" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="SearchKeywords" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="SearchKeywords" html-attributes="@(new { placeholder = "Enter Search Keywords" })" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="IsActiveId" />
+										</div>
+										<div class="col-md-12">
+											<nop-select asp-for="IsActiveId" asp-items="Model.AvailableActiveOptions" class="form-select form-control" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="TemplateTypeId" />
+										</div>
+										<div class="col-md-12">
+											@*  <nop-select asp-for="TemplateTypeId" asp-items="await ((MessageTemplateType) Model.TemplateTypeId).ToSelectListAsync()" /> *@
+											<nop-select asp-for="TemplateTypeId" asp-items="Model.AvailableTemplateTypeOptions" class="form-select form-control" />
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<div class="row">
+								<div class="col-md-8 offset-md-4">
+									<button type="button" id="search-templates" class="btn btn-primary btn-search">
+										<i class="fas fa-search"></i>
+										@T("Admin.Common.Search")
+									</button>
+									<button type="button" id="template-btncancel" class="btn btn-primary btn-cancel-search">
+										<i class="fas fa-times"></i>
+										@T("Admin.Common.Cancel")
+									</button>
+								</div>
+								<script>
+									cancelSearch("#template-btncancel");
+								</script>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card card-default d-datatable d-card mb-0">
+					<div class="card-body">
+						@* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.MessageTemplates", Docs.MessageTemplates + Utm.OnAdmin)" /> *@
+
+						@await Html.PartialAsync("Table", new DataTablesModel
+						{
+							Name = "templates-grid",
+							UrlRead = new DataUrl("List", "MessageTemplate", null),
+							SearchButtonId = "search-templates",
+							Length = Model.PageSize,
+							LengthMenu = Model.AvailablePageSizes,
+							Filters = new List<FilterParameter>
+							{
+								new FilterParameter(nameof(Model.SearchKeywords)),
+								new FilterParameter(nameof(Model.SearchStoreId)),
+								new FilterParameter(nameof(Model.IsActiveId)),
+								new FilterParameter(nameof(Model.TemplateTypeId))
+							},
+							ColumnCollection = new List<ColumnProperty>
+							{
+								new ColumnProperty(nameof(MessageTemplateModel.Name))
+								{
+									Title = T("Admin.ContentManagement.MessageTemplates.Fields.Name").Text
+								},
+								new ColumnProperty(nameof(MessageTemplateModel.Subject))
+								{
+									Title = T("Admin.ContentManagement.MessageTemplates.Fields.Subject").Text
+								},
+								new ColumnProperty(nameof(MessageTemplateModel.Body))
+								{
+									Title = T("Admin.ContentManagement.MessageTemplates.Fields.Body").Text,
+									Render = new RenderCustom("truncatedText")
+								},
+								// new ColumnProperty(nameof(MessageTemplateModel.ListOfStores))
+								// {
+								//     Title = T("Admin.ContentManagement.MessageTemplates.Fields.LimitedToStores").Text,
+								//     Width = "300"
+								// },
+								new ColumnProperty(nameof(MessageTemplateModel.IsActive))
+								{
+									Title = T("Admin.ContentManagement.MessageTemplates.Fields.IsActive").Text,
+									Width = "100",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Render = new RenderBoolean()
+								},
+								new ColumnProperty(nameof(MessageTemplateModel.Id))
+								{
+									Title = T("Admin.Common.Edit").Text,
+									Width = "100",
+									ClassName =  NopColumnClassDefaults.Button,
+									Render = new RenderButtonEdit(new DataUrl("Edit"))
+								}
+							}
+						})
+
+						<script>
+							function truncatedText(data, type, row, meta){
+								
+								const plainText = data.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+								
+								if (plainText.length > 300) {
+									var shortText = plainText.substring(0, 300) + '...';
+
+									var text = `
+									<div class="text-container">
+										<span class="short-text">
+											${shortText}
+										</span>
+										<span class="full-text" style="display: none;">
+											${plainText}
+										</span>
+										<a href="javascript:void(0);" class="toggle-text">Read More</a>
+									</div>`;
+
+									return text;
+								}
+
+								return plainText;
+							}
+
+							$(document).on('click', '.toggle-text', function (e) {
+								e.preventDefault();
+
+								const container = $(this).closest('.text-container');
+								const shortText = container.find('.short-text');
+								const fullText = container.find('.full-text');
+
+								if (shortText.is(':visible')) {
+									shortText.hide();
+									fullText.show();
+									$(this).text('Show Less');
+								} else {
+									fullText.hide();
+									shortText.show();
+									$(this).text('Read More');
+								}
+							});
+							
+						</script>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

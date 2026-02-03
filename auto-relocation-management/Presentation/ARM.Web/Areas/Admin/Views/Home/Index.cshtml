@@ -1,0 +1,90 @@
+﻿@model DashboardModel
+@inject IPermissionService permissionService
+@using Nop.Services.Security
+<!-- Add the following namespace usages: -->
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Dashboard").Text;
+
+    var canManageOrders = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrders);
+    var canManageCustomers = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageCustomers);
+    var canManageProducts = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageProducts);
+    var canManageReturnRequests = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReturnRequests);
+
+    //close configuration steps value
+    const string closeCardAttributeName = "CloseConfigurationSteps";
+    var closeConfigurationStepsCard = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Dashboard");
+}
+
+<link rel="stylesheet" href="~/lib_npm/ionicons/css/ionicons.min.css" />
+<link href="~/css/site.min.css" rel="stylesheet" />
+<script src="~/js/site.min.js"></script>
+
+
+<div class="content-header">
+    <h1>
+        @T("Admin.Dashboard")
+    </h1>
+</div>
+
+<!-- Add the Web Dashboard with the "clientDashboardControl1" name to a View, specify its size, and set the Working Mode to Designer. -->
+<section class="content admin-home-page">
+    <div class="container-fluid">
+        <div class="row" style="display:none;">
+            <div class="col-md-12 mb-4">
+                @await Html.PartialAsync("CommonStatistics")
+            </div>
+        </div>
+
+        <div class="row order-stastic-order-incomplete" style="display:none;">
+            <div class="col-md-8 mb-4">
+                @await Html.PartialAsync("_OrderStatistics")
+            </div>
+            <div class="col-md-4 mb-4">
+                @await Html.PartialAsync("IncompleteOrders")
+            </div>
+        </div>
+
+        <div class="row order-totals-new-customers" style="display:none;">
+            <div class="col-md-6 mb-4">
+                @await Html.PartialAsync("_OrderAverageReport")
+           </div>
+            <div class="col-md-6 mb-4">
+                @await Html.PartialAsync("_CustomerStatistics")
+           </div>
+       </div>
+
+        <div class="row latest-order-popular-search" style="display:none;">
+                  <div class="col-md-12 mb-4">
+                        @* @await Html.PartialAsync("_LatestOrders") *@
+                    </div>
+               
+            </div>
+       
+
+        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.DashboardLatestordersSearchtermsAfter })
+        @if (canManageOrders)
+        {
+            <div class="row quantity-amount" style="display:none;">
+                <div class="col-md-6 mb-4">
+                    @await Html.PartialAsync("_BestsellersBriefReportByQuantity", Model.BestsellersByQuantity)
+                </div>
+                <div class="col-md-6 mb-4">
+                    @await Html.PartialAsync("_BestsellersBriefReportByAmount", Model.BestsellersByAmount)
+                </div>
+            </div>
+        }
+        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.DashboardBottom })
+
+        <div class="row">
+            <div class="col-md-12">
+            </div>
+        </div>
+        
+    </div>
+</section>
+

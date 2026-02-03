@@ -1,0 +1,108 @@
+﻿@model CustomerModel
+
+@using Newtonsoft.Json
+@using Nop.Core.Domain.Customers;
+
+
+@for (int i = 0; i < Model.LogisticsShipperCustomerAddress.Count; i++)
+{
+    <div class="card-body carrier-information">
+        <div class="form-group row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.Origin") - A<span>@(i + 1)</span>
+                                    </div>
+                                    <div class="input-name">
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.OriginZip")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].OriginZip</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.OriginCity")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].OriginCity</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.OriginCountry")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].OriginCountryName</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.OriginState")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].OriginStateName</span>
+                                    </div>
+                                </div><br />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.Destination") - A<span>@(i + 1)</span>
+                                    </div>
+                                    <div class="input-name">
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.DestinationZip")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].DestinationZip</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.DestinationCity")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].DestinationCity</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.DestinationCountry")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].DestinationCountryName</span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Customer.Fields.DestinationState")
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsShipperCustomerAddress[i].DestinationStateName</span>
+                                    </div>
+                                </div><br />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

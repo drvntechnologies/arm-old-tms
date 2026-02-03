@@ -1,0 +1,378 @@
+﻿@using Nop.Core.Domain.Orders;
+@model OrderBillOfLadingModel
+@inject IThemeContext themeContext
+@{
+    Layout = "_ColumnsOne";
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+    NopHtml.AppendCssFileParts($"~/lib_npm/assets/css/font-awesome.css");
+    NopHtml.AppendCssFileParts($"~/lib_npm/assets/css/custom-style.css");
+    NopHtml.AppendCssFileParts($"~/lib_npm/assets/css/bootstrap.min.css");
+}
+<script asp-exclude-from-bundle="true" src="~/js/public.carrierapplication.js" asp-location="Footer"></script>
+<link href="~/Themes/@themeName/Content/css/carrier-application.css" rel="stylesheet" type="text/css" />
+
+<div class="page">
+    <div class="page-body carrier-pg-body">
+        <form asp-controller="Order" asp-action="OrderBillOfLading" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off" enctype="multipart/form-data">
+            <main class="carrier-pg">
+                <div class="carrier-bg-area option2">
+                    <div class="main-cardbox">
+                        <input type="hidden" asp-for="OrderId" /> 
+                        <input type="hidden" asp-for="LeadId" />
+                        <input type="hidden" asp-for="CarrierId" />
+                        <input type="hidden" asp-for="VehicleInfoId" />
+                        <input type="hidden" asp-for="OriginAddressId" />
+                        <input type="hidden" asp-for="DestinationAddressId" />
+                        <input type="hidden" asp-for="BolType" />
+                        @if (Model.BolType == (int)OrderBOL.PickUpBol)
+                        {
+                            <h3>Auto Relocation Management / PickUp Bill of Lading</h3>
+                        }
+                        else if (Model.BolType == (int)OrderBOL.DeliveryBol)
+                        {
+                            <h3>Auto Relocation Management / Delivery Bill of Lading</h3>
+                        }
+                        <br>
+                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td width="50%" align="left">
+                                        <p>
+                                            Po Box 141, Hillsboro, MO 63050<br><br>
+                                            Phone: (877) 801-2044<br><br>
+                                            Fax:  (314) 387-9136<br><br>
+                                            Billing@mycarmove.com
+                                        </p>
+                                    </td>
+                                    <td width="50%" align="center">
+                                        <img src="~/lib_npm/assets/img/ARM_LogoV3-2.png" width="50%">
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <br>
+                        <h5><b>BILL OF LADING / VEHICLE INSPECTION REPORT</b></h5>
+                        <br>
+                        <table width="100%" cellspacing="10" cellpadding="0" border="0">
+                            <tbody>
+                                <tr align="top">
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <div class="form-group">
+                                            <label asp-for="LoadNumber" class="form-label"></label>
+                                            <sup><nop-required /> </sup>
+                                            <input asp-for="LoadNumber" class="form-control" readonly />
+                                            <span asp-validation-for="LoadNumber"></span>
+                                            <small>If you want an emailed check, please note that after entering our load #. <b>EX: 12345678 / Email Check</b></small>
+                                        </div>
+                                    </td>
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <div class="">
+                                            <label asp-for="CarrierCompanyName" class="form-label"></label>
+                                            <sup><nop-required /> </sup>
+                                            <input asp-for="CarrierCompanyName" class="form-control" readonly />
+                                            <span asp-validation-for="CarrierCompanyName"></span>
+                                        </div>
+                                    </td>
+                                    <td width="32%" class="vertical-top">
+                                        <div class="vertical-top">
+                                            <label asp-for="CarrierEmail" class="form-label"></label>
+                                            <sup><nop-required /> </sup>
+                                            <input asp-for="CarrierEmail" class="form-control" readonly />
+                                            <span asp-validation-for="CarrierEmail"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <br>
+                        <table cellspacing="10" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td width="49%" class="col3-Box">
+                                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <label class="form-label">Origin Address<sup>*</sup></label>
+                                                        <input asp-for="OriginAddress.Address1" class="form-control mb-3" placeholder="Address Line 1" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <input asp-for="OriginAddress.Address2" class="form-control mb-3" placeholder="Address Line 2" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="48%" class="col3-Box">
+                                                        <input asp-for="OriginAddress.City" class="form-control mb-3" placeholder="City" readonly />
+                                                    </td>
+                                                    <td width="48%" class="vertical-top">
+                                                        <input asp-for="OriginState" class="form-control mb-3" placeholder="State" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <input asp-for="OriginAddress.ZipPostalCode" class="form-control mb-3" placeholder="Zip Code" readonly />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td width="49%">
+                                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <label class="form-label">Destination Address<sup>*</sup></label>                                                        
+                                                        <input asp-for="DestinationAddress.Address1" class="form-control mb-3" placeholder="Address Line 1" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <input asp-for="DestinationAddress.Address2" class="form-control mb-3" placeholder="Address Line 2" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="48%" class="col3-Box">                                                        
+                                                        <input asp-for="DestinationAddress.City" class="form-control mb-3" placeholder="City" readonly />
+                                                    </td>
+                                                    <td width="48%" class="vertical-top">
+                                                        <input asp-for="DestinationState" class="form-control mb-3" placeholder="State" readonly />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">                                                    
+                                                        <input asp-for="DestinationAddress.ZipPostalCode" class="form-control mb-3" placeholder="Zip Code" readonly />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="49%" class="col3-Box">
+                                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td width="48%" class="col3-Box vertical-top">
+                                                        <label asp-for="VIN" class="form-label"></label>
+                                                        <input asp-for="VIN" class="form-control mb-3" readonly />
+                                                    </td>
+                                                    <td width="48%" class="vertical-top">
+                                                        <label class="form-label">Year /​ Make /​ Model<sup>*</sup></label>
+                                                        <input asp-for="Year" class="form-control mb-3" readonly />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td width="49%">
+                                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td width="32%" class="col3-Box vertical-top">
+                                                        <label asp-for="Type" class="form-label"></label>
+                                                        <sup><nop-required /> </sup>
+                                                        <input asp-for="Type" class="form-control mb-3" readonly />
+                                                    </td>
+                                                    <td width="32%" class="col3-Box vertical-top">
+                                                        <label asp-for="Color" class="form-label"></label>
+                                                        <input asp-for="Color" class="form-control mb-3" readonly />
+                                                    </td>
+                                                    <td width="33%" class="vertical-top">
+                                                        <label asp-for="Odometer" class="form-label"></label>
+                                                        <input asp-for="Odometer" class="form-control mb-3" readonly />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <label asp-for="InspectionNotes" class="form-label"></label>
+                                        <sup><nop-required /> </sup>
+                                        <input asp-for="InspectionNotes" class="form-control mb-3" readonly />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <img src="~/lib_npm/assets/img/BOL.jpg" width="100%" class="mb-3">
+                                        <br>
+                                    </td>
+                                </tr>
+                               @*  <tr>
+                                    <td colspan="2">
+                                        <label class="form-label">Picture of Unit</label>
+                                        <input type="file" name="bolFile" id="bolFile" class="form-control" onchange="javascript:updateList()" multiple>                                                                               
+                                    </td>
+                                </tr> *@
+                            </tbody>
+                        </table>
+                        <div id="filename"></div>                        
+                        <br>
+                       <tr>
+                            <td colspan="2">
+                                <label class="form-label">Passenger Side<sup>*</sup></label>
+                                <input type="file" asp-for="BolPassengerSide" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolPassengerSide"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">Driver Side<sup>*</sup></label>
+                                <input type="file" asp-for="BolDriverSide" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolDriverSide"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">Front<sup>*</sup></label>
+                                <input type="file" asp-for="BolFront" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolFront"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">Rear<sup>*</sup></label>
+                                <input type="file" asp-for="BolRear" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolRear"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">Keys<sup>*</sup></label>
+                                <input type="file" asp-for="BolKeys" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolKeys"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">VIN Plate<sup>*</sup></label> 
+                                <input type="file" asp-for="BolVINPlate" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolVINPlate"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td colspan="2">
+                                <label class="form-label">Odometer<sup>*</sup></label>
+                                <input type="file" asp-for="BolOdometer" class="form-control" accept="image/*" />
+                                <span asp-validation-for="BolOdometer"></span>
+                            </td>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td>
+                                <label class="form-label">Other</label>
+                                <input type="file" name="bolOther" id="bolOther" class="form-control" accept="image/*" onchange="javascript:otherPicture()" multiple>
+                            </td>
+                        </tr>
+                        <div id="other"></div>
+                        <br>                        
+                        <br>
+                        <div asp-validation-summary="ModelOnly"></div>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0" class="mb-3">
+                            <tbody>
+                                <tr>
+                                    <input type="hidden" asp-for="CustomerSignatureBase64String" value="" />
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <label class="form-label">Customer Signature<sup>*</sup></label>
+                                        <canvas id="sig-canvas" class="w-100" height="160">
+                                            Please get a better browser.
+                                        </canvas>
+                                        <div class="d-flex align-items-center ">
+                                            <input type="text" id="signature-text-input" class="form-control w-80" placeholder="Type here">
+                                            <button type="button" class="ms-2" id="sig-clearBtn"><i class="btn btn-close" aria-label="Close"></i></button>
+                                        </div>                                        
+                                        <button type="button" style="display:none" class="btn btn-primary" id="sig-submitBtn">Submit Signature</button>
+                                        <small class="mb-3">I agree with the drivers assessment of the condition of this vehicle.</small><br />
+                                        <span asp-validation-for="CustomerSignatureBase64String"></span>
+                                    </td>                                    
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <label class="form-label">Customer Name<sup>*</sup></label>
+                                        <input asp-for="CustomerFirstName" class="form-control mb-3" placeholder="First Name" />
+                                        <span asp-validation-for="CustomerFirstName"></span>
+                                        <input asp-for="CustomerLastName" class="form-control mb-3" placeholder="Last Name" />
+                                        <span asp-validation-for="CustomerLastName"></span>
+                                    </td>
+                                    <td width="32%" class=" vertical-top">
+                                        <label class="form-label">Pickup /​ Delivery Date<sup>*</sup></label>
+                                        <input asp-for="CustomerPickupDeliveryDate" class="form-control mb-3" />
+                                        <span asp-validation-for="CustomerPickupDeliveryDate"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <input type="hidden" asp-for="DriverSignatureBase64String" value="" />
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <label class="form-label">Driver Signature<sup>*</sup></label>
+                                        <canvas id="sig-canvas-2" class="w-100" height="160">
+                                            Please get a better browser.
+                                        </canvas>
+                                        <div class="d-flex align-items-center ">
+                                            <input type="text" id="driver-signature-text-input" class="form-control w-80" placeholder="Type here">
+                                            <button type="button" class="ms-2" id="driver-sig-clearBtn"><i class="btn btn-close" aria-label="Close"></i></button>
+                                        </div>
+                                        <span asp-validation-for="DriverSignatureBase64String"></span>
+                                        <button type="button" style="display:none" class="btn btn-primary" id="driver-sig-submitBtn">Submit Signature</button>
+                                    </td>                                    
+                                    <td width="32%" class="col3-Box vertical-top">
+                                        <label class="form-label">Drive Name<sup>*</sup></label>
+                                        <input asp-for="DriverFirstName" class="form-control mb-3" placeholder="First Name" />
+                                        <span asp-validation-for="DriverFirstName"></span>
+                                        <input asp-for="DriverLastName" class="form-control mb-3" placeholder="Last Name" />
+                                         <span asp-validation-for="DriverLastName"></span>
+                                    </td>
+                                    <td width="32%" class=" vertical-top">
+                                        <label class="form-label">Pickup /​ Delivery Date<sup>*</sup></label>
+                                        <input asp-for="DriverPickupDeliveryDate" class="form-control mb-3" />
+                                        <span asp-validation-for="DriverPickupDeliveryDate"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="sign-disc">Carrier must verify that the VIN's and the vehicles match the order.  Carrier must notate all damages and obtain signatures at the origin and destination.  Carriers must fax or email the signed Auto Relocation Management BOL's withen 48 hours of delivery.  NO payment will be processed without VINs, signed Auto Relocation Management BOL's.  Auto Relocation Management does not extend the authority to the carrier to Trip-Lease or Re-Broker the load.  Auto Relocation Management does not pay any Dry Run Fee's for vehicles not ready at the pickup location. By signing this, the carrier agrees to our terms and conditions set forth in our carrier agreement.</p>
+                        <br>
+                        <br>
+
+                        <div class="footer-area">
+                            <button class="carrier-sumit-btn" id="order-Bill-of-lading">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#CustomerPickupDeliveryDate').on("change", function (e) {
+            $('#DriverPickupDeliveryDate').val(e.target.value);
+            $('#DriverPickupDeliveryDate-error').hide();
+        });
+        $('#DriverPickupDeliveryDate').on("change", function (e) {
+            $('#CustomerPickupDeliveryDate').val(e.target.value);
+            $('#CustomerPickupDeliveryDate-error').hide();
+        });
+    });
+    $("#BolPassengerSide,#BolDriverSide,#BolFront,#BolRear,#BolKeys,#BolVINPlate,#BolOdometer").change(function () {
+        var val = $(this).val();
+        switch (val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
+            case 'jpeg': case 'jpg': case 'png':
+                break;
+            default:
+                $(this).val('');
+                // error message here
+                alert("Only jpg/jpeg/png files are allowed.");
+                break;
+        }
+    });
+</script>

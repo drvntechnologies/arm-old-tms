@@ -1,0 +1,45 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+
+@{
+    ViewBag.PageTitle = T("Admin.VendorMaster.Details").Text;
+    NopHtml.SetActiveMenuItemSystemName("VendorMaster");
+    var formId = "vendor-master-form";
+    ViewData["FormId"] = formId;
+}
+
+<form asp-controller="LogisticsVendorMaster" asp-action="List" method="post" id="@formId">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            <span>@T("Admin.VendorMaster.Details") - @Model.CompanyName </span>
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.VendorMaster.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.VendorMaster.Edit")
+            </a>
+        </div>
+    </div>
+
+    <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+
+    <section class="content detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_Info", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_Files", Model)
+                </div>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_vendor_details_quickbook_information", additionalData = Model.Id })
+
+            </div>
+        </div>
+    </section>
+</form>

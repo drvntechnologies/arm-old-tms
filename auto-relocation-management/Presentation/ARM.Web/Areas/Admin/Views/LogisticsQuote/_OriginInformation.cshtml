@@ -1,0 +1,111 @@
+﻿@using Nop.Core.Domain.LogisticsQuotes
+@model LogisticsQuoteModel
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-map-marker"></i>
+            @T("Admin.OriginInformation")
+        </div>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.OriginContactName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.OriginContactName")
+                </div>
+                <div class="input-name">
+                    @Model.OriginContactName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.OriginContactLastName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.OriginContactLastName")
+                </div>
+                <div class="input-name">
+                    @Model.OriginContactLastName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.OriginPhoneNumber))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.OriginPhoneNumber")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.OriginPhoneNumber)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.OriginEmail))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.OriginEmail")
+                </div>
+                <div class="input-name">
+                    @Model.OriginEmail
+                </div>
+            </div>
+        }
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.LogisticsQuote.Fields.AccountType")
+            </div>
+            <div class="input-name">
+                @(Model.OriginAddressTypeId == (int)LogisticsQuoteAccountType.Business 
+                ? LogisticsQuoteAccountType.Business
+                : LogisticsQuoteAccountType.Residence)
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.QuoteOriginAddress))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Location")
+                </div>
+                <div class="input-name">
+                    @Model.QuoteOriginAddress
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.LoadSpreadDateValue))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.OriginDate")
+                </div>
+                <div class="input-name">
+                    @Model.LoadSpreadDateValue
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShipperNotes))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.ShipperNotes")
+                </div>
+                <div class="input-name">
+                    @Model.ShipperNotes
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.FreeformText))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Origin.FreeformText")
+                </div>
+                <div class="input-name">
+                    @Model.FreeformText
+                </div>
+            </div>
+        }
+    </div>
+</div>

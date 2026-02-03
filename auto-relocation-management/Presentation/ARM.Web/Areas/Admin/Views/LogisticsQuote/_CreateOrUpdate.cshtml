@@ -1,0 +1,72 @@
+﻿@model LogisticsQuoteModel
+
+<div class="validation-top-listarea">    
+    <div asp-validation-summary="All"></div>    
+</div>
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+<input asp-for="LeadId" type="hidden" />
+
+@{
+    const string hideShipperInfoBlockAttributeName = "LogisticsQuotePage.HideShipperInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideShipperInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideShipperInfoBlockAttributeName);
+
+    const string hideOriginAndDestinationInfoBlockAttributeName = "LogisticsQuotePage.HideOriginAndDestinationInfoBlock";
+    var hideOriginAndDestinationInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideOriginAndDestinationInfoBlockAttributeName, defaultValue: true);
+
+    const string hideCarrierTransportationBlockAttributeName = "LogisticsQuotePage.HideCarrierTransportationBlock";
+    var hideCarrierTransportationBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideCarrierTransportationBlockAttributeName, defaultValue: true);
+
+    const string hideVehicleInfoBlockAttributeName = "LogisticsQuotePage.HideVehicleInfoBlock";
+    var hideVehicleInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideVehicleInfoBlockAttributeName, defaultValue: true);
+
+    const string hidePricingInfoBlockAttributeName = "LogisticsQuotePage.HidePricingInfoBlock";
+    var hidePricingInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hidePricingInfoBlockAttributeName, defaultValue: true);
+
+    const string hideOrderFollowupsBlockAttributeName = "LogisticsQuotePage.HideOrderFollowupsBlock";
+    var hideOrderFollowupsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideOrderFollowupsBlockAttributeName, defaultValue: true);
+}
+
+<section class="page-main-area add-leads-pg create-edit-pg-common-design">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-cards id="quote-cards">
+                <nop-card asp-name="quote-shipper-info" asp-icon="fas fa-user" asp-title="@T("Admin.LogisticsQuote.Quotes.ShipperInfo")" asp-hide-block-attribute-name="@hideShipperInfoBlockAttributeName" asp-hide="@hideShipperInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.ShipperInfo", Model)</nop-card>
+                
+                <nop-card asp-name="quote-origin-destination-info" asp-icon="fas fa-address-card" asp-title="@T("Admin.LogisticsQuote.Quotes.OriginAndDestinationInfo")" asp-hide-block-attribute-name="@hideOriginAndDestinationInfoBlockAttributeName" asp-hide="@hideOriginAndDestinationInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.OriginAndDestinationInfo", Model)</nop-card>
+                
+                <nop-card asp-name="quote-carrier-transportation-info" asp-icon="fas fa-truck" asp-title="@T("Admin.LogisticsQuote.Quotes.CarrierTransportation")" asp-hide-block-attribute-name="@hideCarrierTransportationBlockAttributeName" asp-hide="@hideCarrierTransportationBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CarrierTransportation", Model)</nop-card>
+
+                <nop-card asp-name="quote-vehicle-info" asp-icon="fas fa-truck" asp-title="@T("Admin.LogisticsQuote.Quotes.VehicleInfo")" asp-hide-block-attribute-name="@hideVehicleInfoBlockAttributeName" asp-hide="@hideVehicleInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.VehicleInfo", Model)</nop-card>
+                
+                <nop-card asp-name="quote-pricing-info" asp-icon="fas fa-shopping-cart" asp-title="@T("Admin.LogisticsQuote.Quotes.PricingInfo")" asp-hide-block-attribute-name="@hidePricingInfoBlockAttributeName" asp-hide="@hidePricingInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.PricingInfo", Model)</nop-card>
+            </nop-cards>
+        </div>
+    </div>
+</section>
+
+<div id="alert-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alert-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="form-horizontal">
+                <div class="modal-body" id="alert-message-body">
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Portal.Common.Ok")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', "#alert-popup .close-popup", function (e) {
+        e.preventDefault();
+        $("#alert-popup").modal('hide');
+    });
+
+    $("#alert-popup").on("hidden.bs.modal", function () {
+        $("#alert-message-body").text("");
+        $("#alert-message-body").attr('style', "");
+    });
+</script>

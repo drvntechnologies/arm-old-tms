@@ -1,0 +1,285 @@
+﻿@model LogisticsQuoteModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.QuoteDetail").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Quotes");
+}
+
+<form asp-controller="LogisticsQuote" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.QuoteDetail")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.LogisticsQuote.Quotes.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="LeadId" type="hidden" />
+
+            <a asp-action="Edit" asp-route-id="@Model.LeadId" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.LogisticsQuoteDetail.Button.Edit")
+            </a>
+
+            <button type="button" id="btnConvertToOrder" class="btn btn-secondary" data-toggle="modal" data-target="#convert-to-order">
+                <i class="fas fa-exchange-alt"></i>
+                @T("Admin.LogisticsQuote.Button.ConvertToOrder")
+            </button>
+
+            <button type="button" id="btnQuoteDetailReassign" onclick="leadQuoteDetailCommonFuncation(this.id)" name="reassign" class="btn btn-success" data-toggle="modal" data-target="#reassign-window">
+                <i class="fas fa-refresh"></i>
+                @T("Admin.LogisticsQuote.Button.Reassign")
+            </button>
+
+            <a asp-action="MakeCopy" asp-route-id="@Model.LeadId" class="btn btn-info">
+                <i class="fas fa-copy"></i>
+                @T("Admin.LogisticsQuote.Button.MakeCopy")
+            </a>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary">
+                    <i class="fab fa-bitbucket"></i>
+                    @T("Admin.LogisticsQuote.QuotesStatus")
+                </button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
+                    <span class="sr-only">&nbsp;</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    @foreach (var status in Model.AvailableLogisticsStatus)
+                    {
+                        <li class="dropdown-item">
+                            @Html.ActionLink(status.Text, "LogisticsStatus", "LogisticsQuote", new { quoteStatusId = status.Value, leadId = Model.LeadId }, new { style = "text-decoration:none;" })
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="content quote-detail-page detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_QuoteInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_PaymentsDue", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_OriginInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_DestinationInformation", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_AccessorialDetails", Model.LogisticsAccessorials)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_VehicleInformation", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_QuoteStatus", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Direction", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_InternalNotes", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_QuoteHistory", Model)
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<div id="onhold-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="onhold-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="onhold-window-title">@T("Admin.LogisticsQuote.Button.OnHold.label")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="quoteOnHold"></ul></div>
+            <form asp-controller="LogisticsQuote" asp-action="OnHold" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <nop-label asp-for="Note" asp-required="true" />
+                            </div>
+                            <div class="col-md-8">
+                                <nop-textarea asp-for="Note" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnQuoteOnHold" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsQuote.Button.OnHold")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnQuoteOnHold").click(function () {
+                    var note = $("#Note").val();
+                    if (note == "") {
+                        $('.quoteOnHold li').remove();
+                        $(".quoteOnHold").append('<li class="validation-summary-errors">@T("Admin.LogisticsQuote.Fields.InternalNote.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+<div id="cancel-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancel-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="cancel-window-title">@T("Admin.LogisticsQuote.Button.Cancel.label")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="quoteCancel"></ul></div>
+            <form asp-controller="LogisticsQuote" asp-action="Cancel" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        <input asp-for="LeadId" type="hidden" />
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <nop-label asp-for="Note" asp-required="true" />
+                            </div>
+                            <div class="col-md-8">
+                                <nop-textarea asp-for="CancelNote" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnQuoteClose" data-dismiss="modal" type="button" class="btn btn-primary">
+                            @T("Admin.Common.Close")
+                        </button>
+                        <button id="btnQuoteCancel" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsQuote.Button.Cancel")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnQuoteCancel").click(function () {
+                    var cancelNote = $("#CancelNote").val();
+                    if (cancelNote == "") {
+                        $('.quoteCancel li').remove();
+                        $(".quoteCancel").append('<li class="validation-summary-errors">@T("Admin.LogisticsQuote.Fields.InternalNote.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+<div id="reassign-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="reassign-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="reassign-window-title">@T("Admin.LogisticsQuote.Button.Reassign.Label")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <form asp-controller="LogisticsQuote" asp-action="Reassign" method="post" enctype="multipart/form-data">
+                <div class="modal-body d-form">
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="LeadId" type="hidden" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <nop-label asp-for="AssignedToValue" asp-required="true" />
+                                </div>
+                                <div class="col-md-12">
+                                    <nop-select asp-for="AssignedToValue" asp-items="Model.AvailableAssignedTo" class="form-control" />
+                                    <span class="quoteRessign d-block"></span>
+                                    <script>
+                                        $(document).ready(function () {
+                                            $('#@Html.IdFor(model => model.AssignedToValue)').kendoDropDownList({
+                                                filter: "contains",
+                                                popup: {
+                                                    appendTo: $("#reassign-window")
+                                                },
+                                                filtering: function (e) {
+                                                    var filter = e.filter;
+                                                }
+                                            });
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnQuoteRessign" type="submit" class="btn btn-primary">
+                        @T("Admin.LogisticsQuote.Button.Reassign")
+                    </button>
+                </div>
+            </form>
+            <script>
+                $("#btnQuoteRessign").click(function () {
+                    var assignedToValue = $("#AssignedToValue").val();
+                    if (assignedToValue == "0") {
+                        $('.quoteRessign span').remove();
+                        $(".quoteRessign").append('<span class="validation-summary-errors">@T("Admin.LogisticsQuote.Fields.ReassignShipper.Required")</span>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+<div id="convert-to-order" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="convert-to-order-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="convert-to-order-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @T("Admin.LogisticsQuote.Button.ConvertToOrder.Message")
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <a asp-action="ConvertToOrder" asp-route-id="@Model.LeadId" class="btn btn-primary">
+                    @T("Admin.Common.Yes")
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        $.get('@Url.Action("GetGoogleMapsApiKey", "LogisticsCommon")', function (data) {
+            apiKey = data;
+            if (apiKey) {
+                var googleMapsScript = document.createElement('script');
+                googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+                document.body.appendChild(googleMapsScript);
+            } else {
+                toastr.error("Error fetching the API key.");
+            }
+        });
+    }
+    var waitInterval = setInterval(function () {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            clearInterval(waitInterval); // Stop the interval
+            LoadMap();
+        }
+    }, 100);
+</script>

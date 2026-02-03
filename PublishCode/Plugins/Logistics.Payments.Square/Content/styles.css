@@ -1,0 +1,18 @@
+﻿
+/*.alert-danger {
+    background-color: #f39c12 !important;
+    border-color: #f39c12 !important;
+}*/
+
+.copy-square-invoice-link {
+    cursor: pointer;
+}
+
+svg.LogoJewel.svelte-14driwk {
+    width: 16px;
+}
+
+button.square-btn:hover svg.LogoJewel.svelte-14driwk path,
+svg.LogoJewel.svelte-14driwk:hover path {
+    fill: #090304;
+}

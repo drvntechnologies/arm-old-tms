@@ -1,0 +1,73 @@
+﻿@model CustomerModel
+
+@using Newtonsoft.Json
+@using Nop.Core.Domain.Customers;
+
+<div class="card-body carrier-information">
+    <div class="form-group row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Contact1")
+                                </div>
+                                <div class="input-name">
+                                    @Model.Contact1
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Contact2")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.Contact2)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Contact3")
+                                </div>
+                                <div class="input-name">
+                                    @Model.Contact3
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Phone1")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone1))
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Phone2")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone2))
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.Customer.Fields.Phone3")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone3))
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

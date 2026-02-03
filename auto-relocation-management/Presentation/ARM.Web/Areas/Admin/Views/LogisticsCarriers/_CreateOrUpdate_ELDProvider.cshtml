@@ -1,0 +1,45 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card-body Carrier-Contact carrier-edit">
+	<div class="row">
+
+		<div class="col-md-12">
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="ELDComplianceStatus" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="ELDComplianceStatus" html-attributes="@(new { placeholder = "Enter Compliance Status" })" />
+					<span asp-validation-for="ELDComplianceStatus"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="ELDProviderName" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="ELDProviderName" html-attributes="@(new { placeholder = "Enter Provider Name" })" />
+					<span asp-validation-for="ELDProviderName"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="ELDProviderIdentifier" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="ELDProviderIdentifier" html-attributes="@(new { placeholder = "Enter Provider Identifier" })" />
+					<span asp-validation-for="ELDProviderIdentifier"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="ELDCompliantBy" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="ELDCompliantBy" html-attributes="@(new { placeholder = "Enter Compliant By" })" />
+					<span asp-validation-for="ELDCompliantBy"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

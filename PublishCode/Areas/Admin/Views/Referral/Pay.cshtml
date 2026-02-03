@@ -1,0 +1,162 @@
+﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
+
+@using ARM.Web.Areas.Admin.Models.Referrals
+@using Nop.Web.Framework.UI
+
+@model ReferralReportModel
+
+@inject INopHtmlHelper NopHtml
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.Referral.View.Title").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Referral Management");
+
+	var referenceNumber = Model.ReferralOrderMappingId;
+	var dueAmount = Model.DueAmount;
+}
+
+<form asp-controller="Referral" asp-action="Pay" method="post">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Admin.Referral.View.Title") - @Model.ReferPayee
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="Management" asp-route-id="@Model.Id">@T("Admin.Referral.Order.Management.BackToReferralOrder.Management")</a>
+			</small>
+		</h1>
+		<div class="float-right">			
+		</div>
+	</div>
+
+	<section class="content">
+		<div class="container-fluid">
+			<div class="form-horizontal">
+				<div class="cards-group">
+					<div class="card card-default">
+						<div class="card-body">
+							<div class="row">
+
+								<input type="hidden" asp-for="ReferralOrderMappingId"/>
+								<input type="hidden" asp-for="Id" value="@Model.Id" />
+								<input type="hidden" asp-for="OrderId"/>
+								<input type="hidden" asp-for="DueAmountValue" />
+								<input type="hidden" asp-for="PaidAmountValue" value="@Model.DueAmountValue" />
+
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="ReferralOrderMappingId" />
+										</div>
+										<div class="col-md-8">
+											<input class="form-control text-box single-line" asp-for="@referenceNumber" type="text" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-md-4">
+											<div class="label-wrapper">
+												<label class="col-form-label" for="CustomerName">@T("Admin.Referral.Reports.Field.ReferTo")
+												</label>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<input class="form-control text-box single-line" asp-for="CustomerName" type="text" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="Amount" />
+										</div>
+										<div class="col-md-8">
+											<input class="form-control text-box single-line" asp-for="Amount" type="text" disabled>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<div class="label-wrapper">
+												<label class="col-form-label" for="OrderId">@T("Admin.Referral.Order.Field.OrderNumber")
+												</label>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<input class="form-control text-box single-line" asp-for="CustomOrderNumber" type="text" disabled>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="ReferPayee" />
+										</div>
+										<div class="col-md-8">
+											<input class="form-control text-box single-line" asp-for="ReferPayee" type="text" disabled>
+										</div>
+									</div>
+									@if (Model.DueAmountValue > decimal.Zero)
+									{
+										<div class="form-group row">
+											<div class="col-md-4">
+												<div class="label-wrapper">
+													<label class="col-form-label" for="paymentStatus">
+														@T("Admin.Referral.Reports.Field.PaymentStatus")
+													</label>
+												</div>
+											</div>
+											<div class="col-md-8">
+												<div class="mark-as-paid">
+													<span class="form-control payment-status unpaid">@T("Admin.Referral.Reports.PaymentStatus.Pending")</span>
+													<button type="button" class="form-control payment-status pay-amount" data-target="#Payment-Confirmation-Popup" data-toggle="modal">@T("Admin.Referral.PayAmount.MarkAsPaid")</button>
+												</div>
+											</div>
+										</div>
+									}
+									else //if (Model.DueAmountValue == decimal.Zero)
+									{
+										<div class="form-group row">
+											<div class="col-md-4">
+												<div class="label-wrapper">
+													<label class="col-form-label" for="paymentStatus">
+														@T("Admin.Referral.Reports.Field.PaymentStatus")
+													</label>
+												</div>
+											</div>
+											<div class="col-md-8">
+												<span class="form-control payment-status paid">@T("Admin.Referral.Reports.PaymentStatus.Paid")</span>
+											</div>
+										</div>
+									}
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div id="Payment-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="payment-confirmation-popup-title" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+				</div>
+				<div class="form-horizontal">
+					<div class="modal-body">
+						@T("Admin.Common.ActionConfirmation")
+					</div>
+					<div class="modal-footer">
+						<span class="btn btn-default" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+						<button type="submit" class="btn btn-primary">
+							@T("Admin.Common.Yes")
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>

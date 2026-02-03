@@ -1,0 +1,34 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+
+@{
+    var customer = await workContext.GetCurrentCustomerAsync();
+    const string hideVendorInfoBlockAttributeName = "VendorMasterPage.HideVendorInfoBlock";
+    var hideVendorInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideVendorInfoBlockAttributeName);
+
+    const string hideVendorFilesBlockAttributeName = "VendorMasterPage.HideVendorFilesBlock";
+    var hideVendorFilesBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideVendorFilesBlockAttributeName);
+}
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+<div class="validation-top-listarea">
+    <div asp-validation-summary="All"></div>    
+</div>
+<section class="page-main-area add-vendor-pg create-edit-pg-common-design">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-cards id="vendor-cards">
+                <!-- Vendor Info -->
+                <nop-card asp-name="vendor-info" asp-icon="fas fa-user" asp-title="@T("Admin.VendorMaster.VendorInfo")"
+                          asp-hide-block-attribute-name="@hideVendorInfoBlockAttributeName" asp-hide="@hideVendorInfoBlock" asp-advanced="false">
+                    @await Html.PartialAsync("_CreateOrUpdate_VendorInfo", Model)
+                </nop-card>
+
+                <!-- Vendor Files -->
+                <nop-card asp-name="Vendor-Files" asp-icon="fa fa-file" asp-title="@T("Admin.VendorMaster.VendorFiles")"
+                          asp-hide-block-attribute-name="@hideVendorFilesBlockAttributeName" asp-hide="@hideVendorFilesBlock" asp-advanced="false">
+                    @await Html.PartialAsync("_CreateOrUpdate_VendorFiles", Model)
+                </nop-card>
+            </nop-cards>
+        </div>
+    </div>
+</section>

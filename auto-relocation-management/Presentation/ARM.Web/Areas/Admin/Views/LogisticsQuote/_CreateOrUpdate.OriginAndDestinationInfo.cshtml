@@ -1,0 +1,651 @@
+﻿@model LogisticsQuoteModel
+
+<div class="card-body carrier-information">
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header with-border"><h3 class="card-title">@T("Admin.LogisticsQuote.List.Origin")</h3></div>
+                <div class="card-body">
+                    <div class="custom-form-group custom-checkbox-ui">
+                        <div class="label-name">
+                            <nop-label asp-for="PickupSameAsShipper" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PickupSameAsShipper" />
+                            <span asp-validation-for="PickupSameAsShipper"></span>
+                        </div>
+                    </div>
+                    <script>
+                        $('#@Html.IdFor(model => model.PickupSameAsShipper)').is(':checked');
+                    </script>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginContactName" asp-required="Model.LogisticsQuoteOriginContactNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginContactName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+                            <span asp-validation-for="OriginContactName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginContactLastName" asp-required="Model.LogisticsQuoteOriginContactLastNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginContactLastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+                            <span asp-validation-for="OriginContactLastName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginPhoneNumber" asp-required="Model.LogisticsQuoteOriginPhoneNumberRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginPhoneNumber" />
+                            <span asp-validation-for="OriginPhoneNumber"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginEmail" asp-required="Model.LogisticsQuoteOriginEmailRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginEmail" html-attributes="@(new { placeholder = "Enter Origin Email" })" />
+                            <span asp-validation-for="OriginEmail"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AccountType" />
+                        </div>
+                        <div class="input-name">
+                            <div class="accounttype-check d-custom-radio">
+                                @foreach (var accountType in Model.AccountTypes)
+                                {
+                                    <input type="radio" name="OriginAddressTypeId" value="@accountType.AccountTypeValue" id="Origin-@accountType.AccountTypeName-@accountType.AccountTypeValue"
+                                    @if (accountType.AccountTypeValue == Model.OriginAddressTypeId.ToString())
+                                    {
+                                        <text> checked="checked" </text>
+                                    }>
+                                    <label for="Origin-@accountType.AccountTypeName-@accountType.AccountTypeValue">@accountType.AccountTypeName</label>
+                                    <br />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginAddress" asp-required="Model.LogisticsQuoteOriginAddress1Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginAddress" html-attributes="@(new { placeholder = "Enter Address" })" />
+                            <span asp-validation-for="OriginAddress"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginAddress2" asp-required="Model.LogisticsQuoteOriginAddress2Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginAddress2" html-attributes="@(new { placeholder = "Enter Address 2" })" />
+                            <span asp-validation-for="OriginAddress2"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginCity" asp-required="Model.LogisticsQuoteOriginCityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginCity" html-attributes="@(new { placeholder = "Enter City" })" />
+                            <span asp-validation-for="OriginCity"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginState" asp-required="Model.LogisticsQuoteOriginStateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select class="form-select" asp-for="OriginState" asp-items="Model.AvailableOriginStates" />
+                            <span asp-validation-for="OriginState"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginZip" asp-required="Model.LogisticsQuoteOriginZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginZip" />
+                            <span asp-validation-for="OriginZip"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginRegion" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginRegion" html-attributes="@(new { placeholder = "Enter Region / Province" })" />
+                            <span asp-validation-for="OriginRegion"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginCountry" asp-required="Model.LogisticsQuoteOriginCountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select class="form-select" asp-for="OriginCountry" asp-items="Model.AvailableOriginCountries" />
+                            <span asp-validation-for="OriginCountry"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginDate" />
+                        </div>
+                        <div class="input-name">
+                            <div class="custom-dateInput-view">
+                                <input type="text" id="DateRangePicker" class="form-control" placeholder="Select Load Spread" />
+                                <label for="DateRangePickerfororder" class="custom-dateIcon-box"><i class='far fa-calendar-alt'></i></label>
+                            </div>
+                            <input type="hidden" class="startdate" asp-for="OriginDate" id="OriginDate" value="@Model.OriginDate" html-attributes="@(new { placeholder = "Enter Load Spread" })" />
+                            <input type="hidden" class="enddate" asp-for="OriginEndDate" id="OriginEndDate" value="@Model.OriginEndDate" html-attributes="@(new { placeholder = "Enter Load Spread" })" />
+                            <span asp-validation-for="OriginDate"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="FreeformText" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="FreeformText" html-attributes="@(new { placeholder = "Enter Notes" })" />
+                            <span asp-validation-for="FreeformText"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="ShipperNotes" asp-required="Model.LogisticsQuoteShipperNotesRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="ShipperNotes" html-attributes="@(new { placeholder = "Enter Notes from customer" })" />
+                            <span asp-validation-for="ShipperNotes"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header with-border"><h3 class="card-title">@T("Admin.LogisticsQuote.List.Destination")</h3></div>
+                <div class="card-body">
+                    <div class="custom-form-group custom-checkbox-ui">
+                        <div class="label-name">
+                            <nop-label asp-for="DeliverySameAsShipper" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DeliverySameAsShipper" />
+                            <span asp-validation-for="DeliverySameAsShipper"></span>
+                        </div>
+                    </div>
+                    <script>
+                        $('#@Html.IdFor(model => model.DeliverySameAsShipper)').is(':checked');
+                    </script>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationContactName" asp-required="Model.LogisticsQuoteDestinationContactNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationContactName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+                            <span asp-validation-for="DestinationContactName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationContactLastName" asp-required="Model.LogisticsQuoteDestinationContactLastNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationContactLastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+                            <span asp-validation-for="DestinationContactLastName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationPhoneNumber" asp-required="Model.LogisticsQuoteDestinationPhoneNumberRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationPhoneNumber" />
+                            <span asp-validation-for="DestinationPhoneNumber"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationEmail" asp-required="Model.LogisticsQuoteDestinationEmailRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationEmail" html-attributes="@(new { placeholder = "Enter Primary Email" })" />
+                            <span asp-validation-for="DestinationEmail"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AccountType" />
+                        </div>
+                        <div class="input-name">
+                            <div class="accounttype-check d-custom-radio">
+                                @foreach (var accountType in Model.AccountTypes)
+                                {
+                                    <input type="radio" name="DestinationAddressTypeId" value="@accountType.AccountTypeValue" id="Destination-@accountType.AccountTypeName-@accountType.AccountTypeValue"
+                                    @if (accountType.AccountTypeValue == Model.DestinationAddressTypeId.ToString())
+                                    {
+                                        <text> checked="checked" </text>
+                                    }>
+                                    <label for="Destination-@accountType.AccountTypeName-@accountType.AccountTypeValue">@accountType.AccountTypeName</label>
+                                    <br />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationAddress" asp-required="Model.LogisticsQuoteDestinationAddress1Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationAddress" html-attributes="@(new { placeholder = "Enter Address" })" />
+                            <span asp-validation-for="DestinationAddress"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationAddress2" asp-required="Model.LogisticsQuoteDestinationAddress2Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationAddress2" html-attributes="@(new { placeholder = "Enter Address 2" })" />
+                            <span asp-validation-for="DestinationAddress2"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationCity" asp-required="Model.LogisticsQuoteDestinationCityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationCity" html-attributes="@(new { placeholder = "Enter City" })" />
+                            <span asp-validation-for="DestinationCity"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationState" asp-required="Model.LogisticsQuoteDestinationStateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select class="form-select" asp-for="DestinationState" asp-items="Model.AvailableDestinationStates" />
+                            <span asp-validation-for="DestinationState"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationZip" asp-required="Model.LogisticsQuoteDestinationZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationZip" />
+                            <span asp-validation-for="DestinationZip"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationRegion" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationRegion" html-attributes="@(new { placeholder = "Enter Region / Province" })" />
+                            <span asp-validation-for="DestinationRegion"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationCountry" asp-required="Model.LogisticsQuoteDestinationCountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select class="form-select" asp-for="DestinationCountry" asp-items="Model.AvailableDestinationCountries" />
+                            <span asp-validation-for="DestinationCountry"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationDate" />
+                        </div>
+                        <div class="input-name">
+                            <div class="custom-dateInput-view">
+                                <input type="text" id="DateRangePicker1" class="form-control" placeholder="Select Delivery Spread" />
+                                <label for="DateRangePicker1" class="custom-dateIcon-box"><i class='far fa-calendar-alt'></i></label>
+                            </div>
+
+                            <input type="hidden" class="startdate" asp-for="DestinationDate" id="DestinationDate" value="@Model.DestinationDate" html-attributes="@(new { placeholder = "Enter Delivery Spread" })" />
+                            <input type="hidden" class="enddate" asp-for="DestinationEndDate" id="DestinationEndDate" value="@Model.DestinationEndDate" html-attributes="@(new { placeholder = "Enter Delivery Spread" })" />
+                            <span asp-validation-for="DestinationDate"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationNotes" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="DestinationNotes" html-attributes="@(new { placeholder = "Enter Notes" })" />
+                            <span asp-validation-for="DestinationNotes"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/lib/daterangepicker/css/daterangepicker.css" rel="stylesheet" />
+<script asp-exclude-from-bundle="true" src="~/lib_npm/moment/moment.min.js"></script>
+<script asp-exclude-from-bundle="true" src="~/lib/daterangepicker/js/daterangepicker.min.js"></script>
+
+<script>
+    
+    removeSpecialCharactersAndNumber("#OriginContactName, #OriginContactLastName, #DestinationContactName, #DestinationContactLastName");
+    commonPhoneNumber("#OriginPhoneNumber, #DestinationPhoneNumber");
+    restrictToCityNameFormat("#OriginCity, #DestinationCity");
+    enforceLowerCase("#OriginEmail, #DestinationEmail");
+    allowUniversalZip("#OriginZip, #DestinationZip");
+
+    $(function () {
+
+        prepareDateRangePicker('#DateRangePicker', '#OriginDate', '#OriginEndDate', 3, '#DateRangePicker1', "@Url.Action("GetDistance", "LogisticsCommon")");
+
+        prepareDateRangePicker('#DateRangePicker1', '#DestinationDate', '#DestinationEndDate');
+
+        $("#@Html.IdFor(model => model.OriginCountry)").change(function () {
+            var selectedItem = $(this).data("kendoDropDownList").value();
+            var ddlStates = $("#@Html.IdFor(model => model.OriginState)").data("kendoDropDownList");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                data: {
+                    "countryId": selectedItem,
+                    "addSelectStateItem": "false"
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var dataSource = ddlStates.dataSource;
+                    dataSource.data([]);
+                    $.each(data,
+                        function (id, option) {
+                            dataSource.add({
+                                text: option.name,
+                                value: option.id
+                            });
+                        });
+                    $("#OriginState").data("kendoDropDownList").value(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#statesAlert").click();
+                }
+            });
+        });
+    
+        $("#@Html.IdFor(model => model.DestinationCountry)").change(function () {
+            var selectedItem = $(this).data("kendoDropDownList").value();
+            var ddlStates = $("#@Html.IdFor(model => model.DestinationState)").data("kendoDropDownList");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                data: {
+                    "countryId": selectedItem,
+                    "addSelectStateItem": "false"
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var dataSource = ddlStates.dataSource;
+                    dataSource.data([]);
+                    $.each(data,
+                        function (id, option) {
+                            dataSource.add({
+                                text: option.name,
+                                value: option.id
+                            });
+                        });
+                    $("#DestinationState").data("kendoDropDownList").value(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#statesAlert").click();
+                }
+            });
+        });
+    
+        $("#@Html.IdFor(model => model.PickupSameAsShipper)").change(function () {
+            if ($(this).prop("checked")) {
+                $("#@Html.IdFor(m => m.OriginPhoneNumber)").val($("#@Html.IdFor(m => m.Phone1)").val());
+                $("#@Html.IdFor(m => m.OriginEmail)").val($("#@Html.IdFor(m => m.Email)").val());
+                $("#@Html.IdFor(m => m.OriginAddress)").val($("#@Html.IdFor(m => m.Address)").val());
+                $("#@Html.IdFor(m => m.OriginAddress2)").val($("#@Html.IdFor(m => m.Address2)").val());
+                $("#@Html.IdFor(m => m.OriginCity)").val($("#@Html.IdFor(m => m.City)").val());
+                $("#@Html.IdFor(m => m.OriginZip)").val($("#@Html.IdFor(m => m.Zip)").val());
+                $("#@Html.IdFor(m => m.OriginCountry)").data("kendoDropDownList").value($("#@Html.IdFor(m => m.Country)").val());
+                $("#@Html.IdFor(m => m.OriginState)").data("kendoDropDownList").value($("#@Html.IdFor(m => m.State)").val());
+                $("#@Html.IdFor(m => m.OriginLatitude)").val($("#@Html.IdFor(m => m.Latitude)").val());
+                $("#@Html.IdFor(m => m.OriginLongitude)").val($("#@Html.IdFor(m => m.Longitude)").val());
+
+                let $customer = $("#CustomerId");
+                let customerId = 0;
+
+                if ($customer){
+                    customerId = +$customer.val();
+                }
+                else{
+                    customerId = +"@Model.CustomerId";
+                }
+
+                if (customerId <= 0){
+                    return false;
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetCustomerInfoById", "Customer"))",
+                    data: {
+                        customerId: customerId,
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        if (data){
+                            $("#@Html.IdFor(m => m.OriginContactName)").val(data.firstName);
+                            $("#@Html.IdFor(m => m.OriginContactLastName)").val(data.lastName);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else {
+                $("#@Html.IdFor(m => m.OriginContactName)").val("");
+                $("#@Html.IdFor(m => m.OriginContactLastName)").val("");
+                $("#@Html.IdFor(m => m.OriginPhoneNumber)").val("");
+                $("#@Html.IdFor(m => m.OriginEmail)").val("");
+                $("#@Html.IdFor(m => m.OriginAddress)").val("");
+                $("#@Html.IdFor(m => m.OriginAddress2)").val("");
+                $("#@Html.IdFor(m => m.OriginCity)").val("");
+                $("#@Html.IdFor(m => m.OriginZip)").val("");
+                // $("#@Html.IdFor(m => m.OriginCountry)").data("kendoDropDownList").value("0");
+                $("#@Html.IdFor(m => m.OriginState)").data("kendoDropDownList").value("0");
+                $("#@Html.IdFor(m => m.OriginLatitude)").val(0);
+                $("#@Html.IdFor(m => m.OriginLongitude)").val(0);
+            }
+        });
+    
+        $("#@Html.IdFor(model => model.DeliverySameAsShipper)").change(function () {
+            if ($(this).prop("checked")) {
+                $("#@Html.IdFor(m => m.DestinationContactName)").val($("#@Html.IdFor(m => m.OriginContactName)").val());
+                $("#@Html.IdFor(m => m.DestinationContactLastName)").val($("#@Html.IdFor(m => m.OriginContactLastName)").val());
+                $("#@Html.IdFor(m => m.DestinationPhoneNumber)").val($("#@Html.IdFor(m => m.OriginPhoneNumber)").val());
+                $("#@Html.IdFor(m => m.DestinationEmail)").val($("#@Html.IdFor(m => m.OriginEmail)").val());
+            }
+            else {
+                $("#@Html.IdFor(m => m.DestinationContactName)").val("");
+                $("#@Html.IdFor(m => m.DestinationContactLastName)").val("");
+                $("#@Html.IdFor(m => m.DestinationPhoneNumber)").val("");
+                $("#@Html.IdFor(m => m.DestinationEmail)").val("");
+            }
+        });
+
+        let zipCode = $("#OriginZip").val();
+		if (zipCode.length >= 5) {
+			var postData = { zipCode: zipCode };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					originLat = response.latitude ?? 0;
+					originLng = response.longitude ?? 0;
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+				}
+			});
+		}
+
+        let destinationZipCode = $("#DestinationZip").val();
+        if (destinationZipCode.length >= 5) {
+            var postData = { zipCode: destinationZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    destinationLat = response.latitude ?? 0;
+                    destinationLng = response.longitude ?? 0;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+        }
+
+        let hasCalculateDistance = false;
+        setInterval(function(){
+            if (hasCalculateDistance) return false;
+
+            let destinationStartDate = $("#DestinationDate").val();
+            let destinationEndDate = $("#DestinationEndDate").val();
+
+            if (destinationStartDate && destinationEndDate){
+                hasCalculateDistance = true;
+                return false;
+            }
+
+            if (convertToNumber(originLat) != 0 &&
+                convertToNumber(originLng) != 0 &&
+                convertToNumber(destinationLat) != 0 &&
+                convertToNumber(destinationLng) != 0)
+            {
+                hasCalculateDistance = true;
+
+                setDeliverySpreadDate("@Url.Action("GetDistance", "LogisticsCommon")", "#DateRangePicker1", '#DateRangePicker');
+            }
+
+        }, 125);
+    });
+
+    const locationDebounceFunc = debounce(locationFetchZipCodes, 500);
+
+    function locationFetchZipCodes(field) {
+        var zipCodeId = field.attr('id');
+        var txtZipCode = $("#" + zipCodeId).val();
+
+        let previousPostalCode = previousZipCode[zipCodeId];
+
+        if (previousPostalCode == txtZipCode){
+            return false;
+        }
+
+        previousZipCode[zipCodeId] = txtZipCode;
+
+        if (txtZipCode.length === 5) {
+            $("#"+ zipCodeId).prop('readonly', true);
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#"+ zipCodeId).prop('readonly', false);
+
+                    if (zipCodeId == "OriginZip") {
+
+                        if (response.country != $("#OriginCountry").val()){
+
+                            $("#OriginLatitude").val(0);
+                            $("#OriginLongitude").val(0);
+                            originLat = 0;
+                            originLng = 0;
+
+                            return;
+                        }
+
+                        $("#OriginCity").val(response.city);
+                        // $("#OriginCountry").data("kendoDropDownList").value(response.country);
+                        $("#OriginState").data("kendoDropDownList").value(response.state);
+                        $("#OriginLatitude").val(response.latitude);
+                        $("#OriginLongitude").val(response.longitude);
+                        originLat = response.latitude ?? 0;
+                        originLng = response.longitude ?? 0;
+                    }
+                    else if (zipCodeId == "DestinationZip") {
+
+                        if (response.country != $("#DestinationCountry").val()){
+
+                            $("#DestinationLatitude").val(0);
+                            $("#DestinationLongitude").val(0);
+                            destinationLat = 0;
+                            destinationLng = 0;
+
+                            return;
+                        }
+
+                        $("#DestinationCity").val(response.city);
+                        // $("#DestinationCountry").data("kendoDropDownList").value(response.country);
+                        $("#DestinationState").data("kendoDropDownList").value(response.state);
+                        $("#DestinationLatitude").val(response.latitude);
+                        $("#DestinationLongitude").val(response.longitude);
+                        destinationLat = response.latitude ?? 0;
+                        destinationLng = response.longitude ?? 0;
+                    }
+
+                    setDeliverySpreadDate("@Url.Action("GetDistance", "LogisticsCommon")", "#DateRangePicker1", '#DateRangePicker', true);
+                    calculateEstimatePrice();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#"+ zipCodeId).prop('readonly', false);
+                }
+            });
+        }
+        else {
+            if (zipCodeId == "OriginZip") {
+                $("#OriginLatitude").val(0);
+                $("#OriginLongitude").val(0);
+                originLat = 0;
+                originLng = 0;
+            }
+            else if (zipCodeId == "DestinationZip") {
+                $("#DestinationLatitude").val(0);
+                $("#DestinationLongitude").val(0);
+                destinationLat = 0;
+                destinationLng = 0;
+            }
+
+            setDeliverySpreadDate("@Url.Action("GetDistance", "LogisticsCommon")", "#DateRangePicker1", '#DateRangePicker', true);
+            $("#"+ zipCodeId).prop('readonly', false);
+        }
+    }
+
+    $("#OriginZip, #DestinationZip").keyup(function () {
+        locationDebounceFunc($(this));
+    });
+
+</script>

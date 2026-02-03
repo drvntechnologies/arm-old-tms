@@ -1,0 +1,154 @@
+﻿@model OrderModel
+
+@if (!string.IsNullOrWhiteSpace(Model.PickupAddress.ZipPostalCode))
+{
+    <script>
+        let zipCode = "@Model.PickupAddress.ZipPostalCode";
+        if (zipCode.length >= 5) {
+            var postData = { zipCode: zipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    originLat = response.latitude ?? 0;
+                    originLng = response.longitude ?? 0;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+        }
+    </script>
+}
+
+@if (string.IsNullOrWhiteSpace(Model.PickupAddress.ContactName) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.Email) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.SecondaryContactName) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber2) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.AddressHtml) &&
+    string.IsNullOrWhiteSpace(Model.AvailableDate) &&
+    !Model.ActualPickupDate.HasValue &&
+    (!Model.IsPortalOrder || string.IsNullOrWhiteSpace(Model.NotesFromShipper)))
+{
+    return;
+}
+
+<div class="card detail-info-card order-origin-info d-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-map-marker"></i>
+            @T("Admin.Order.PickupInfo")
+        </div>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.ContactName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Contact")
+                </div>
+                <div class="input-name">
+                    @Model.PickupAddress.ContactName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Phones")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.PickupAddress.PhoneNumber)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.Email))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Email")
+                </div>
+                <div class="input-name">
+                    @Model.PickupAddress.Email
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.SecondaryContactName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.SecondaryContact")
+                </div>
+                <div class="input-name">
+                    @Model.PickupAddress.SecondaryContactName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber2))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.SecondaryPhoneNumber")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.PickupAddress.PhoneNumber2)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.AddressHtml))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Location")
+                </div>
+                <div class="input-name">
+                    @Model.PickupAddress.AddressHtml
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.AvailableDate))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.FirstAvailablePickupDate")
+                </div>
+                <div class="input-name">
+                    @Model.AvailableDate
+                </div>
+            </div>
+        }
+        @if (Model.ActualPickupDate.HasValue)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.ActualPickupDate")
+                </div>
+                <div class="input-name">
+                    @Model.ActualPickupDate.ToDateFormat()
+                </div>
+            </div>
+        }
+
+        @if (Model.IsPortalOrder && !string.IsNullOrWhiteSpace(Model.NotesFromShipper))
+        {
+            <div class="order-notes-container">
+                <span class="red-flag" onclick="toggleNotes()"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Notes +</span>
+                <div id="noteContent" class="note-content" style="display: none;">
+                    <p>
+                        @Model.NotesFromShipper
+                    </p>
+                </div>
+            </div>
+            <script>
+                function toggleNotes() {
+                    $("#noteContent").slideToggle();
+                }
+            </script>
+        }
+    </div>
+</div>

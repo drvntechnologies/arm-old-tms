@@ -1,0 +1,184 @@
+﻿@{
+    Layout = "_ColumnsOne";
+}
+<style>
+    body, html {
+        box-sizing: border-box;
+        height: 100%;
+    }
+
+    .master-wrapper-page {
+        height: 100%;
+    }
+
+    .master-wrapper-content {
+        height: 100%;
+    }
+
+    .master-column-wrapper {
+        height: 100%;
+    }
+
+    .center-1 {
+        height: 100%;
+    }
+
+    .template-bg {
+        background: url(/Themes/DefaultClean/Content/images/arm-login-bg.jpg) no-repeat center top;
+        background-size: cover;
+        padding: 50px 0;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+
+    .template-container {
+        max-width: 90%;
+        width:870px;
+        margin: 0px auto;
+        background: #fff;
+        box-sizing:border-box;
+        border-radius: 12px;
+        padding: 20px 40px;
+    }
+
+        .template-container h2 {
+            text-align: center;
+        }
+
+    .template-header-section {
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 10px 0;
+        border-bottom: #777 solid 1px;
+        margin-bottom: 30px
+    }
+
+    .temp-lego-right-col {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        text-align: center;
+    }
+
+        .temp-lego-right-col h1 {
+            font-weight: 700;
+            font-size: 36px;
+            line-height: 1.2;
+            margin: 15px 0;
+            padding: 0;
+        }
+
+    .custom-row {
+        display: flex;
+        align-items: flex-start;
+        margin: 0 -15px;
+        flex-wrap: wrap;
+    }
+
+    .half-col {
+        width: 50%;
+        min-width: 50%;
+        max-width: 50%;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
+
+        .half-col label {
+            font-weight: bold;
+        }
+
+    .mb-3 {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        border: 0;
+        border-bottom: 1px solid #ccc;
+        color: #090304;
+        font-size: 14px;
+        border-radius: 0px;
+        width: 100%;
+        padding-bottom: 10px
+    }
+
+        .form-control:focus {
+            outline: none;
+        }
+
+    .template-container table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .template-container table td, .template-container table th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+    .sign-box-left canvas {
+        border: #ccc solid 1px;
+    }
+
+    .type-here {
+        max-width: 284px;
+    }
+
+    .btn-dark {
+        background-color: #242424;
+        color: #fff;
+        padding: 8px 8px;
+        border-radius: 8px;
+        outline: none;
+        border: none;
+        margin-top: 10px;
+    }
+
+    .btn-primary {
+        background-color: #cab656;
+        border: none;
+        color: #fff;
+        padding: 8px 8px;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    @@media (max-width:991px) {
+        .template-header-section{
+            flex-direction:column;
+            margin-bottom: 20px;
+        }
+        .template-header-section img {
+            max-height:50px;
+            width: auto;
+        }
+        .temp-lego-right-col {
+            position:relative;
+            top:unset;  
+        }
+        .template-container {
+            padding: 20px 30px;
+        }
+        .temp-lego-right-col h1 {
+            font-weight: 700;
+            font-size: 22px;
+        }
+    }
+</style>
+
+<div class="template-bg">
+    <div class="template-container">
+        <div class="template-header-section">
+            <div class="temp-lego-left-col">
+                <img src="/../Themes/DefaultClean/Content/images/logo-arm.svg" />
+            </div>
+            <div class="temp-lego-right-col">
+                <h1>Sign Document</h1>
+            </div>
+        </div>
+
+        <div class="alert alert-warning" style="text-align:center; font-size:16px;">Thank you! The sign was submitted successfully.</div>
+    </div>
+</div>

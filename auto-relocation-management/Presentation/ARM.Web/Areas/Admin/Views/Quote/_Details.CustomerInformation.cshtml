@@ -1,0 +1,92 @@
+﻿@model QuoteDetailsModel
+
+@if (string.IsNullOrWhiteSpace(Model.CompanyDetails.Email) &&
+     string.IsNullOrWhiteSpace(Model.CompanyDetails.Name) &&
+     string.IsNullOrWhiteSpace(Model.CompanyDetails.Phone) &&
+     string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Email) &&
+     string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Name) &&
+     string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Phone))
+{
+    return;
+}
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-user"></i>
+            @T("Admin.Portal.Quote.CustomerInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+
+            @if (!string.IsNullOrWhiteSpace(Model.CompanyDetails.Email) ||
+                 !string.IsNullOrWhiteSpace(Model.CompanyDetails.Name) ||
+                 !string.IsNullOrWhiteSpace(Model.CompanyDetails.Phone))
+            {
+                <div class="col-md-6">
+                    <div class="card-body px-0 pt-0">
+                        <h6 class="card-title">@T("Admin.Portal.Quote.CompanyInformation")</h6>
+                        <div class="card-header"></div>
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyDetails.Name))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Name")</b></div>
+                                <div class="input-name"><span>@Model.CompanyDetails.Name</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyDetails.Email))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Email")</b></div>
+                                <div class="input-name"><span>@Model.CompanyDetails.Email</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyDetails.Phone))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Phone")</b></div>
+                                <div class="input-name"><span>@Model.CompanyDetails.Phone</span></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Email) ||
+                 !string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Name) ||
+                 !string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Phone))
+            {
+                <div class="col-md-6">
+                    <div class="card-body px-0 pt-0">
+                        <h6 class="card-title">@T("Admin.Portal.Quote.CompanyRepInformation")</h6>
+                        <div class="card-header"></div>
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Name))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Name")</b></div>
+                                <div class="input-name"><span>@Model.CompanyRepDetails.Name</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Email))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Email")</b></div>
+                                <div class="input-name"><span>@Model.CompanyRepDetails.Email</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyRepDetails.Phone))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Portal.Quote.MetaDetails.Phone")</b></div>
+                                <div class="input-name"><span>@Model.CompanyRepDetails.Phone</span></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

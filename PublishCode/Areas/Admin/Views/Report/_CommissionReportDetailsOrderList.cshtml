@@ -1,0 +1,238 @@
+﻿@model CommissionReportDetailsOrderSearchModel
+
+@{
+
+	const string hideCommissionOrderListAttributeName = "CommissionOrderPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideCommissionOrderListAttributeName);	
+}
+
+<section class="content commission-report">
+	<div class="container-fluid">
+		<div class="form-horizontal d-form-horizontal">
+
+			<div class="cards-group">
+				<div class="card card-default card-search d-card-search d-card">
+					<div class="card-body">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideCommissionOrderListAttributeName">
+							<div class="search-text">@T("Admin.Common.Search")</div>
+							<div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+						</div>
+
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
+							<div class="row">
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="SearchCustomerCompanyName" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="SearchCustomerCompanyName" />
+										</div>
+									</div>
+								</div>								
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<div class="label-wrapper">
+												<label class="col-form-label" asp-for="SearchFromDate">
+													@T("Admin.Reports.CommissionReport.CommissionReportDetailsOrderSearchModel.Field.SearchFromDate")
+													<i class="fas fa-info-circle tooltip-icon">
+														<span class="custom-tooltip">
+															@T("Admin.Reports.CommissionReport.FromAndToDate.FilterNote")
+														</span>
+													</i>
+												</label>
+											</div>
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="SearchFromDate" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<div class="label-wrapper">
+												<label class="col-form-label" asp-for="SearchToDate">
+													@T("Admin.Reports.CommissionReport.CommissionReportDetailsOrderSearchModel.Field.SearchToDate")
+													<i class="fas fa-info-circle tooltip-icon">
+														<span class="custom-tooltip">
+															@T("Admin.Reports.CommissionReport.FromAndToDate.FilterNote")
+														</span>
+													</i>
+												</label>
+											</div>
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="SearchToDate" />
+										</div>
+									</div>
+								</div>								
+							</div>
+							<div class="row">
+								<div class="text-center col-12">
+									<button type="button" id="search-commission-order-report" class="btn btn-primary btn-search">
+										<i class="fas fa-search"></i>
+                                        @T("Admin.Common.Search")
+									</button>
+									<button type="button" id="commission-order-btncancel" class="btn btn-primary btn-cancel-search">
+                                        <i class="fas fa-times"></i>
+                                        @T("Admin.Common.Clear")
+                                    </button>
+								</div>
+								<script>
+                                    cancelSearch("#commission-order-btncancel");									
+									$("#SearchCustomerCompanyName").attr("placeholder", "Enter Company Name");
+									$("#SearchFromDate").attr("placeholder", "Select From Date");
+									$("#SearchToDate").attr("placeholder", "Select To Date");
+                                </script>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card card-default d-datatable commission-order-tbl d-card m-0">
+				<div class="card-body">
+					<div class="card-header d-flex border-0">
+						<div class="ml-auto">
+
+							<span id="margin-commission-span">
+								<strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.TotalCommission.Text")</strong>
+								<span id="idCommission"></span>
+								<br />
+								<strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.NetMargin.Text")</strong>
+								<span id="idMargin"></span>
+							</span>
+						</div>
+                    </div>					
+
+					@{
+						var commissionOrderGrid = new DataTablesModel
+						{
+							Name = "commission-order-grid",
+							UrlRead = new DataUrl("CommissionReportDetailsOrderList", "Report", new RouteValueDictionary { [nameof(Model.CommissionId)] = Model.CommissionId }),
+							SearchButtonId = "search-commission-order-report",
+							FooterCallback = "footercallback",
+							FooterColumns = 7,
+							Length = Model.PageSize,
+							LengthMenu = Model.AvailablePageSizes,
+							Filters = new List<FilterParameter>
+							{
+								new FilterParameter(nameof(Model.SearchFromDate), typeof(DateTime?)),
+								new FilterParameter(nameof(Model.SearchToDate), typeof(DateTime?)),								
+								new FilterParameter(nameof(Model.SearchCustomerCompanyName), typeof(string))
+							},
+							ColumnCollection = new List<ColumnProperty>
+							{
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.CustomOrderNumber))
+								{	
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.OrderId").Text,
+									Width = "100",
+									Encode = false,
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.CustomerDetails))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.CustomerDetails").Text,
+									Encode = false,
+									Width = "200"
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.Price))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.Price").Text,
+									Encode = false,
+									Width = "200",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.CarrierPay))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.CarrierPay").Text,
+									Encode = false,
+									Width = "230",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.OrderTotalAP))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.OrderTotalAP").Text,
+									Encode = false,
+									Width = "180",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.CommissionRateValue))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.CommissionRate").Text,
+									Encode = false,
+									Width = "150",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								},
+								new ColumnProperty(nameof(CommissionReportDetailsOrderModel.Commission))
+								{
+									Title = T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.Commission").Text,
+									Encode = false,
+									Width = "180",
+									ClassName =  NopColumnClassDefaults.CenterAll,
+								}								
+							}
+						};
+					}
+					
+					@await Html.PartialAsync("Table", commissionOrderGrid)
+
+					<script type="text/javascript">
+						function footercallback(tfoot, data, start, end, display) {						
+						var postData = {
+							CommissionId: @Model.CommissionId,
+							CustomerId: @Model.CustomerId,
+								SearchCustomerCompanyName: $('#@Html.IdFor(model => model.SearchCustomerCompanyName)').val(),								
+								SearchFromDate: $('#@Html.IdFor(model => model.SearchFromDate)').val(),
+								SearchToDate: $('#@Html.IdFor(model => model.SearchToDate)').val(),
+						};
+						addAntiForgeryToken(postData);
+
+						$.ajax({
+							cache: false,
+							type: "POST",
+							url: "@(Url.Action("CommissionReportOrderAggregatesData", "Report"))",
+							data: postData,
+							success: function (data, textStatus, jqXHR) {
+								if (data) {
+									var totalOrderPriceSummary = '<div class="mb-2"><span class="grid-report-item green"><strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.TotalPrice").Text</strong> <span> : ' + data['OrderTotalPrice'] + ' </span></span></div>';
+									var commissionGrid = $('#commission-order-grid').DataTable();
+									var totalsColumn = commissionGrid.column(2)
+									$(totalsColumn.footer()).html(totalOrderPriceSummary);
+									
+									var totalCarrierPaySummary = '<div class="mb-2"><span class="grid-report-item green"><strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.TotalCarrierPay").Text</strong> <span> : ' + data['OrderTotalCarrierPay'] + ' </span></span></div>';
+									var carrierPayColumn = commissionGrid.column(3)
+									$(carrierPayColumn.footer()).html(totalCarrierPaySummary);
+
+									var orderTotalAPSummary = '<div class="mb-2"><span class="grid-report-item green"><strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.Field.OrderTotalAP").Text</strong> <span> : ' + data['OrderTotalAP'] + ' </span></span></div>';
+									var orderTotalAPColumn = commissionGrid.column(4)
+									$(orderTotalAPColumn.footer()).html(orderTotalAPSummary);
+
+									var totalCommissionSummary = `<div class="mb-2"><span class="grid-report-item green"><strong>@T("Admin.CommissionReport.CommissionReportDetailsOrderModel.TotalCommission").Text</strong> <span> : ${data['OrderTotalCommission']} </span></span></div>`;														 
+									var commissionColumn = commissionGrid.column(6)
+									$(commissionColumn.footer()).html(totalCommissionSummary);
+									
+									if (data['IsNegativeMargin']) {
+										$("#margin-commission-span").removeClass("text-red");
+										$("#margin-commission-span").addClass("text-green");
+									} 
+									else {
+										$("#margin-commission-span").removeClass("text-green");
+										$("#margin-commission-span").addClass("text-red");
+									}
+
+									$('#idCommission').text(data['OrderTotalCommission']);
+									$('#idMargin').text(data['OrderTotalMargin']);
+								}								
+							}
+						});
+					}	
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

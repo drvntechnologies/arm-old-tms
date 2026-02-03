@@ -1,0 +1,130 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body">
+    <div class="row">
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="AddQuoteNoteMessage" />
+            </div>
+            <div class="col-md-9">
+                <nop-textarea asp-for="AddQuoteNoteMessage" />
+                <span asp-validation-for="AddQuoteNoteMessage"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-9 offset-md-3 mb-3">
+                <button type="button" id="addQuoteNote" class="btn btn-primary">@T("Admin.LogisticsQuote.QuoteNotes.AddButton")</button>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "leadnotes-grid",
+                    UrlRead = new DataUrl("LeadNotesSelect", "LogisticsLeads", new RouteValueDictionary { [nameof(Model.QuoteNoteSearchModel.LeadId)] = Model.QuoteNoteSearchModel.LeadId }),
+                    //UrlDelete = new DataUrl("LeadNoteDelete", "LogisticsLeads", new RouteValueDictionary { [nameof(Model.QuoteNoteSearchModel.LeadId)] = Model.QuoteNoteSearchModel.LeadId }),
+                    Length = Model.QuoteNoteSearchModel.PageSize,
+                    LengthMenu = Model.QuoteNoteSearchModel.AvailablePageSizes,
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(QuoteNoteModel.CreatedOn))
+                        {
+                            Title = T("admin.logisticsquote.fields.createdonutc").Text,
+                            Width = "200",
+                            Render = new RenderDate()
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Note))
+                        {
+                            Title = T("Admin.LogisticsQuote.Fields.Note").Text,
+                            Encode = false
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Customer))
+                        {
+                            Title = T("Admin.LogisticsQuote.Fields.Customer.InternalNote").Text,
+                            Width = "200"
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Id))
+                        {
+                            Title = T("Admin.Common.Delete").Text,
+                            Width = "100",
+                            Render = new RenderCustom("renderColumnLeadNotesDelete"),
+                            ClassName =  NopColumnClassDefaults.Button
+                        }
+                    }
+                })
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#addQuoteNote').click(function () {
+                    var quoteNoteMessage = $("#@Html.IdFor(model => model.AddQuoteNoteMessage)").val();
+                    var quoteNoteDisplayToCustomer = $("#@Html.IdFor(model => model.AddQuoteNoteDisplayToCustomer)").is(':checked');
+                    $('#addQuoteNote').attr('disabled', true);
+
+                    var postData = {
+                        DisplayToCustomer: quoteNoteDisplayToCustomer,
+                        message: quoteNoteMessage,
+                        leadId: '@Model.Id'
+                    };
+                    addAntiForgeryToken(postData);
+
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("LeadNoteAdd", "LogisticsLeads"))",
+                        data: postData,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data.Result) {
+                                //reload grid
+                                updateTable('#leadnotes-grid');
+
+                                $("#@Html.IdFor(model => model.AddQuoteNoteMessage)").val("");
+                                $("#@Html.IdFor(model => model.AddQuoteNoteDisplayToCustomer)").prop("checked", false);
+                            } else {
+                                //display errors if returned
+                                display_nop_error(data);
+                            }
+                        },
+                        complete: function (jqXHR, textStatus) {
+                            $('#addQuoteNote').attr('disabled', false);
+                        }
+                    });
+                });
+            });
+        </script>
+    </div>
+</div>
+
+<div id="leadNote-delete-confirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="leadNote-delete-confirmation-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="leadNotedelete-confirmation-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    @T("Admin.Common.DeleteConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                    <button type="submit" class="btn btn-danger float-right">@T("Admin.Common.Delete")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#leadnotes-grid")
+        .on("click", ".delete-leadNote-link", function (e) {
+            $("#leadNote-delete-confirmation button[type=submit]").attr("name", $(this).attr("name"));
+        });
+</script>
+<script asp-location="Footer">
+    function renderColumnLeadNotesDelete(data, type, row, meta) {
+        return '<a name="delete-leadNote-link-' + data + '" class="btn btn-default delete-leadNote-link" data-toggle="modal" data-target="#leadNote-delete-confirmation"><i class="far fa-trash-alt"></i>Delete</a>';
+    }
+</script>

@@ -1,0 +1,176 @@
+﻿@model OrderModel
+
+@inject IPriceFormatter _priceFormatter
+
+<div class="card detail-info-card order-price-info d-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-dollar-sign"></i>
+            @T("Admin.FinanceSection.Title")
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.Customer.LineHaulAmount")
+            </div>
+            <div class="input-name">
+                @Model.LineHaulAmount
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.Customer.TotalARPrice")
+            </div>
+            <div class="input-name">
+                @Model.TotalARPrice
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.Customer.TotalPrice")
+            </div>
+            <div class="input-name">
+                @Model.TotalPrice
+            </div>
+        </div>
+        @if (Model.IsChildOrder && Model.BillableCODPrice > 0)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @if (Model.HasCODOrder)
+                    {
+                        @T("Admin.Orders.Fields.COD.Price")
+                    }
+                    else
+                    {
+                        @T("Admin.Orders.Fields.Billable.Price")
+                    }
+                </div>
+                <div class="input-name">
+                    @Model.BillableCODPriceAmount
+                </div>
+            </div>
+        }
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.CarrierPay")
+            </div>
+            <div class="input-name">
+                @Model.TotalCarrierPay
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.ReferredBy) && 
+			!Model.ReferredBy.Equals("0") && 
+			!Model.ReferredBy.Equals("-1"))
+		{
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.ReferralAmount")
+                </div>
+                <div class="input-name">
+                    @Model.ReferralAmount
+                </div>
+            </div>
+        }
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.TotalAPPrice")
+            </div>
+            <div class="input-name">
+                @Model.TotalAPPrice
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.GrossProfit")
+            </div>
+            <div class="input-name">
+                @Model.GrossProfit
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.ProfitAmount")
+            </div>
+            <div class="input-name">
+                @Model.ProfitAmount
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.ProfitPercentageMargin")
+            </div>
+            <div class="input-name">
+                @Model.ProfitPercentageMargin
+            </div>
+        </div>
+
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_square_payment_details", additionalData = Model.LeadId })
+
+        @if (!string.IsNullOrWhiteSpace(Model.Carrier) && !Model.IsNewOrder)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.Carrier")
+                </div>
+                <div class="input-name">
+                    @Model.Carrier
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.CarrierPayTerms) &&
+             !Model.CarrierPayTerms.Equals("0") && 
+             !Model.IsNewOrder)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.CarrierPayTerms")
+                </div>
+                <div class="input-name">
+                    @Model.CarrierPayTerms
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.CarrierCategory) &&
+             !Model.CarrierCategory.Equals("0") && 
+             !Model.IsNewOrder)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.CarrierCategory")
+                </div>
+                <div class="input-name">
+                    @Model.CarrierCategory
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.BalancePaymentOption) &&
+             !Model.BalancePaymentOption.Equals("0") && 
+             !Model.IsNewOrder)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.BalancePaymentOption")
+                </div>
+                <div class="input-name">
+                    @Model.BalancePaymentOption.Replace('_', ' ')
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.TermsBegin) &&
+             !Model.TermsBegin.Equals("0") && 
+             !Model.IsNewOrder)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.TermsBegin")
+                </div>
+                <div class="input-name">
+                    @Model.TermsBegin
+                </div>
+            </div>
+        }
+    </div>
+</div>

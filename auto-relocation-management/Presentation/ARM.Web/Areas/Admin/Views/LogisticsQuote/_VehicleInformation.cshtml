@@ -1,0 +1,84 @@
+﻿@model LogisticsQuoteModel
+<div class="card detail-info-card d-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+                <i class="fas fa-truck"></i>
+            @T("Admin.VehicleDetail")
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-12" style="overflow-x: auto;">
+                <div class="vehicle-information d-table-responsive">
+                        <table class="table table-hover table-borderless d-table table-striped m-0">
+                        <caption style="display:none;">@T("Admin.VehicleDetail")</caption>
+                        <col />
+                        <col />
+                        <col />
+                        <col />
+                        <col />
+                        <col />
+                            <thead>
+                            <tr>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.VehicleYear")
+                                </th>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.Make")
+                                </th>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.Model")
+                                </th>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.VehicleType")
+                                </th>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.TailerType")
+                                </th>
+                                <th>
+                                    @T("Admin.LogisticsQuoteVehicleInfo.Fields.VehicleValue")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.LogisticsQuoteVehicles.Count > 0)
+                            {
+                                @foreach (var item in Model.LogisticsQuoteVehicles)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.VehicleYear
+                                        </td>
+                                        <td>
+                                            @item.Make
+                                        </td>
+                                        <td>
+                                            @item.VehicleModel
+                                        </td>
+                                        <td>
+                                            @item.VehicleType
+                                        </td>
+                                        <td>
+                                            @item.CarrierType
+                                        </td>
+                                        <td>
+                                            @item.VehicleValueWithCurrency
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" style="text-align:center;">
+                                        @T("Admin.LogisticsQuote.MailSendLog.NoData")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

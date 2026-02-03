@@ -1,0 +1,608 @@
+﻿@using Nop.Core.Domain.Orders;
+@model OrderBillOfLadingModel
+@{
+    Layout = "_ColumnsOne";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+    <div class="page">
+        <main class="carrier-pg">
+            <div class="billing-wrap option2">
+                <style type="text/css">
+                    .pdf-table-lable {
+                        width: 54%;
+                        max-width: 54%;
+                        display: inline-block;
+                        word-break: break-word;
+                    }
+
+                    .pdf-table-ans-data {
+                        width: 45%;
+                        max-width: 45%;
+                        display: inline-block;
+                        word-break: break-word;
+                    }
+
+                        .pdf-table-ans-data img {
+                            width: 100%;
+                        }
+                </style>
+                <div class="main-cardbox">
+                    @if (Model.BolType == (int)OrderBOL.PickUpBol)
+                    {
+                        <h3>Auto Relocation Management / PickUp Bill of Lading</h3>
+                    }
+                    else if (Model.BolType == (int)OrderBOL.DeliveryBol)
+                    {
+                        <h3>Auto Relocation Management / Delivery Bill of Lading</h3>
+                    }
+                    <br>
+                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tbody>
+                            <tr>
+                                <td width="50%" align="left">
+                                    <p>
+                                        Po Box 141, Hillsboro, MO 63050<br><br>
+                                        Phone: (877) 801-2044<br><br>
+                                        Fax:  (314) 387-9136<br><br>
+                                        Billing@anewtransport.com
+                                    </p>
+                                </td>
+                                <td width="50%" align="center">
+                                    <img src="~/lib_npm/assets/img/ARM_LogoV3-2.png" width="50%">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                        <thead>
+                            <tr>
+                                <td colspan="2"><h3 style="margin: 0px;"><center>BILL OF LADING / VEHICLE INSPECTION REPORT</center></h3></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="50%" align="top" style="vertical-align: top">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Load Number:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>123</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Carrier Company Name:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.CarrierCompanyName</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Carrier Email:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.CarrierEmail</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Inspection Notes:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.InspectionNotes</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="50%">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>VIN:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.VIN</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Year /​ Make /​ Model:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.Year</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Type:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.Type</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Color:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.Color</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Odometer:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.Odometer</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                        <tbody>
+                            <tr>
+                                <td width="50%">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Origin Address1:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.OriginAddress.Address1</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Origin Address2:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.OriginAddress.Address2</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Origin City:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.OriginAddress.City</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Origin State:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.OriginState</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Origin ZipCode:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.OriginAddress.ZipPostalCode</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="50%">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Destination Address1:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DestinationAddress.Address1</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Destination Address2:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DestinationAddress.Address2</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Destination City:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DestinationAddress.City</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Destination State:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DestinationState</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Destination ZipCode:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DestinationAddress.ZipPostalCode</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                        <tbody>
+                            <tr>
+                                <td width="50%">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Customer FirstName:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.CustomerFirstName</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Customer LastName:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.CustomerLastName</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Customer Pickup /​ Delivery Date:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.CustomerPickupDeliveryDate</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Customer Signature:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <div>
+                                                                <img src="data:image/png;base64, @Model.CustomerSignatureBase64String" width="100%" />
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="50%">
+                                    <table width="100%" border="0" cellpadding="0px" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Driver FirstName:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DriverFirstName</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Driver LastName:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DriverLastName</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Driver Pickup /​ Delivery Date:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <span>@Model.DriverPickupDeliveryDate</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table width="100%" border="0" cellpadding="3px" cellspacing="0">
+                                                    <tr>
+                                                        <td width="50%">
+                                                            <b>Driver Signature:</b>
+                                                        </td>
+                                                        <td width="50%">
+                                                            <div>
+                                                                <img src="data:image/png;base64, @Model.DriverSignatureBase64String" width="100%" />
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                     @if (Model.OrderUnitPictures.Count > 0)
+                     {
+                        <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <table width="100%" cellpadding="0" cellspacing="10" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">
+                                                    <h5 style="margin: 0px;">Picture's of Unit:</h5>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="32%" style="vertical-align:top;page-break-before: always;">
+                                                   
+                                                        @foreach (var orderUnitPicture in Model.OrderUnitPictures)
+                                                        {
+                                                            <div style="width: 30%;display: inline-block; margin: 10px;">
+                                                                <img src="data:image/png;base64, @orderUnitPicture" width="100%" />
+                                                            </div>
+                                                        }
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    }
+                    <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table width="100%" cellpadding="0" cellspacing="10" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td width="100%" style="vertical-align:top;page-break-before: always;">
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Passenger Side:</h5>
+                                                        <img src="data:image/png;base64, @Model.PassengerSide" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Driver Side:</h5>
+                                                        <img src="data:image/png;base64, @Model.DriverSide" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Front:</h5>
+                                                        <img src="data:image/png;base64, @Model.Front" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Rear:</h5>
+                                                        <img src="data:image/png;base64, @Model.Rear" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Keys:</h5>
+                                                        <img src="data:image/png;base64, @Model.Keys" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">VIN Plate:</h5>
+                                                        <img src="data:image/png;base64, @Model.VINPlate" width="100%" />
+                                                    </div>
+                                                    <div style="width: 25%;display: inline-block; margin: 10px;">
+                                                        <h5 style="margin: 0px;">Odometer:</h5>
+                                                        <img src="data:image/png;base64, @Model.OdometerPicture" width="100%" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                  
+                    @if (Model.OtherPictures.Count > 0)
+                    {
+                        <table width="100%" cellpadding="0" cellspacing="0" border="1" style="word-break: break-word">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table width="100%" cellpadding="0" cellspacing="10" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="3">
+                                                        <h5 style="margin: 0px;">Other:</h5>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="32%" style="vertical-align:top;page-break-before: always;">
+                                                        @foreach (var otherPic in Model.OtherPictures)
+                                                        {
+                                                            <div style="width: 30%;display: inline-block; margin: 10px;">
+                                                                <img src="data:image/png;base64, @otherPic" width="100%" />
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

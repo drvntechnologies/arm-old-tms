@@ -1,0 +1,64 @@
+﻿@model OrderModel
+
+<div class="card detail-info-card live-location-info">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="fas fa-route"></i>
+			@T("Admin.LiveLocation.Direction")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="form-group">
+			@if (@Model.GoogleAPIKeyForLocation != string.Empty)
+			{
+				<div id="map_c" style="height:250px; width:100%;"></div>
+				<div class="ytJVH rreh">
+					<div class="mGSxre Ra9ql">
+						<div class="lMmzdb">
+							<div class="BbbuR uc9Qxb uE1RRc">
+								<span class="UdvAnf">
+								</span>
+								<br class="AzyIKc">
+							</div>
+						</div>
+						<a style="cursor:pointer" target="_blank" href="//www.google.com/maps?saddr=@Model.PickupAddress.AddressHtml&daddr=@(Model.ShippingAddress.AddressHtml)" class="w8gKwf aKK8g4cvHE5__rrenl">
+							<div class="IKKnpb">
+								<span class="nbuTIc tvbNF"></span>
+								<div class="udku3">
+									Directions
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+			}
+			else
+			{
+				@T("Admin.LogisticsQuote.Direction.NoData")
+			}
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" asp-location="Footer">
+	function LoadLiveMap() {
+		DisplayLiveLocationOnMap("map_c", "@Html.Raw(Model.PickupAddress.AddressHtml)", "@Html.Raw(Model.ShippingAddress.AddressHtml)", @Model.Latitude, @Model.Longitude);
+	}
+	setInterval(GetLatLongValue, 120000);
+	function GetLatLongValue() {
+		var postData = { leadId: '@Model.LeadId' };
+		addAntiForgeryToken(postData);
+		$.ajax({
+			cache: false,
+			type: "GET",
+			url: "@(Url.Action("GetLatLong", "Order"))",
+			data: postData,
+			success: function (data, textStatus, jqXHR) {
+				if (data.Result) {
+					DisplayLiveLocationOnMap("map_c", "@Html.Raw(Model.PickupAddress.AddressHtml)", "@Html.Raw(Model.ShippingAddress.AddressHtml)", data.latitude, data.longitude);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) { }
+		});
+	}
+</script>

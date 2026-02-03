@@ -1,0 +1,120 @@
+@model LogModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.System.Log.ViewLogDetails").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Log");
+}
+
+<form asp-controller="Log" asp-action="View" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.System.Log.ViewLogDetails")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.System.Log.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <span id="log-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                @T("Admin.Common.Delete")
+            </span>
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.LogDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+
+    <section class="content detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="row">
+                        <div class="col-lg-8 col-xl-7">
+                            <div class="card detail-info-card d-card">
+                                <div asp-validation-summary="All"></div>
+                                <div class="card-header with-border">
+                                    <h3 class="card-title">
+                                        <i class="fa fa-info" aria-hidden="true"></i>
+                                        Log Entry Information
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.LogLevel")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.LogLevel
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.ShortMessage")
+                                        </div>
+                                        <div class="input-name">
+                                            @Html.Raw(Model.ShortMessage)
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.FullMessage")
+                                        </div>
+                                        <div class="input-name">
+                                            @Html.Raw(Model.FullMessage)
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.IPAddress")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.IpAddress
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.Customer")
+                                        </div>
+                                        <div class="input-name">
+                                            @if (Model.CustomerId.HasValue)
+                                            {
+                                                <a asp-controller="Customer" asp-action="Edit" asp-route-id="@Model.CustomerId">@(!string.IsNullOrEmpty(Model.CustomerEmail) ? Model.CustomerEmail : T("Admin.Customers.Guest").Text)</a>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.PageURL")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.PageUrl
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.ReferrerURL")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.ReferrerUrl
+                                        </div>
+                                    </div>
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.System.Log.Fields.CreatedOn")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.CreatedOn
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="log-delete" />

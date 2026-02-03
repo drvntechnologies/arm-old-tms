@@ -1,0 +1,147 @@
+﻿@model OnTimePickupAndDeliveryReportModel
+
+@{
+    var randomNumber = new Random().Next(1000, 9999);
+    var counter = 1;
+    var defaultValue = "N/A";
+}
+
+<div class="customer-report-content">
+    <div class="customer-report-table">
+        <table class="table table-hover datatbl-custom-tbl-view parent-tbl">
+            <thead class="table-light">
+                <tr>
+                    <th></th> <!-- Expand/Collapse Button -->
+                    <th>Company Name</th>
+                    <th class="text-center">Total Orders</th>
+                    <th class="text-center">On-Time Pickup</th>
+                    <th class="text-center">Late Pickup</th>
+                    <th class="text-center">On-Time Pickup(%)</th>
+                    <th class="text-center">On-Time Delivery</th>
+                    <th class="text-center">Late Delivery</th>
+                    <th class="text-center">On-Time Delivery(%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OnTimePickupAndDeliveryReportList)
+                {
+                    var collapseId = $"orders-{counter}-{randomNumber}";
+
+                    <tr>
+                        <td>
+                            @if (item.OrderDeliveryReports != null && item.OrderDeliveryReports.Any())
+                            {
+                                <button class="btn btn-sm btn-toggle" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>@item.Name</td>
+                        <td class="text-center">@item.TotalOrders</td>
+                        <td class="text-center">@item.OnTimePickup</td>
+                        <td class="text-center">@item.LatePickup</td>
+                        <td class="text-center">@string.Format("{0:N0}%", Math.Round(item.OnTimePickupPercentage, 2))</td>
+                        <td class="text-center">@item.OnTimeDelivery</td>
+                        <td class="text-center">@item.LateDelivery</td>
+                        <td class="text-center">@string.Format("{0:N0}%", Math.Round(item.OnTimeDeliveryPercentage, 2))</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" class="p-0">
+                            <div id="@collapseId" class="collapse">
+                                <table class="table table-hover table-sm datatbl-custom-Sub-tbl-view child-tbl">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Estimated Pickup (Start - End)</th>
+                                            <th>Actual Pickup Date</th>
+                                            <th>Estimated Delivery (Start - End)</th>
+                                            <th>Actual Delivery Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in item.OrderDeliveryReports)
+                                        {
+                                            var isLatePickup = order.ActualPickupDate > order.EstimatedPickupEndtDate;
+                                            var isLateDelivery = order.ActualDeliveryDate > order.EstimatedDeliveryEndDate;
+
+                                            var pickupStartDate = order.EstimatedPickupStartDate.ToDateFormat();
+                                            var pickupEndDate = order.EstimatedPickupEndtDate.ToDateFormat();
+                                            var pickupDate = order.ActualPickupDate.ToDateFormat();
+
+                                            var pickupDateRange = (!string.IsNullOrWhiteSpace(pickupStartDate) || !string.IsNullOrWhiteSpace(pickupEndDate))
+                                            ? $"{(!string.IsNullOrWhiteSpace(pickupStartDate) ? pickupStartDate : defaultValue)} - {(!string.IsNullOrWhiteSpace(pickupEndDate) ? pickupEndDate : defaultValue)}"
+                                            : defaultValue;
+
+                                            var deliveryStartDate = order.EstimatedDeliveryStartDate.ToDateFormat();
+                                            var deliveryEndDate = order.EstimatedDeliveryEndDate.ToDateFormat();
+                                            var deliveryDate = order.ActualDeliveryDate.ToDateFormat();
+
+                                            var deliveryDateRange = (!string.IsNullOrWhiteSpace(deliveryStartDate) || !string.IsNullOrWhiteSpace(deliveryEndDate))
+                                            ? $"{(!string.IsNullOrWhiteSpace(deliveryStartDate) ? deliveryStartDate : defaultValue)} - {(!string.IsNullOrWhiteSpace(deliveryEndDate) ? deliveryEndDate : defaultValue)}"
+                                            : defaultValue;
+
+                                            isLatePickup = isLatePickup || string.IsNullOrWhiteSpace(pickupDate);
+                                            isLateDelivery = isLateDelivery || string.IsNullOrWhiteSpace(deliveryDate);
+
+                                            <tr>
+                                                <td>@order.CustomerOrderNumber</td>
+                                                <td>
+                                                    <span class="@(pickupDateRange.Contains(defaultValue) ? "late-date-report" : "")">
+                                                        @pickupDateRange
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="@(isLatePickup ? "late-date-report" : "")">
+                                                        @(!string.IsNullOrWhiteSpace(pickupDate) ? pickupDate : defaultValue)
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="@(deliveryDateRange.Contains(defaultValue) ? "late-date-report" : "")">
+                                                        @deliveryDateRange
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="@(isLateDelivery ? "late-date-report" : "")">
+                                                        @(!string.IsNullOrWhiteSpace(deliveryDate) ? deliveryDate : defaultValue)
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!item.OrderDeliveryReports.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="3" class="text-center">No orders found.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
+                    counter++;
+                }
+                @if (!Model.OnTimePickupAndDeliveryReportList.Any())
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="no-data-col">@T("Admin.Common.Table.NoRecord")</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-toggle").forEach(button => {
+            button.addEventListener("click", function () {
+                let icon = this.querySelector("i");
+                icon.classList.toggle("fa-chevron-down");
+                icon.classList.toggle("fa-chevron-up");
+            });
+        });
+    });
+</script>

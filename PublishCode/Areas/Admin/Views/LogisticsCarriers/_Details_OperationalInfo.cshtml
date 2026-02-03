@@ -1,0 +1,26 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+
+<div class="card-header with-border">
+	<h3 class="card-title"><i class="fas fa-tools" aria-hidden="true"></i> @T("Admin.Carrier.Operation.Details")</h3>
+</div>
+<div class="card-body">
+	@if (!string.IsNullOrWhiteSpace(Model.CarrierType))
+	{
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.CarrierType")</div>
+			<div class="input-name"><span>@Model.CarrierType</span></div>
+		</div>
+	}
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.FleetSize")</div>
+		<div class="input-name"><span>@Model.FleetSize</span></div>
+	</div>
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Drivers")</div>
+		<div class="input-name"><span>@Model.Drivers</span></div>
+	</div>
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Trailers")</div>
+		<div class="input-name"><span>@Model.Trailers</span></div>
+	</div>
+</div>

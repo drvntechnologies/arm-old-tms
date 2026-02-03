@@ -1,0 +1,172 @@
+﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
+
+@using ARM.Web.Areas.Admin.Models.Referrals
+@using Nop.Core
+@using Nop.Services.Common
+@using Nop.Web.Framework.Models.DataTables
+@using Nop.Web.Framework.UI
+
+@model ReferralReportSearchModel
+
+@inject IGenericAttributeService genericAttributeService
+@inject INopHtmlHelper NopHtml
+@inject IWorkContext workContext
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.Referral.Reports").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Referral Management");
+
+	const string hideReferralReportAttributeName = "ReferralReportPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideReferralReportAttributeName);
+}
+
+<div class="content-header clearfix">
+	<h1 class="float-left">
+		@T("Admin.Referral.Reports.Title")
+	</h1>
+	<div class="float-right">
+		&nbsp;
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="form-horizontal d-form-horizontal">
+
+			<div class="cards-group">
+				<div class="card card-default card-search d-card-search d-card">
+					<div class="card-body">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideReferralReportAttributeName">
+							<div class="search-text">@T("Admin.Common.Search")</div>
+							<div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+						</div>
+
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
+							<div class="row">
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="ReferPayee" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="ReferPayee" html-attributes="@(new { placeholder = "Enter Refer Payee" })" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="ActualDeliveryDateFrom" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="ActualDeliveryDateFrom" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<diiv class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="ActualDeliveryDateTo" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="ActualDeliveryDateTo" />
+										</div>
+									</diiv>
+								</div>
+							</div>
+							<div class="row">
+								<div class="text-center col-12">
+									<button type="button" id="search-referral-report" class="btn btn-primary btn-search">
+										<i class="fas fa-chart-line"></i>
+										@T("Admin.Reports.Search.RunReport")
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card card-default d-datatable raferralReport-list-tbl d-card m-0">
+				<div class="card-body">
+					@await Html.PartialAsync("Table", new DataTablesModel
+					{
+						Name = "referral-report-grid",
+						UrlRead = new DataUrl("ReportList", "Referral", null),
+						SearchButtonId = "search-referral-report",
+						Ordering = true,
+						Order = "0,'asc'",						
+						Orderable = false,  
+						Targets = "1",
+						Length = Model.PageSize,
+						LengthMenu = Model.AvailablePageSizes,
+						Filters = new List<FilterParameter>
+						{
+							new FilterParameter(nameof(Model.ReferPayee)),
+							new FilterParameter(nameof(Model.ActualDeliveryDateFrom), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualDeliveryDateTo), typeof(DateTime?)),
+						},
+						ColumnCollection = new List<ColumnProperty>
+						{
+							new ColumnProperty(nameof(ReferralReportModel.ReferPayee))
+							{
+								Title = $"<span class='d-th'>{T("Admin.Referral.Reports.Field.ReferPayee").Text}</span>",
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ReferralReportModel.DueAmount))
+							{
+								Title = T("Admin.Referral.Reports.Field.DueAmount").Text,
+								Encode = false,
+								ClassName =  NopColumnClassDefaults.CenterAll,
+								Render = new RenderCustom("renderPaymentStatus")
+							}
+						}
+					})
+
+					<script>
+						$("#ActualDeliveryDateFrom").attr("placeholder", "Select Actual Delv Date From");
+						$("#ActualDeliveryDateTo").attr("placeholder", "Select Actual Delv Date To");
+
+						removeSpecialCharactersAndNumber("#ReferPayee");
+
+                        function renderPaymentStatus(data, type, row, meta) {
+							let color = 'red';
+							
+							if (row.DueAmountValue == 0){
+								color = 'green';
+							}
+							return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+						}
+
+						$(document).on('click', ".refer-payee", function(e){
+							e.preventDefault();
+							var href = $(this).attr('href');
+
+							let actualDlveDateFrom = $("#ActualDeliveryDateFrom").val();
+							let actualDlveDateTo = $("#ActualDeliveryDateTo").val();
+							
+							if (actualDlveDateFrom && actualDlveDateTo){
+								location.href = `${href}?actualDeliveryDateFrom=${actualDlveDateFrom}&actualDeliveryDateTo=${actualDlveDateTo}`;
+								return false;
+							} else if(actualDlveDateFrom){
+								location.href = `${href}?actualDeliveryDateFrom=${actualDlveDateFrom}`;
+								return false;
+							}
+							else if(actualDlveDateTo){
+								location.href = `${href}?actualDeliveryDateTo=${actualDlveDateTo}`;
+								return false;
+							}
+
+							location.href = href;
+						});
+
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

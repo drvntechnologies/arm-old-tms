@@ -1,0 +1,41 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+
+<div class="card detail-info-card d-card">
+	<div class="card-header with-border">
+		<h3 class="card-title"><i class="fas fa-money-check-alt" aria-hidden="true"></i> @T("Admin.LogisticsCarriers.BankDetails")</h3>
+	</div>
+	<div class="card-body">
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.RoutingNumber")</div>
+			<div class="input-name"><span>@Model.BankRoutingNumber</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.AccountNumber")</div>
+			<div class="input-name"><span>@Model.BankAccountNumber</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.AccountType")</div>
+			<div class="input-name"><span>@Model.BankAccountType</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.AccountName")</div>
+			<div class="input-name"><span>@Model.BankAccountName</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.Name")</div>
+			<div class="input-name"><span>@Model.BankName</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.Address")</div>
+			<div class="input-name"><span>@Model.BankAddress</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.Phone")</div>
+			<div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.BankPhone)</span></div>
+		</div>
+		<div class="custom-form-group">
+			<div class="label-name">@T("Admin.LogisticsCarrier.Fields.Bank.Fax")</div>
+			<div class="input-name"><span>@Model.BankFax</span></div>
+		</div>
+	</div>
+</div>

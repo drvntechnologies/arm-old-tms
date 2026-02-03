@@ -1,0 +1,378 @@
+﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
+
+@using ARM.Web.Areas.Admin.Models.Referrals
+@using Microsoft.AspNetCore.Routing
+@using Nop.Core
+@using Nop.Core.Domain.QuotesStatus
+@using Nop.Services.Common
+@using Nop.Web.Framework.Models.DataTables
+
+@model ReferralOrderSearchModel
+
+@inject IGenericAttributeService genericAttributeService
+@inject IWorkContext workContext
+
+@{
+	const string hideReferralOrderAttributeName = "ReferralOrderPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideReferralOrderAttributeName);
+}
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="form-horizontal d-form-horizontal">
+
+			<div class="cards-group">
+				<div class="card card-default card-search d-card-search d-card">
+					<div class="card-body">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideReferralOrderAttributeName">
+							<div class="search-text">@T("Admin.Common.Search")</div>
+							<div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+						</div>
+
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
+							<div class="row">
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="ActualDeliveryDateFrom" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="ActualDeliveryDateFrom" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="ActualDeliveryDateTo" />
+										</div>
+										<div class="col-md-12">
+											<nop-editor asp-for="ActualDeliveryDateTo" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<div class="label-wrapper">
+												<label class="col-form-label" for="ActualDeliveryDateTo">
+													@T("Admin.Referral.Order.Field.Pickup.LoadSpread")
+												</label>
+											</div>
+										</div>
+										<div class="col-md-12">
+											<input type="hidden" asp-for="FirstPickupDate" />
+											<input type="hidden" asp-for="LastPickupDate" />
+
+											<input type="text" id="dateRange" class="form-control" placeholder="Select PU Load Spread" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-6 col-xl-4">
+									<div class="form-group row">
+										<div class="col-md-12">
+											<nop-label asp-for="OrderStatusIds" />
+										</div>
+										<div class="col-md-12">
+											<nop-select asp-for="OrderStatusIds" asp-items="Model.AvailableOrderStatuses" asp-multiple="true" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="text-center col-12">
+									<button type="button" id="search-referral-order-report" class="btn btn-primary btn-search">
+										<i class="fas fa-chart-line"></i>
+										@T("Admin.Reports.Search.RunReport")
+									</button>
+									<button type="button" id="referral-btn-cancel" class="btn btn-primary btn-cancel-search">
+										<i class="fas fa-times"></i>
+										@T("Admin.Common.Clear")
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card card-default d-datatable raferralReport-detail-tbl d-card m-0">
+				<div class="card-body">
+					<div class="card-header d-flex border-0">
+						<button type="button" id="delete-selected" class="btn btn-danger ml-auto">
+							<i class="far fa-trash-alt"></i>
+							@T("Admin.Common.Delete.Selected")
+						</button>
+                    </div>
+
+					@{
+						var gridModel = new DataTablesModel
+						{
+							Name = "referral-order-grid",
+							UrlRead = new DataUrl("ManagementList", "Referral", new RouteValueDictionary { [nameof(Model.ReferralId)] = Model.ReferralId }),
+							SearchButtonId = "search-referral-order-report",
+							FooterCallback = "footercallback",
+							FooterColumns = 7,
+							Length = Model.PageSize,
+							LengthMenu = Model.AvailablePageSizes,
+							Filters = new List<FilterParameter>
+							{
+								new FilterParameter(nameof(Model.ActualDeliveryDateFrom), typeof(DateTime?)),
+								new FilterParameter(nameof(Model.ActualDeliveryDateTo), typeof(DateTime?)),
+								new FilterParameter(nameof(Model.FirstPickupDate), typeof(DateTime?)),
+								new FilterParameter(nameof(Model.LastPickupDate), typeof(DateTime?)),
+								new FilterParameter(nameof(Model.OrderStatusIds)),
+							},
+							ColumnCollection = new List<ColumnProperty>
+							{
+								new ColumnProperty(nameof(ReferralOrderModel.Id))
+								{
+									IsMasterCheckBox = true,
+									Render = new RenderCheckBox("checkbox_referrals"),
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Width = "50"
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.OrderNumber))
+								{
+									Title = T("Admin.Referral.Order.Field.OrderNumber").Text,
+									Encode = false,
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.CustomerName))
+								{
+									Title = T("Admin.Referral.Order.Field.CustomerName").Text,
+									Encode = false,
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.DeliveryDate))
+								{
+									Title = T("Admin.Referral.Order.Field.DeliveryDate").Text,
+									Encode = false,
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.Status))
+								{
+									Title = T("Admin.Referral.Order.Field.OrderStatus").Text,
+									Encode = false,
+									Render = new RenderCustom("renderColumnLogisticsStatus")
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.Amount))
+								{
+									Title = T("Admin.Referral.Order.Field.ReferralAmount").Text,
+									Encode = false,
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Render = new RenderCustom("renderPaymentStatus")
+								},
+								new ColumnProperty(nameof(ReferralOrderModel.Id))
+								{
+									Title = T("Admin.Common.Action").Text,
+									Encode = false,
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Render = new RenderCustom("renderColumnView")
+								}
+							}
+						};
+
+						var summaryColumnNumber = 5;
+					}
+					
+					@await Html.PartialAsync("Table", gridModel)
+
+					<script>
+						$("#ActualDeliveryDateFrom").attr("placeholder", "Select Actual Delv Date From");
+						$("#ActualDeliveryDateTo").attr("placeholder", "Select Actual Delv Date To");
+
+						function initializeDatePicker() {
+							const firstPickup = $("#FirstPickupDate").val();
+							const lastPickup = $("#LastPickupDate").val();
+
+							// Parse them to JavaScript Date objects if available
+							const defaultDates = [];
+							if (firstPickup) defaultDates.push(new Date(firstPickup));
+							if (lastPickup && lastPickup !== firstPickup) defaultDates.push(new Date(lastPickup));
+
+							flatpickr("#dateRange", {
+								mode: "range",
+								dateFormat: "M d, Y",
+								allowInput: false,
+								maxDate: "today",
+								defaultDate: defaultDates.length > 0 ? defaultDates : null,
+								onChange: function (selectedDates, dateStr, instance) {
+									if (selectedDates.length !== 2) return;
+
+									$("#FirstPickupDate").val(moment(selectedDates[0]).format('YYYY-MM-DD'));
+									$("#LastPickupDate").val(moment(selectedDates[1]).format('YYYY-MM-DD'));
+								}
+							});
+						}
+
+						$("#referral-btn-cancel").on('click', function(){
+
+							$("#ActualDeliveryDateFrom").val("");
+							$("#ActualDeliveryDateTo").val("");
+							$("#FirstPickupDate").val("");
+							$("#LastPickupDate").val("");
+							$("#dateRange").val("");
+
+							let multi = $("#OrderStatusIds").data("kendoMultiSelect");
+							if (multi) {
+								multi.value(["@Model.DeliveredOrderStatusId"]); // Set default values
+							}
+
+							$("#search-referral-order-report").trigger("click");
+						});
+
+						$(function () {
+							initializeDatePicker();
+
+							$("#delete-selected").click(function(e){
+								e.preventDefault();
+								$('#Delete-Confirmation-Popup').modal('show');
+							});
+
+							$('#delete-selected-action-confirmation-submit-button').on('click', function () {
+								var postData = {
+									selectedIds: selectedIds
+								};
+								addAntiForgeryToken(postData);
+								$.ajax({
+									cache: false,
+									type: "POST",
+									url: "@(Url.Action("DeleteSelected", "Referral"))",
+									data: postData,
+									success: function(data){
+										if (data.Result){
+											updateTable('#referral-order-grid');
+											toastr.success("Selected records has been deleted.");
+										}
+										else if(data.error){
+											toastr.error(data.error);
+										}
+										$('#Delete-Confirmation-Popup').modal('hide');
+									},
+									error: function (jqXHR, textStatus, errorThrown) {
+									},
+									complete: function (jqXHR, textStatus) {
+									}
+								});
+								return false;
+							});
+						});
+
+						function renderColumnLogisticsStatus(data, type, row, meta) {
+							let color;
+							let OpenStatusColor = "white";
+
+							var dateString = row.FirstAvailablePickupDateValue;
+
+							if (dateString != null && dateString != undefined && dateString.trim() != ""){
+								var dateParts = dateString.split('/');
+
+								if (dateParts.length === 3){
+									var dateObject = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+
+									var currentDate = new Date();
+									currentDate.setHours(0, 0, 0, 0);
+
+									if (dateObject < currentDate) {
+										OpenStatusColor = "red";
+									}
+								}
+							}
+
+							switch (row.Status) {
+							case "@LogisticsStatusDefaults.Order.Open":
+								color = OpenStatusColor;
+								break;
+							case "@LogisticsStatusDefaults.Order.Covered":
+								color = 'NeonYellow';
+								break;
+							case "@LogisticsStatusDefaults.Order.Dispatched":
+								color = 'PapayaOrange';
+								break;
+							case "@LogisticsStatusDefaults.Order.InTransit":
+								color = 'blue';
+								break;
+							case "@LogisticsStatusDefaults.Order.Delivered":
+								color = 'green';
+								break;
+							}
+							return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+						}
+
+						function renderPaymentStatus(data, type, row, meta) {
+							let color = 'red';
+
+							if (row.DueAmountValue <= 0){
+								color = 'green';
+							}
+							return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+						}
+
+						function renderColumnView(data, type, row, meta) {
+							return '<a class="btn" href="/Admin/Referral/Pay/' + row.Id + '"><i class="fas fa-eye"></i>@T("Admin.Common.View").Text</a>'
+						}
+
+						function footercallback(tfoot, data, start, end, display) {
+							//update referral order totals summary
+							var postData = {
+								ReferralId : @Model.ReferralId,
+								ActualDeliveryDateFrom: $('#@Html.IdFor(model => model.ActualDeliveryDateFrom)').val(),
+								ActualDeliveryDateTo: $('#@Html.IdFor(model => model.ActualDeliveryDateTo)').val(),
+								FirstPickupDate: $('#@Html.IdFor(model => model.FirstPickupDate)').val(),
+								LastPickupDate: $('#@Html.IdFor(model => model.LastPickupDate)').val(),
+								OrderStatusIds: $('#@Html.IdFor(model => model.OrderStatusIds)').val()
+							};
+							addAntiForgeryToken(postData);
+
+							$.ajax({
+								cache: false,
+								type: "POST",
+								url: "@(Url.Action("OrderReportAggregates", "Referral"))",
+								data: postData,
+								success: function (data, textStatus, jqXHR) {
+									if (data) {
+										for (var key in data) {
+											var reportSummary = '<div class="mb-2"><span class="grid-report-item red"><strong>@T("Admin.Referral.Orders.Report.Total.Pending").Text</strong>&nbsp;<span>' + data['AggregatorUnpaidAmountTotal'] + '</span></span></div>' +
+												'<div class="mb-2"><span class="grid-report-item green"><strong>@T("Admin.Referral.Orders.Report.Total.Paid").Text</strong>&nbsp; <span>' + data['AggregatorPaidAmountTotal'] + '</span></span></div>' +
+												'<div class="mb-2"><span class="grid-report-item blue"><strong>@T("Admin.Referral.Orders.Report.Total").Text</strong>&nbsp; <span>' + data['AggregatorTotal'] + '</span></span></div>';
+											var totalsColumn = $('#referral-order-grid').DataTable().column(@(summaryColumnNumber));	   
+											$(totalsColumn.footer()).html(reportSummary);
+										}
+									}
+								}
+							});
+						}
+
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<div id="Delete-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="delete-confirmation-popup-title" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+			</div>
+			<div class="form-horizontal">
+				<div class="modal-body">
+					@T("Admin.Common.ActionConfirmation")
+				</div>
+				<div class="modal-footer">
+					<span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+					<button type="button" id="delete-selected-action-confirmation-submit-button" class="btn btn-primary">
+						@T("Admin.Common.Yes")
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$("#Delete-Confirmation-Popup .close").click(function(e){
+		$('#Delete-Confirmation-Popup').modal('hide');
+	});
+</script>

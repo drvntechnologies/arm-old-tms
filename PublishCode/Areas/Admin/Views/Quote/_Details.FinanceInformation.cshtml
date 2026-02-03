@@ -1,0 +1,107 @@
+﻿@model QuoteDetailsModel
+
+@if (string.IsNullOrWhiteSpace(Model.OriginFormattedAddress) &&
+     string.IsNullOrWhiteSpace(Model.PickupDate) &&
+     string.IsNullOrWhiteSpace(Model.DestinationFormattedAddress) &&
+     string.IsNullOrWhiteSpace(Model.DeliveryDate) &&
+     string.IsNullOrWhiteSpace(Model.DistanceInMile) &&
+     string.IsNullOrWhiteSpace(Model.MileageBend))
+{
+    return;
+}
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-dollar-sign"></i>
+            @T("Admin.Portal.Quote.FinanceInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.LineHaulAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.LineHaul.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.LineHaulAmount
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.OneDayGuaranteedLoadAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.OneDayGuaranteedLoad.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.OneDayGuaranteedLoadAmount
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.TotalFVPAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.TotalFVP.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.TotalFVPAmount
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.StandardReferralAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.StandardReferral.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.StandardReferralAmount
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.AdditionalReferralAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.AdditionalReferral.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.AdditionalReferralAmount
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.PromoCode))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.PromoCode.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.PromoCode
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.EstimatedPriceAmount))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.EstimatedPrice.Amount")
+                </div>
+                <div class="input-name">
+                    @Model.EstimatedPriceAmount
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

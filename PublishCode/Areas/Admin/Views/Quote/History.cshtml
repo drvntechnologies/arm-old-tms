@@ -1,0 +1,373 @@
+@model QuoteHistorySearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Portal.Quote.List").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Customer Portal Quotes");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "PortalQuote.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="Quote" asp-action="History" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Portal.Quote.List")
+        </h1>
+        <div class="float-right">
+            &nbsp;
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+
+                    <div class="card card-default card-search d-card-search d-card">
+
+
+
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="QuoteNumber" />
+                                            </div>
+                                            <div class="col-md-12 qq">
+                                                <nop-editor asp-for="QuoteNumber" html-attributes="@(new { placeholder = "Enter Quote Number" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="CompanyName" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="CompanyName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="Email" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="PhoneNumber" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="PhoneNumber" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="Advanced-search hide">
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="Reference" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="Reference" html-attributes="@(new { placeholder = "Enter Reference" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginCity" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="OriginCity" html-attributes="@(new { placeholder = "Enter Origin City" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginStateId" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="OriginStateId" asp-items="Model.AvailableStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginZip" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="OriginZip" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="Status" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="Status" asp-items="Model.AvailableStatuses" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationCity" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="DestinationCity" html-attributes="@(new { placeholder = "Enter Destination City" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationStateId" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="DestinationStateId" asp-items="Model.AvailableStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationZip" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="DestinationZip" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="Vehicle" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="Vehicle" html-attributes="@(new { placeholder = "Enter Vehicle" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="LoadingOptionId" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="LoadingOptionId" asp-items="Model.AvailableLoadingOptions" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="RequestedDateFrom" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="RequestedDateFrom" html-attributes="@(new { placeholder = "Select Requested Date From" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="RequestedDateTo" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="RequestedDateTo" html-attributes="@(new { placeholder = "Select Requested Date To" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 position-relative">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <button type="button" id="portal-customer-quote-search" class="btn btn-primary btn-search">
+                                                <i class="fas fa-search"></i>
+                                                @T("Admin.Common.Search")
+                                            </button>
+                                            <button type="button" id="portal-customer-quote-btn-cancel" class="btn btn-primary btn-cancel-search">
+                                                <i class="fas fa-times"></i>
+                                                @T("Admin.Common.Clear")
+                                            </button>
+                                        </div>
+                                        <a href="javascript:void(0);" id="advanced-btn" class="d-advanced-search-btn">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default d-datatable d-card m-0 custom-card">
+                        <div class="card-body Quote-listing-tbl">
+                            
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Name = "portal-customer-quote-grid",
+                                    SearchButtonId = "portal-customer-quote-search",
+                                    UrlRead = new DataUrl("History", "Quote", null),
+                                    Ordering = true,
+                                    Order = "0,'desc'",
+                                    Targets = "5",
+                                    Orderable = false,
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    Filters = new List<FilterParameter>
+                                    {
+                                        new FilterParameter(nameof(Model.QuoteNumber)),
+                                        new FilterParameter(nameof(Model.CompanyName)),
+                                        new FilterParameter(nameof(Model.Email)),
+                                        new FilterParameter(nameof(Model.PhoneNumber)),
+                                        new FilterParameter(nameof(Model.Reference)),
+                                        new FilterParameter(nameof(Model.OriginCity)),
+                                        new FilterParameter(nameof(Model.OriginStateId)),
+                                        new FilterParameter(nameof(Model.OriginZip)),
+                                        new FilterParameter(nameof(Model.Status)),
+                                        new FilterParameter(nameof(Model.DestinationCity)),
+                                        new FilterParameter(nameof(Model.DestinationStateId)),
+                                        new FilterParameter(nameof(Model.DestinationZip)),
+                                        new FilterParameter(nameof(Model.Vehicle)),
+                                        new FilterParameter(nameof(Model.LoadingOptionId)),
+                                        new FilterParameter(nameof(Model.RequestedDateFrom), typeof(DateTime?)),
+                                        new FilterParameter(nameof(Model.RequestedDateTo), typeof(DateTime?)),
+                                    }
+                                };
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.QuoteDetails))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.QuoteDetails").Text}</span>",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.CustomerDetails))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.CustomerDetails").Text}</span>",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.LocationDetails))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.LocationDetails").Text}</span>",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.VehicleDetails))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.VehicleDetails").Text}</span>",
+                                    Encode = false,
+                                    Width = "300px"
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.EstimatedPriceAmount))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.EstimatedPrice").Text}</span>",
+                                    Encode = false,
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.Status))
+                                {
+                                    Title = T("Admin.Portal.Quote.List.Columns.Status").Text,
+                                    Encode = false,
+                                    Render = new RenderCustom("renderQuoteStatusColumnView")
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteDetailsModel.RequestedDate))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Portal.Quote.List.Columns.RequestDate").Text}</span>",
+                                    Encode = false,
+                                    Width = "50px"
+                                });
+                            }
+
+                            @await Html.PartialAsync("Table", gridModel)
+
+                            <script>
+                                $(document).ready(function (){
+                                    if ($('.card-search').length > 0) {
+                                        if ($('.search-row').hasClass('opened')) {
+                                            $('.card-search').addClass('opened')
+                                        }else{
+                                            $('.card-search').removeClass('opened')
+                                        }
+                                        $(document).on('click','.search-row', function(){
+                                            $('.card-search').toggleClass('opened')
+                                        });
+                                    }
+                                });
+                                function renderQuotePriceColumnView(data, type, row, meta) {
+                                    let color;
+
+                                    if (row.IsActive) {
+                                        color = 'green';
+                                    } else {
+                                        color = 'yellow';
+                                    }
+
+                                    let price = roundDecimal(data, 2);
+
+                                    return '<span class="grid-report-item text-nowrap price ' + color + '">' + price + '</span >';
+                                }
+
+                                function renderQuoteStatusColumnView(data, type, row, meta) {
+                                    let color;
+
+                                    if (row.IsActive) {
+                                        color = 'green';
+                                    } else {
+                                        color = 'yellow';
+                                    }
+
+                                    return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<script>
+
+    $("#RequestedDateFrom").attr("placeholder", "Select Requested Date From");
+    $("#RequestedDateTo").attr("placeholder", "Select Requested Date To");
+
+    enforceLowerCase("#Email");
+    commonPhoneNumber("#PhoneNumber");
+    restrictToCityNameFormat("#OriginCity, #DestinationCity");
+    allowUniversalZip("#OriginZip, #DestinationZip");
+    cancelSearch("#portal-customer-quote-btn-cancel");
+
+    $("#advanced-btn").click(function () {
+        $('.Advanced-search.hide').toggle(100);
+    });
+
+    $("div.search-body").keypress(function (event) {
+        if (event.which == 13 || event.keyCode == 13) {
+            $("button#portal-customer-quote-search").click();
+            return false;
+        }
+    });
+</script>

@@ -1,0 +1,163 @@
+﻿#drop-zone {
+    width: 100%;
+    min-height: 150px;
+    border: 3px dashed rgba(0, 0, 0, .3);
+    border-radius: 5px;
+    font-family: Arial;
+    text-align: center;
+    position: relative;
+    font-size: 20px;
+    color: #7E7E7E;
+}
+
+#drop-zone input {
+    position: relative;
+    cursor: pointer;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+    top: -30px !important;
+    left: -74px !important;
+    width: 210px;       
+}
+/*Important*/
+
+#drop-zone.mouse-over {
+    border: 3px dashed rgba(0, 0, 0, .3);
+    color: #7E7E7E;
+}
+/*If you dont want the button*/
+
+#clickHere {
+    display: inline-block;
+    cursor: pointer;
+    color: white;
+    font-size: 17px;
+    width: 150px;
+    overflow:hidden;
+    border-radius: 4px;
+    background-color: #4679BD;
+    padding: 10px;
+    position: relative;
+    z-index: 55;
+    max-height: 46px;
+}
+
+    #clickHere:hover {
+        background-color: #376199;
+    }
+
+#filename {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.5em;
+}
+
+.file-preview {
+    background: #ccc;
+    border: 5px solid #fff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.closeBtn:hover {
+    color: red;
+    display: inline-block;
+}
+
+
+
+#drop-zone-insurance {
+    width: 100%;
+    min-height: 150px;
+    border: 3px dashed rgba(0, 0, 0, .3);
+    border-radius: 5px;
+    font-family: Arial;
+    text-align: center;
+    position: relative;
+    font-size: 20px;
+    color: #7E7E7E;
+}
+
+#drop-zone-insurance input {
+    position: absolute;
+    cursor: pointer;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+}
+/*Important*/
+
+#drop-zone-insurance.mouse-over {
+    border: 3px dashed rgba(0, 0, 0, .3);
+    color: #7E7E7E;
+}
+/*If you dont want the button*/
+
+#clickHereInsurance {
+    display: inline-block;
+    cursor: pointer;
+    color: white;
+    font-size: 17px;
+    width: 150px;
+    border-radius: 4px;
+    background-color: #4679BD;
+    padding: 10px;
+}
+
+    #clickHereInsurance:hover {
+        background-color: #376199;
+    }
+
+#filenameInsurance {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.5em;
+}
+
+.file-preview {
+    background: #ccc;
+    border: 5px solid #fff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.closeBtn:hover {
+    color: red;
+    display: inline-block;
+}
+
+
+#sig-canvas {
+    border: 2px dotted #CCCCCC;
+    border-radius: 15px;
+    cursor: crosshair;
+}
+
+#sig-canvas-2 {
+    border: 2px dotted #CCCCCC;
+    border-radius: 15px;
+    cursor: crosshair;
+}
+
+.carrier-bg-area .field-validation-error {
+    font-size: 13px;
+    color: #f00;
+    display: block;
+    margin-bottom: 6px;
+}
+.carrier-pg sup {
+    color: #f00;
+}

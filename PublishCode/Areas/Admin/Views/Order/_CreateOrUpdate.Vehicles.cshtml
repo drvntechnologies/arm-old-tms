@@ -1,0 +1,236 @@
+@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsVehicleInfoModel
+
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+@{
+    var addVehicleId = "VehicleInfos" + (Model.Counter - 1);
+    var newVehicleId = "VehicleInfos" + (Model.Counter - 1) + "_VehicleVINNumber";
+}
+
+<div id="vehicle_@(Model.Counter-1)" class="VehicleInfoList @(Model.Counter>1?"border-top pt-3":"")">
+
+    <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+    <input asp-for="LeadId" type="hidden" />
+
+    <div class="card m-0">
+        <div class="card-header d-flex align-items-center py-2">
+        <div class="counter d-v-counter-position col-form-label counter" for="Shipper">@T("Admin.Orders.Fields.VehicleCount", Model.Counter)</div>
+            <button class="btn d-vehicel-close ml-auto" id="removeVehicleInfoBtn" type="button" onclick="RemoveVehicle(@Model.Counter)">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VehicleVINNumber" asp-required="@Model.VehicleVINNumberRequired" />
+                                    </div>
+                                    <div class="input-name">
+                                        <input type="text" class="form-control" asp-for="VehicleVINNumber" onkeyup="VinApiRequest('@addVehicleId','@newVehicleId')" autocomplete="off" placeholder = "Enter VIN" />
+                                        <span asp-validation-for="VehicleVINNumber"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VehicleYear" asp-required="@Model.VehicleYearRequired" />
+                                    </div>
+                                    <div class="input-name">
+                                    <input type="text" autocomplete="off" class="form-control" data-val="true" data-val-required="Year is required" asp-for="VehicleYear" onfocusout="FetchVehicleType('@addVehicleId')" />
+                                        <span asp-validation-for="VehicleYear"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="Make" asp-required="@Model.MakeRequired" />
+                                    </div>
+                                    <div class="input-name position-relative">
+                                    <input type="text" class="form-control" autocomplete="off" data-val="true" data-val-required="Make is required" asp-for="Make" placeholder="Enter Make" onfocusout="FetchVehicleType('@addVehicleId')" data-type="Make" />
+                                        <span asp-validation-for="Make"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VehicleModel" asp-required="@Model.VehicleModelRequired" />
+                                    </div>
+                                    <div class="input-name position-relative">
+                                    <input type="text" class="form-control" autocomplete="off" data-val="true" data-val-required="Model is required" asp-for="VehicleModel" onfocusout="FetchVehicleType('@addVehicleId')" placeholder="Enter Model" data-type="Model" />
+                                        <span asp-validation-for="VehicleModel"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VehicleType" asp-required="@Model.VehicleTypeRequired" />
+                                    </div>
+                                    <div class="input-name">
+                                    <nop-select asp-for="VehicleType" asp-items="Model.AvailableVehicleType" class="form-select vehicle-type" />
+                                        <span asp-validation-for="VehicleType"></span>
+                                    </div>
+                                </div>
+                            <div class="custom-form-group vehicle-type-other" style="@(!(Model.VehicleType?.Equals("Other", StringComparison.InvariantCultureIgnoreCase) == true) ? "display:none" : "" )">
+                                <div class="label-name">
+                                    <nop-label asp-for="VehicleTypeOther" />
+                                </div>
+                                <div class="input-name">
+                                    <input type="text" autocomplete="off" class="form-control" asp-for="VehicleTypeOther" />
+                                    <span asp-validation-for="VehicleTypeOther"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="VehicleValue" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="VehicleValue" />
+                                    <span asp-validation-for="VehicleValue"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="TempTag" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="TempTag" html-attributes="@(new { placeholder = "Enter Temp Tag", autocomplete="off" })" />
+                                    <span asp-validation-for="TempTag"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="TempTagExpiration" />
+                                </div>
+                                <div class="input-name">
+                                <input type="text" asp-for="TempTagExpiration" placeholder="Select Temp Tag Expiration" value="@(Model.TempTagExpiration > DateTime.MinValue || Model.TempTagExpiration.HasValue ? Model.TempTagExpiration.Value.ToString("MMM dd, yyyy") : null)" />
+                                    <span asp-validation-for="TempTagExpiration"></span>
+                                </div>
+                            </div>
+                            @* <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Carrier" asp-required="Model.CarrierRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-select asp-for="Carrier" asp-items="@Model.AvailableCarriers" class="form-select" />
+                                    <span asp-validation-for="Carrier"></span>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Color" asp-required="@Model.ColorRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="Color" html-attributes="@(new { placeholder = "Enter Color", autocomplete="off" })" />
+                                    <span asp-validation-for="Color"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="PlateNo" asp-required="@Model.PlateNoRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="PlateNo" html-attributes="@(new { placeholder = "Enter Plate", autocomplete="off" })" />
+                                    <span asp-validation-for="PlateNo"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="State" asp-required="@Model.StateRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-select asp-for="State" asp-items="Model.AvailableStates" class="form-select" />
+                                    <span asp-validation-for="State"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Lot" asp-required="@Model.LotRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="Lot" html-attributes="@(new { placeholder = "Enter Lot", autocomplete="off" })" />
+                                    <span asp-validation-for="Lot"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Po" asp-required="@Model.PoRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="Po" html-attributes="@(new { placeholder = "Enter P.O.", autocomplete="off" })" />
+                                    <span asp-validation-for="Po"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Buyer" asp-required="@Model.BuyerRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="Buyer" html-attributes="@(new { placeholder = "Enter Buyer", autocomplete="off" })" />
+                                    <span asp-validation-for="Buyer"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Odometer" asp-required="@Model.OdometerRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-editor asp-for="Odometer" html-attributes="@(new { placeholder = "Enter Odometer", autocomplete="off" })" />
+                                    <span asp-validation-for="Odometer"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="Note" asp-required="@Model.NoteRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-textarea asp-for="Note" html-attributes="@(new { placeholder = "Enter Note", autocomplete="off" })" />
+                                    <span asp-validation-for="Note"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group custom-checkbox-ui">
+                                <div class="label-name">
+                                    <nop-label asp-for="IsModified" />
+                                </div>
+                                <div class="input-name">
+                                    <input type="checkbox" class="check-box" asp-for="IsModified" onchange="isModified('@addVehicleId')" />
+                                    <span asp-validation-for="IsModified"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group custom-checkbox-ui" id="pnl-modifiednotes-reason-@addVehicleId" style="display:none;">
+                                <div class="label-name">
+                                    <nop-label asp-for="ModifiedNotes" asp-required="Model.ModifiedNotesRequired" />
+                                </div>
+                                <div class="input-name">
+                                <nop-textarea asp-for="ModifiedNotes" html-attributes="@(new { placeholder = "Enter Modified Notes", autocomplete="off" })" />
+                                    <span asp-validation-for="ModifiedNotes"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group custom-checkbox-ui">
+                                <div class="label-name">
+                                    <nop-label asp-for="IsInoperable" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="IsInoperable" />
+                                    <span asp-validation-for="IsInoperable"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    allowNumericWithMaxLength("#VehicleYear", 4);
+</script>

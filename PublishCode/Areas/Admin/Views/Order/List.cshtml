@@ -1,0 +1,1162 @@
+﻿@model OrderSearchModel
+
+@inject IStoreService storeService
+@using Nop.Services.Stores
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Orders").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Orders");
+
+    const string hideSearchBlockAttributeName = "OrdersPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+@if (Model.LicenseCheckModel.BlockPages != true)
+{
+    <form asp-controller="Order" asp-action="List" method="post">
+        <div class="content-header clearfix">
+            <h1 class="float-left">
+                @T("Admin.Orders")
+            </h1>
+            <div class="float-right">
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus-square"></i>
+                    @T("Admin.Common.AddNew")
+                </a>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.OrderListButtons, additionalData = Model })
+                
+            </div>
+        </div>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="form-horizontal d-form-horizontal" id="order-search-list">
+                    <div class="cards-group">
+                        <div class="card card-default card-search d-card-search d-card">
+                            <div class="card-body">
+                                <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                    <div class="search-text">@T("Admin.Common.Search")</div>
+                                    <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                    <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                                </div>
+                                <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="LeadNumber" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="LeadNumber" html-attributes="@(new { placeholder = "Enter Order Number" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="StatusIds" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="StatusIds" asp-items="Model.AvailableStatus" asp-multiple="true" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <div class="label-wrapper">
+                                                        <label class="col-form-label" asp-for="BillingEmail"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="BillingEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="ReferenceNumber" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="ReferenceNumber" html-attributes="@(new { placeholder = "Enter Reference Number" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="Advanced-search hide">
+                                            <div class="row">
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="CustomerCompanyName" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="CustomerCompanyName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <div class="label-wrapper">
+                                                                <label class="col-form-label" asp-for="BillingPhone"></label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="BillingPhone" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="OriginCity" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="OriginCity" html-attributes="@(new { placeholder = "Enter Origin City" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="OriginStateId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="OriginStateId" asp-items="Model.AvailableOriginStates" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="OriginZip" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="OriginZip" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="OriginCountryId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="OriginCountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (Model.IsAdmin ||
+                                                Model.IsManager ||
+                                                Model.IsCustomerService ||
+                                                Model.IsDispatch)
+                                                {
+                                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                                        <div class="form-group row">
+                                                            <div class="col-md-12">
+                                                                <nop-label asp-for="CreatedBy" />
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <nop-select asp-for="CreatedBy" asp-items="Model.AvailableCreatedByCustomers" class="form-select form-control" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="DestinationCity" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="DestinationCity" html-attributes="@(new { placeholder = "Enter Destination City" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="DestinationStateId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="DestinationStateId" asp-items="Model.AvailableDestinationStates" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="DestinationZip" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="DestinationZip" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="DestinationCountryId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="DestinationCountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="CarrierId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="CarrierId" asp-items="Model.AvailableCarrierName" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="PaymentOption" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="PaymentOption" asp-items="Model.AvailablePaymentOptions" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="FirstPickupDate" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="FirstPickupDate" html-attributes="@(new { placeholder = "Select First PU Date" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="LastPickupDate" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="LastPickupDate" html-attributes="@(new { placeholder = "Select Last PU Date" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="CsrFuDate" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="CsrFuDate" html-attributes="@(new { placeholder = "Select CSR FU Date" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="DispFuDate" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="DispFuDate" html-attributes="@(new { placeholder = "Select Disp FU Date" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="BookedOrder" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="BookedOrder" asp-items="Model.AvailableBookedOrders" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <div class="label-wrapper">
+                                                                <label class="col-form-label" asp-for="PaymentStatusId">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="ShipperFirstName" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="ShipperFirstName" html-attributes="@(new { placeholder = "Enter Shipper First Name" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="ShipperLastName" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-editor asp-for="ShipperLastName" html-attributes="@(new { placeholder = "Enter Shipper Last Name" })" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-lg-6 col-xl-3">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <nop-label asp-for="RegionTypeId" />
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <nop-select asp-for="RegionTypeId" asp-items="Model.AvailableRegionTypes" class="form-select form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 position-relative">
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <button type="button" id="search-orders" class="btn btn-primary btn-search">
+                                                    <i class="fas fa-search"></i>
+                                                    @T("Admin.Common.Search")
+                                                </button>
+                                                <button type="submit" asp-action="ClearSearch" id="order-btncancel" class="btn btn-primary btn-cancel-search">
+                                                    <i class="fas fa-times"></i>
+                                                    @T("Admin.Common.Clear")
+                                                </button>
+                                            </div>
+                                            <a href="javascript:void(0);" id="advanced-btn" class="d-advanced-search-btn">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card card-default orderPage-data-list-section d-datatable d-card m-0">
+                            <div class="card-body">
+                                <div class="card-header d-flex border-0">
+                                    <button type="button" class="btn btn-primary ml-auto" id="show-hide-column" data-toggle="modal" data-target="#show-hide-column-popup">@T("Admin.Orders.List.Show.Hide.Column")
+                                    </button>
+                                </div>
+                                @{
+                                    var gridModel = new DataTablesModel
+                                    {
+                                        Ordering = true,
+                                        Order = Model.OrderColumnDirection,
+                                        Orderable = false,
+                                        Targets = "0,3,4,11,12,13,14,15,16,17,18,19",
+                                        Name = "orders-grid",
+                                        UrlRead = new DataUrl("OrderList", "Order", null),
+                                        SearchButtonId = "search-orders",
+                                        PrimaryKeyColumn = nameof(OrderSearchModel.LeadId),
+                                        Length = Model.PageSize,
+                                        LengthMenu = Model.AvailablePageSizes,
+                                        Filters = new List<FilterParameter>
+                                        {
+                                            new FilterParameter(nameof(Model.StartDate), typeof(DateTime?)),
+                                            new FilterParameter(nameof(Model.EndDate), typeof(DateTime?)),
+                                            new FilterParameter(nameof(Model.OrderStatusIds)),
+                                            new FilterParameter(nameof(Model.StatusIds)),
+                                            new FilterParameter(nameof(Model.PaymentStatusIds)),
+                                            new FilterParameter(nameof(Model.ShippingStatusIds)),
+                                            new FilterParameter(nameof(Model.StoreId)),
+                                            new FilterParameter(nameof(Model.VendorId)),
+                                            new FilterParameter(nameof(Model.WarehouseId)),
+                                            new FilterParameter(nameof(Model.BillingCountryId)),
+                                            new FilterParameter(nameof(Model.PaymentMethodSystemName)),
+                                            new FilterParameter(nameof(Model.ProductId)),
+                                            new FilterParameter(nameof(Model.OrderNotes)),
+                                            new FilterParameter(nameof(Model.LeadId)),
+                                            new FilterParameter(nameof(Model.LeadNumber)),
+                                            new FilterParameter(nameof(Model.BillingPhone)),
+                                            new FilterParameter(nameof(Model.BillingEmail)),
+                                            new FilterParameter(nameof(Model.ShipperFirstName)),
+                                            new FilterParameter(nameof(Model.ShipperLastName)),
+                                            new FilterParameter(nameof(Model.CustomerCompanyName)),
+                                            new FilterParameter(nameof(Model.OriginCity)),
+                                            new FilterParameter(nameof(Model.OriginStateId)),
+                                            new FilterParameter(nameof(Model.OriginZip)),
+                                            new FilterParameter(nameof(Model.OriginCountryId)),
+                                            new FilterParameter(nameof(Model.DestinationCity)),
+                                            new FilterParameter(nameof(Model.DestinationStateId)),
+                                            new FilterParameter(nameof(Model.DestinationZip)),
+                                            new FilterParameter(nameof(Model.DestinationCountryId)),
+                                            new FilterParameter(nameof(Model.StatusId)),
+                                            new FilterParameter(nameof(Model.CreatedBy)),
+                                            new FilterParameter(nameof(Model.ReferenceNumber)),
+                                            new FilterParameter(nameof(Model.CarrierId)),
+                                            new FilterParameter(nameof(Model.PaymentOption)),
+                                            new FilterParameter(nameof(Model.RegionTypeId)),
+                                            new FilterParameter(nameof(Model.CsrFuDate)),
+                                            new FilterParameter(nameof(Model.DispFuDate)),
+                                            new FilterParameter(nameof(Model.FirstPickupDate)),
+                                            new FilterParameter(nameof(Model.LastPickupDate)),
+                                            new FilterParameter(nameof(Model.BookedOrder)),
+                                            new FilterParameter(nameof(Model.PaymentStatusId)),
+                                        }
+                                    };
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.Id))
+                                    {
+                                        Title = "",
+                                        Render = new RenderChildCaret(),
+                                        Width = "5",
+                                        Searchable = false,
+                                        ClassName = NopColumnClassDefaults.ChildControl,
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.OrderDetail))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.OrderId").Text}</span>",
+                                        Width = "150",
+                                        ClassName = "text-nowrap",
+                                        Encode = false
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.Status))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.Status").Text}</span>",
+                                        Width = "200",
+                                        Encode = false,
+                                        Render = new RenderCustom("renderColumnLogisticsStatus")
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.CustomerDetails))
+                                    {
+                                        Title = T("Admin.Orders.Fields.CustomerDetails").Text,
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowCustomerDetails
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.ShipperDetail))
+                                    {
+                                        Title = T("Admin.Orders.Fields.ShipperDetail").Text,
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowShipperDetails
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.FirstAvailablePickupDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.FirstAvailablePickupDateValue").Text}</span>",
+                                        Width = "120",
+                                        Encode = false,
+                                        Visible = Model.ShowFirstAvailableDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.FirstAvailablePickupEndDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.FirstAvailablePickupEndDateValue").Text}</span>",
+                                        Width = "120",
+                                        Encode = false,
+                                        Visible = Model.ShowLastAvailableDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.EstimatedDeliveryDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.EstimatedDeliveryDateValue").Text}</span>",
+                                        Width = "120",
+                                        Encode = false,
+                                        Visible = Model.ShowFirstDeliveryDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.EstimatedDeliveryEndDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.EstimatedDeliveryEndDateValue").Text}</span>",
+                                        Width = "120",
+                                        Encode = false,
+                                        Visible = Model.ShowLastDeliveryDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.CustomerFollowUpDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Order.List.Fields.CustomerFollowUpDateValue").Text}</span>",
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowCsrFollowUpDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.FollowUpDateValue))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Orders.Fields.FollowUpDate").Text}</span>",
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowDispFollowUpDate
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.OriginAddress))
+                                    {
+                                        Title = T("Admin.Orders.Fields.OriginLocation").Text,
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowOriginLocation
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.DestinationAddress))
+                                    {
+                                        Title = T("Admin.Orders.Fields.DestinationLocation").Text,
+                                        Width = "100",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowDestinationLocation
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.VehicleModel))
+                                    {
+                                        Title = T("Admin.Orders.Fields.VehicleModel").Text,
+                                        Width = "150",
+                                        ClassName = "text-nowrap",
+                                        Encode = false,
+                                        Visible = Model.ShowVehicleModel
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.VehicleType))
+                                    {
+                                        Title = T("Admin.Orders.Fields.VehicleType").Text,
+                                        Width = "200",
+                                        ClassName = "text-nowrap",
+                                        Encode = false,
+                                        Visible = Model.ShowVehicleType
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.PaymentOption))
+                                    {
+                                        Title = T("Admin.Orders.Fields.PaymentOption").Text,
+                                        Width = "50",
+                                        Encode = false,
+                                        Visible = Model.ShowPaymentOption
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.PaymentStatus))
+                                    {
+                                        Title = T("Admin.Orders.Fields.PaymentStatus").Text,
+                                        Width = "200",
+                                        Encode = false,
+                                        Render = new RenderCustom("renderPaymentStatus")
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.CarrierCategory))
+                                    {
+                                        Title = T("Admin.Orders.Fields.CarrierName").Text,
+                                        Width = "50",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowCarrierName
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.SalesRep))
+                                    {
+                                        Title = T("Admin.Orders.Fields.SalesRep").Text,
+                                        Width = "50",
+                                        Encode = false,
+                                        ClassName = "text-nowrap",
+                                        Visible = Model.ShowSalesRep
+                                    });
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.LeadId))
+                                    {
+                                        Title = "Actions", 
+                                        Width = "200",
+                                        ClassName = NopColumnClassDefaults.Button,
+                                        Render = new RenderCustom("renderColumnActions")
+                                    });
+
+                                    gridModel.ChildTable = new DataTablesModel
+                                    {
+                                        Name = "childOrders-grid",
+                                        Targets = "0,1,2,3,4,5",
+                                        UrlRead = new DataUrl("ChildOrderList", "Order", null),
+                                        IsChildTable = true,
+                                        Length = Model.PageSize,
+                                        LengthMenu = Model.AvailablePageSizes,
+                                        Filters = new List<FilterParameter>
+                                        {
+                                            new FilterParameter(nameof(OrderSearchModel.LeadId), nameof(OrderModel.LeadId), true),
+                                        },
+                                        ColumnCollection = new List<ColumnProperty>
+                                        {
+                                            new ColumnProperty(nameof(OrderModel.OrderDetail))
+                                            {
+                                                Title = T("Admin.Orders.Fields.OrderDetail").Text,
+                                                Width = "30",
+                                                Encode = false
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.Status))
+                                            {
+                                                Title = T("Admin.Orders.Fields.Status").Text,
+                                                Width = "30",
+                                                Encode = false,
+                                                Render = new RenderCustom("renderColumnLogisticsStatus"),
+                                                ClassName =  NopColumnClassDefaults.CenterAll
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.CustomerDetails))
+                                            {
+                                                Title = T("Admin.Orders.Fields.CustomerDetails").Text,
+                                                Width = "100",
+                                                Encode = false,
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.ShipperDetail))
+                                            {
+                                                Title = T("Admin.Orders.Fields.ShipperDetail").Text,
+                                                Width = "100",
+                                                Encode = false
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.OriginAndDestinationAddress))
+                                            {
+                                                Title = T("Admin.Orders.Fields.OriginAndDestinationAddress").Text,
+                                                Width = "100",
+                                                Encode = false
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.CustomerFollowUpDateValue))
+                                            {
+                                                Title = T("Admin.Order.List.Fields.CustomerFollowUpDateValue").Text,
+                                                Width = "100",
+                                                Encode = false,
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.FollowUpDateValue))
+                                            {
+                                                Title = T("Admin.Orders.Fields.FollowUpDate").Text,
+                                                Width = "100",
+                                                Encode = false,
+                                            },
+                                            new ColumnProperty(nameof(OrderModel.LeadId))
+                                            {
+                                                Title = "Actions",
+                                                Width = "30",
+                                                ClassName = NopColumnClassDefaults.Button,
+                                                Render = new RenderCustom("renderColumnButtons")
+                                            }
+                                        }
+                                    };
+                                }
+
+                                @await Html.PartialAsync("Table", gridModel)
+
+                                <script>
+                                    $(document).ready(function (){
+                                        if ($('.card-search').length > 0) {
+                                            $(document).on('click','.search-row', function(){
+                                                $('.card-search').toggleClass('opened')
+                                            });
+                                        }
+                                    });
+                                    function renderColumnActions(data, type, row, meta) {
+                                        return `
+                                            <div class="action-group">
+                                                <button type=button class="btn btn-default edit-order" data-id="${row.LeadId}" title="Edit">
+                                                    <i class="fas fa-pencil-alt" title="Edit"></i>
+                                                </button>
+                                                <button type=button class="btn btn-default delete-order" data-id="${row.LeadId}" title="Delete" data-toggle="modal" data-target="#delete-order-confirmation">
+                                                    <i class="fas fa-trash-alt" title="Delete"></i>
+                                                </button>
+                                            </div>
+                                        `;
+                                    }
+                                    function renderColumnButtons(data, type, row, meta) {
+                                        return `
+                                            <div class="action-group">
+                                                <button type=button class="btn btn-default edit-order" data-id="${row.LeadId}" title="Edit">
+                                                    <i class="fas fa-pencil-alt" title="Edit"></i>
+                                                </button>
+                                                <button type=button class="btn btn-default delete-sub-order" data-id="${row.LeadId}" title="Delete" data-toggle="modal" data-target="#delete-sub-order-confirmation">
+                                                    <i class="fas fa-trash-alt" title="Delete"></i>
+                                                </button>
+                                            </div>
+                                        `;
+                                    }
+                                    $(document).on('click', '.edit-order', function () {
+                                        var leadId = $(this).data('id');
+                                        window.location.href = '/Admin/Order/Edit/' + leadId;
+                                    });
+
+                                    $(document).on('click', '.delete-order', function () {
+                                        const id = $(this).data('id');
+                                        $("#delete-id").val(id);
+                                    });
+
+                                    $(document).on('click', '.delete-sub-order', function () {
+                                        const id = $(this).data('id');
+                                        $("#delete-sub-order-id").val(id);
+                                    });
+
+                                    $("#delete-confirmation-popup").click(function(){
+                                        var postData = {
+                                            id: $("#delete-id").val()
+                                        };
+                                        addAntiForgeryToken(postData);
+
+                                        $.post("@Url.Action("DeleteOrder")", postData, function(data){
+                                            $("#delete-id").val("");
+                                            $("#delete-order-confirmation").find('button.close').click();
+
+                                            if (data) {
+                                                display_nop_error(data);
+                                            }
+                                            else{
+                                                //refresh grid
+                                                toastr.success('Order has been deleted successfully');
+                                                $("#orders-grid").DataTable().draw(false);
+                                            }
+                                        });
+                                    });
+
+                                    $("#delete-sub-order-confirmation-popup").click(function(){
+                                        var postData = {
+                                            id: $("#delete-sub-order-id").val()
+                                        };
+                                        addAntiForgeryToken(postData);
+
+                                        $.post("@Url.Action("DeleteOrder")", postData, function(data){
+                                            $("#delete-sub-order-id").val("");
+                                            $("#delete-sub-order-confirmation").find('button.close').click();
+
+                                            if (data) {
+                                                display_nop_error(data);
+                                            }
+                                            else{
+                                                //refresh grid
+                                                toastr.success('Order has been deleted successfully');
+                                                $("#childOrders-grid").DataTable().draw(false);
+                                            }
+                                        });
+                                    });
+
+                                    function renderColumnOrderStatus(data, type, row, meta) {
+                                        var color;
+                                        switch (row.OrderStatusId) {
+                                        case 10:
+                                            color = 'yellow';
+                                            break;
+                                        case 20:
+                                            color = 'blue';
+                                            break;
+                                        case 30:
+                                            color = 'green';
+                                            break;
+                                        case 40:
+                                            color = 'red';
+                                            break;
+                                        }
+                                        return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+                                    }
+
+                                    function renderPaymentStatus(data, type, row, meta) {
+                                        var color;
+                                        switch (row.PaymentStatusId) {
+                                        case 10:
+                                            color = 'yellow';
+                                            break;
+                                        case 25:
+                                            color = 'blue';
+                                            break;
+                                        case 30:
+                                            color = 'green';
+                                            break;
+                                        default:
+                                            color = 'yellow';
+                                            break;
+                                        }
+                                        return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+                                    }
+
+                                    function renderColumnLogisticsStatus(data, type, row, meta) {
+                                        let color;
+                                        let OpenStatusColor = "white";
+
+                                        var dateString = row.FirstAvailablePickupDateValue;
+
+                                        if (dateString != null && dateString != undefined && dateString.trim() != ""){
+                                            var dateParts = dateString.split('/');
+
+                                            if (dateParts.length === 3){
+                                                var dateObject = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+
+                                                var currentDate = new Date();
+                                                currentDate.setHours(0, 0, 0, 0);
+
+                                                if (dateObject < currentDate) {
+                                                    OpenStatusColor = "red";
+                                                }
+                                            }
+                                        }
+
+                                        switch (row.Status) {
+                                        case "@LogisticsStatusDefaults.Order.Open":
+                                            color = OpenStatusColor;
+                                            break;
+                                        case "@LogisticsStatusDefaults.Order.Covered":
+                                            color = 'NeonYellow';
+                                            break;
+                                        case "@LogisticsStatusDefaults.Order.Dispatched":
+                                            color = 'PapayaOrange';
+                                            break;
+                                        case "@LogisticsStatusDefaults.Order.InTransit":
+                                            color = 'blue';
+                                            break;
+                                        case "@LogisticsStatusDefaults.Order.Delivered":
+                                            color = 'green';
+                                            break;
+                                        }
+                                        return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="delete-order-confirmation" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="delete-id" name="delete-id" />
+                        @T("Admin.Common.DeleteConfirmation")
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                        <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="delete-sub-order-confirmation" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="delete-sub-order-id" name="delete-sub-order-id" />
+                        @T("Admin.Common.DeleteConfirmation")
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                        <button type="button" id="delete-sub-order-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="show-hide-column-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="show-hide-column-popup-title" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="show-hide-column-popup-title">@T("Admin.Order.List.ShowHideColumns.Header")</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <div class="col-sm-5 col-10">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="ShowAll">@T("Admin.Common.ShowAll")</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-7 col-2">
+                                            <input class="check-box" data-val="true" id="ShowAll" name="ShowAll" type="checkbox">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowCustomerDetails" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowCustomerDetails" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowShipperDetails" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowShipperDetails" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowFirstAvailableDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowFirstAvailableDate" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowLastAvailableDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowLastAvailableDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowFirstDeliveryDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowFirstDeliveryDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowLastDeliveryDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowLastDeliveryDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowCsrFollowUpDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowCsrFollowUpDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowDispFollowUpDate" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowDispFollowUpDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowOriginLocation" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowOriginLocation" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowDestinationLocation" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowDestinationLocation" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowVehicleModel" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowVehicleModel" />
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowVehicleType" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowVehicleType" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowPaymentOption" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowPaymentOption" />
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowCarrierName" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowCarrierName" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group row">
+                                        <div class="col-10">
+                                            <nop-label asp-for="ShowSalesRep" />
+                                        </div>
+                                        <div class="col-2">
+                                            <nop-editor asp-for="ShowSalesRep" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.Cancel")</span>
+                            <button type="submit" name="ShowHideColumn" class="btn btn-primary float-right">@T("Admin.Common.Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+
+<script type="text/javascript">
+    $("#LeadId").attr("placeholder", "Enter Order Number");
+    $("#FirstPickupDate").attr("placeholder", "Select First PU Date");
+    $("#LastPickupDate").attr("placeholder", "Select Last PU Date");
+    $("#CsrFuDate").attr("placeholder", "Select CSR FU Date");
+    $("#DispFuDate").attr("placeholder", "Select Disp FU Date");
+
+    allowNumberOnly("#LeadNumber");
+    commonPhoneNumber("#BillingPhone");
+    removeSpecialCharactersAndNumber("#ShipperFirstName, #ShipperLastName");
+    restrictToCityNameFormat("#OriginCity, #DestinationCity");
+    enforceLowerCase("#BillingEmail");
+    allowUniversalZip("#OriginZip, #DestinationZip");
+
+    function getStateFromCountry(selectedItem, $stateKendoDropDownList, preSelectedValue = "0"){
+		if(!selectedItem || !$stateKendoDropDownList) return false;
+
+		$.ajax({
+			cache: false,
+			type: "GET",
+			url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+			data: {
+				"countryId": selectedItem,
+				"addSelectStateItem": "false"
+			},
+			success: function (data, textStatus, jqXHR) {
+				var dataSource = $stateKendoDropDownList.dataSource;
+				dataSource.data([]);
+				$.each(data,
+					function (id, option) {
+						dataSource.add({
+							text: option.name,
+							value: option.id
+						});
+					});
+				$stateKendoDropDownList.value(preSelectedValue);
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+			}
+		});
+	};
+
+
+    $(document).ready(function () {
+        $("#advanced-btn").click(function () {
+            $('.Advanced-search.hide').toggle(500);
+        });
+    });
+
+    $(function() {
+            function updateMasterCheckbox() {
+            var totalCheckboxes = $('#show-hide-column-popup input[type="checkbox"]').not('#ShowAll').length;
+            var checkedCheckboxes = $('#show-hide-column-popup input[type="checkbox"]:checked').not('#ShowAll').length;
+
+            if (totalCheckboxes === checkedCheckboxes) {
+                $('#ShowAll').prop('checked', true);
+            } else {
+                $('#ShowAll').prop('checked', false);
+            }
+        }
+
+        $('#ShowAll').change(function() {
+            var isChecked = $(this).prop('checked');
+            $('#show-hide-column-popup input[type="checkbox"]:not(#ShowAll)').prop('checked', isChecked);
+        });
+
+        $('#show-hide-column-popup input[type="checkbox"]:not(#ShowAll)').change(function() {
+            updateMasterCheckbox();
+        });
+
+        updateMasterCheckbox();
+    });
+
+    function checkMediaQuery() {
+        if (window.matchMedia("(max-width: 567px)").matches) {
+           return false;
+        } 
+
+         return true;
+    }
+
+    var interval = setInterval(function () {
+        if (!checkMediaQuery()){
+			clearInterval(interval);
+            return false;
+        }
+
+        var tables = $('table.dataTable');
+        
+        if (tables.length > 0) {
+            clearInterval(interval);
+            
+            tables.each(function () {
+                var tableId = $(this).attr('id');
+
+                var fixedColumnTables = ["orders-grid"];
+
+                if (fixedColumnTables.includes(tableId) && !$(this).hasClass("fixed-columns-applied")) {
+                    $(this).addClass("fixed-columns-applied");
+
+                    var table = $(this).DataTable();
+                    var existingSettings = table.settings().init();
+
+                    $.extend(true, existingSettings, {
+                        scrollX: true,
+                        fixedColumns: {
+                            left: 3,
+                        }
+                    });
+
+                    table.columns.adjust();
+                }
+            });
+        }
+    }, 350);
+
+    $("#@Html.IdFor(model => model.OriginCountryId)").change(function () {
+        let selectedItem = $(this).data("kendoDropDownList").value();
+        let ddlStates = $("#@Html.IdFor(model => model.OriginStateId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+
+    $("#@Html.IdFor(model => model.DestinationCountryId)").change(function () {
+        let selectedItem = $(this).data("kendoDropDownList").value();
+        let ddlStates = $("#@Html.IdFor(model => model.DestinationStateId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+
+</script>

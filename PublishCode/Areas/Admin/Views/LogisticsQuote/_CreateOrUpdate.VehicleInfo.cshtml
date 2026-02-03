@@ -1,0 +1,473 @@
+@model LogisticsQuoteModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.LogisticsQuotes
+@using Nop.Services
+@using System.Reflection;
+
+<div class="card-body carrier-information" id="quoteVehicles">
+    <div class="d-flex">
+        <div class="input-name ml-auto">
+            <button type="button" class="btn btn-primary" id="addNewVehicle">@T("Admin.LogisticsQuoteVehicleInfo.VehicleInfo.AddNew")</button>
+        </div>
+    </div>
+    @foreach (var vehicleInfo in Model.LogisticsQuoteVehicles)
+    {
+        @await Html.PartialAsync("_CreateOrUpdateLogisticsVehicleInfo", vehicleInfo)
+    }
+   
+</div>
+
+<script type="text/javascript">
+    prepareMakeForVehicle("input[id^='LogisticsQuoteVehicles'][id$='_Make']");
+    prepareModelForVehicle("input[id^='LogisticsQuoteVehicles'][id$='_VehicleModel']", "input[id^='LogisticsQuoteVehicles'][id$='_Make']", "div.VehicleInfoList");
+
+    function reInitializeValidation() {
+        var form = $("#quote-form");
+        form.removeData("validator");
+        $.validator.unobtrusive.parse(form);
+    };
+
+    var removedvehicles = 0;
+    var vehicleCounter = @Model.LogisticsQuoteVehicles.Count;
+    $(document).ready(function () {
+
+        // Counter to keep track of the number of address fields
+        for (let i = 0; i < vehicleCounter; i++) {
+
+            var addName = 'LogisticsQuoteVehicles[' + i + ']';
+            var addId = 'LogisticsQuoteVehicles' + i;
+
+            $('#vehicleQuote_' + i + ' [name]').each(function () {
+
+
+                // Get the current name attribute value
+                var currentName = $(this).attr('name');
+                var currentId = $(this).attr('id');
+
+                // Concatenate the custom string
+                var newName = addName + "." + currentName;
+                var newId = addId + "_" + currentId;
+
+                // Set the new name attribute value
+                $(this).attr('name', newName);
+                $(this).attr('id', newId);
+
+                $("select#" + newId).kendoDropDownList({
+                    filter: "contains",
+                    filtering: function (e) {
+                        var filter = e.filter;
+                    },
+                    change: function (e) {
+                        const value = this.value();
+                        if (value && value.length > 0 && value.toLowerCase() == "other"){
+                            $("#"+ newId).closest('.VehicleInfoList').find('.vehicle-type-other').show();
+                        }
+                        else{
+                            $("#"+ newId).closest('.VehicleInfoList').find('.vehicle-type-other').hide();
+                        }
+                    }
+                });
+
+                if($(this).prop('tagName') === 'SELECT'){
+                    $(this).closest('div').find('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                }
+                else{
+                    $(this).siblings('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                }
+            });
+            //reApplyNumericTextBox(addId);
+            reApplyNumericTextBox(addId + '_VehicleValue');
+            isModified(addId);
+            reInitializeValidation();
+        }
+
+        // Add New button click event
+        $('#addNewVehicle').click(function () {
+            $.ajax({
+                url: '@Url.Action("AddNewVehicle", "LogisticsQuote")', // Replace with your controller action
+                data: { index: vehicleCounter },
+                type: 'get',
+                success: function (partialView) {
+                    $('#quoteVehicles').append(partialView);
+
+                    var addName = 'LogisticsQuoteVehicles[' + vehicleCounter + ']';
+                    var addId = 'LogisticsQuoteVehicles' + vehicleCounter;
+                    $('#vehicleQuote_' + vehicleCounter + ' [name]').each(function () {
+                        // Get the current name attribute value
+                        var currentName = $(this).attr('name');
+                        var currentId = $(this).attr('id');
+
+                        // Concatenate the custom string
+                        var newName = addName + "." + currentName;
+                        var newId = addId + "_" + currentId;
+                        // Set the new name attribute value
+
+                        $(this).attr('name', newName);
+                        $(this).attr('id', newId);
+
+                        if (currentName == "VehicleVINNumber") {
+                            $(this).attr('onkeyup', "VinApiRequest('" + addId + "','" + newId + "')");
+                        }
+
+                        var dropdown = $("select#" + newId);
+
+                        if (dropdown.data("kendoDropDownList")) {
+                            dropdown.data("kendoDropDownList").destroy();
+                        }
+
+                        dropdown.kendoDropDownList({
+                            filter: "contains",
+                            filtering: function (e) {
+                                var filter = e.filter;
+                            },
+                            change: function (e) {
+                                const value = this.value();
+                                if (value && value.length > 0 && value.toLowerCase() == "other"){
+                                    $("#"+ newId).closest('.VehicleInfoList').find('.vehicle-type-other').show();
+                                }
+                                else{
+                                    $("#"+ newId).closest('.VehicleInfoList').find('.vehicle-type-other').hide();
+                                }
+                            }
+                        });
+
+                        if($(this).prop('tagName') === 'SELECT'){
+                            $(this).closest('div').find('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                        }
+                        else{
+                            $(this).siblings('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                        }
+                    });
+                    //reApplyNumericTextBox(addId);
+                    reApplyNumericTextBox(addId + '_VehicleValue');
+                    vehicleCounter++;
+                    reInitializeValidation();
+                }
+            });
+        });
+    });
+
+    function RemoveVehicle(index) {
+
+        if ($("#quoteVehicles .VehicleInfoList").length == 1) {
+            toastr.error("@T("Admin.LogisticsQuoteVehicleInfo.Fields.Vehicle.Message.Minimum")");
+            return false;
+        }
+
+        $('#vehicleQuote_' + (index - 1)).remove();
+        removedvehicles++;
+        if (removedvehicles == vehicleCounter) {
+            vehicleCounter++;
+            removedvehicles++;
+        }
+        reIndexing();
+        reInitializeValidation();
+        $('#accessorial-table select[data-type="AccessorialTypeId"]').each(function(){
+            let accessorialType = $(this).val();
+            if (accessorialType == @((int)AccessorialType.Insurance)){
+                setAccessorialInsuranceAmount(this);
+            }
+        });
+        calculateEstimatePrice();
+    }
+
+    function reIndexing() {
+        vehicleCounter = 0;
+        $("#quoteVehicles .VehicleInfoList").each(function () {
+            $(this).find('input, select, button').each(function () {
+                var currentName = $(this).attr('name');
+                var currentId = $(this).attr('id');
+                var addId = 'LogisticsQuoteVehicles' + vehicleCounter;
+                if (currentName != undefined) {
+                    var newName = currentName.replace(/\[\d+\]/, "[" + vehicleCounter + "]");
+                    $(this).attr('name', newName);
+                }
+                if (currentId != undefined) {
+                    var replacedId = currentId.replace(/\d/g, vehicleCounter);
+                    $(this).attr('id', replacedId);
+
+                    if (replacedId == addId + "_VehicleVINNumber") {
+                        $(this).attr('onkeyup', "VinApiRequest('" + addId + "','" + replacedId + "')");
+                    }
+
+                    if (replacedId == "removeVehicleInfoBtn") {
+                        var count = vehicleCounter + 1;
+                        $(this).attr('onclick', 'RemoveVehicle(' + count + ')');
+                    }
+                }
+
+                if($(this).prop('tagName') === 'SELECT'){
+                    $(this).closest('div').find('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                }
+                else{
+                    $(this).siblings('span[data-valmsg-for]').attr('data-valmsg-for',newName);
+                }
+            });
+
+            var counter = '@T("Admin.LogisticsQuoteVehicleInfo.Fields.VehicleCount")';
+            $(this).find(".counter").html(counter.replace("{0}", vehicleCounter + 1))
+            $(this).attr("id", "vehicleQuote_" + vehicleCounter)
+            vehicleCounter++;
+        })  
+    }
+
+    function reApplyNumericTextBox(Id) {
+        try {
+            const existingNumericTextBox = $("#" + Id).data("kendoNumericTextBox");
+
+            if(existingNumericTextBox){
+                $("#"+Id).parent().show();
+                return false;
+            }
+            
+            $("#" + Id).kendoNumericTextBox({
+                value: $("#" + Id).val(),
+                decimals: 2,
+                restrictDecimals: false,
+                format: "c2",
+                // min: 0,
+                spinners: false
+            }).focus(function () {
+                if ($(this).data("kendoNumericTextBox").value() == 0) {
+                    $(this).data("kendoNumericTextBox").value('');
+                }
+                else {
+                    var input = $(this).data("kendoNumericTextBox").element[0];
+                    setTimeout(function () {
+                        input.setSelectionRange(input.value.length, input.value.length);
+                    }, 0);
+                }
+            }).blur(function () {
+                if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+                    $(this).data("kendoNumericTextBox").value(0);
+                }
+            });
+        }
+        catch (e) {
+            //console.error(e);
+        }
+    }
+
+    function VinApiRequest(addId, newId) {
+
+        let makeInputName = $("#" + addId + "_Make").attr('name');
+        let makeError = $('span[data-valmsg-for="' + makeInputName +'"]');
+        makeError.removeClass("field-validation-error");
+        makeError.addClass("field-validation-valid");
+        makeError.text("");
+
+        let modelInputName = $("#" + addId + "_VehicleModel").attr('name');
+        let modelError = $('span[data-valmsg-for="' + modelInputName +'"]');
+        modelError.removeClass("field-validation-error");
+        modelError.addClass("field-validation-valid");
+        modelError.text("");
+
+        if (($("#" + newId).val().length) == 17) {
+            var txtVinNumber = $("#" + newId).val();
+            var postData = { vinNumber: txtVinNumber };
+            
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("VehicleInfoUpdateUsingVINNumber", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#" + addId + "_VehicleYear").val(response.VehicleModelYear);
+                    $("#" + addId + "_Make").val(response.VehicleMake);
+                    $("#" + addId + "_VehicleModel").val(response.VehicleModel);
+                    
+                    if (vehicles != null && vehicles != undefined && vehicles.length > 0)
+                    {
+                        const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === response?.VehicleMake?.toUpperCase());
+                        
+                        if(vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+                            makeError.removeClass("field-validation-valid");
+                            makeError.addClass("field-validation-error");
+                            makeError.text(`Incorrect vehicle make.`);
+                        }
+
+                        const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === response?.VehicleModel?.toUpperCase());
+
+                        if (vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+                            modelError.removeClass("field-validation-valid");
+                            modelError.addClass("field-validation-error");
+                            modelError.text(`Incorrect vehicle model.`);
+                        }
+
+                        let vehicleType = vehiclesFilteredByModel?.length > 0
+                                            ? vehiclesFilteredByModel[0]?.type.toUpperCase()
+                                            : "0";
+
+                        let type = "";
+                        if (vehicleType){
+                            if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+                                type = "Passenger Car";
+                            }
+                            else if (vehicleType === "SUV"){
+                                type = "SUV";
+                            }
+                            else if (vehicleType === "VAN"){
+                                type = "Van";
+                            }
+                            else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+                                type = "Truck";
+                            }
+                        }
+
+                        var dropdown = $("#" + addId + "_VehicleType").data("kendoDropDownList");
+                        dropdown.dataSource.data().forEach(function (item) {
+                            if (item.value === type) {
+                                dropdown.value(item.value);
+                                return false;
+                            }
+                        });                        
+
+                        $("#" + addId + "_VehicleType").trigger('change');
+                    }                       
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            $("#" + addId + "_VehicleYear").val("");
+            $("#" + addId + "_Make").val("");
+            $("#" + addId + "_VehicleModel").val("");
+            $("#" + addId + "_VehicleType").data("kendoDropDownList").value("");
+            $("#" + addId + "_VehicleType").trigger('change');
+        }
+    }
+
+    let previousVehicleYear = {};
+    let previousVehicleMake = {};
+    let previousVehicleModel = {};
+    let previousVehicleTypes = {};
+
+    function FetchVehicleType(addId) {
+
+        let selectYearId = addId + "_VehicleYear";
+        let selectMakeId = addId + "_Make";
+        let selectModelId = addId + "_VehicleModel";
+
+        let year = $("#" + selectYearId).val().trim();
+        let make = $("#" + selectMakeId).val().trim();
+        let model = $("#" + selectModelId).val().trim();
+
+        let makeInputName = $("#" + addId + "_Make").attr('name');
+        let makeError = $('span[data-valmsg-for="' + makeInputName +'"]');
+        makeError.removeClass("field-validation-error");
+        makeError.addClass("field-validation-valid");
+        makeError.text("");
+
+        let modelInputName = $("#" + addId + "_VehicleModel").attr('name');
+        let modelError = $('span[data-valmsg-for="' + modelInputName +'"]');
+        modelError.removeClass("field-validation-error");
+        modelError.addClass("field-validation-valid");
+        modelError.text("");
+
+        let previousYear = previousVehicleYear[selectYearId];
+        let previousMake = previousVehicleMake[selectMakeId];
+        let previousModel = previousVehicleModel[selectModelId];
+
+        if (previousYear == year && previousMake == make && previousModel == model){
+            return false;
+        }
+
+        previousVehicleYear[selectYearId] = year;
+        previousVehicleMake[selectMakeId] = make;
+        previousVehicleModel[selectModelId] = model;
+
+        if (year.length == 4 && make.length > 0 && model.length > 0)
+        {
+            if (vehicles != null && vehicles != undefined && vehicles.length > 0)
+            {
+                const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === make?.toUpperCase());
+                if(vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+                    makeError.removeClass("field-validation-valid");
+                    makeError.addClass("field-validation-error");
+                    makeError.text(`Incorrect vehicle make.`);
+                }
+
+                const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === model?.toUpperCase());
+                if(vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+                    modelError.removeClass("field-validation-valid");
+                    modelError.addClass("field-validation-error");
+                    modelError.text(`Incorrect vehicle model.`);
+                }
+
+                let vehicleType = vehiclesFilteredByModel?.length > 0
+                                            ? vehiclesFilteredByModel[0]?.type.toUpperCase()
+                                            : "0";
+
+                let type = "";
+                if (vehicleType){
+                    if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+                        type = "Passenger Car";
+                    }
+                    else if (vehicleType === "SUV"){
+                        type = "SUV";
+                    }
+                    else if (vehicleType === "VAN"){
+                        type = "Van";
+                    }
+                    else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+                        type = "Truck";
+                    }
+                }
+                                  
+                var dropdown = $("#" + addId + "_VehicleType").data("kendoDropDownList");
+                dropdown.dataSource.data().forEach(function (item) {                     
+                    if (item.value === type) {
+                        dropdown.value(item.value);
+                        return false;
+                    }
+                });
+
+                $("#" + addId + "_VehicleType").trigger('change');
+            }
+        }
+        else
+        {
+            $("#" + addId + "_VehicleType").data("kendoDropDownList").value("");
+            $("#" + addId + "_VehicleType").trigger('change');
+        }
+    }
+
+    function isModified(addId) {
+        if ($("#" + addId + "_IsModified").is(':checked')) {
+            $('#pnl-modifiednotes-reason-' + addId).show(); // Show the ModifiedNotes section
+        } else {
+            $('#pnl-modifiednotes-reason-' + addId).hide(); // Hide the ModifiedNotes section
+        }
+    }
+
+    $(document).on('change', '#quote-vehicle-info select[id$="_VehicleType"].vehicle-type', function(){
+        
+        let vehicleType = $(this).val();
+
+        let selectId = $(this).attr("id");
+        let previousData = previousVehicleTypes[selectId];
+
+        if (previousData == vehicleType){
+            return false;
+        }
+
+        previousVehicleTypes[selectId] = vehicleType;
+        showAlertForVehicleType(vehicleType);
+    });
+
+    function showAlertForVehicleType(vehicleType){
+        if (vehicleType && !["Passenger Car", "SUV", "Truck", "Van"].includes(vehicleType)) {
+           $("#alert-message-body").html(`Estimated cost for vehicle type <strong>"${vehicleType}"</strong> is not available. Please select a different vehicle type. Estimated cost is calculate for vehicle type <strong>"Passenger Car", "SUV", "Truck" and "Van"</strong>.`);
+
+            $("#alert-popup").modal('show');
+        }
+
+        calculateEstimatePrice();
+    }
+
+    allowNumericWithMaxLength('#quoteVehicles input[id$="_VehicleYear"]', 4)
+
+</script>

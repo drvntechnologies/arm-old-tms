@@ -1,0 +1,43 @@
+﻿@model OrderModel
+
+@if ((Model.IsPostCentralDispatch && Model.HasCentralDispatchPluginEnable) ||
+       (Model.IsPostSuperDispatch && Model.HasSuperDispatchPluginEnable))
+{
+    @*  <div class="row"> *@
+    <div class="col-md-6 col-lg-6 col-xl-6 loadboard-section">
+        <div class="card detail-info-card d-card">
+            <div class="card-header with-border clearfix">
+                <div class="card-title">
+                    <i class='far fa-file-alt'></i> LoadBoard Status
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="custom-form-group">
+                    <div class="label-name">
+                        @T("Admin.Orders.LoadBoard.Status")
+                    </div>
+                    <div class="input-name">
+                        @if (Model.IsPostCentralDispatch && Model.HasCentralDispatchPluginEnable)
+                        {
+                            <div>
+                                <span>
+                                    @T("Admin.Orders.LoadBoard.Posted.CentralDispatch")
+                                    <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/central-dispatch.png")" alt="central-dispatch" />
+                                </span>
+                            </div>
+                        }
+                        @if (Model.IsPostSuperDispatch && Model.HasSuperDispatchPluginEnable)
+                        {
+                            <div>
+                                <span>
+                                    @T("Admin.Orders.LoadBoard.Posted.SuperDispatch")
+                                    <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/super-dispatch.png")" alt="central-dispatch" />
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

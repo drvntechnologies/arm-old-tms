@@ -1,0 +1,57 @@
+﻿@using Nop.Core.Domain.Customers;
+@model CustomerModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Customers.Details").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Customers list");
+}
+@{
+    const string hideInfoBlockAttributeName = "CustomerDetailPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+}
+<form asp-controller="Customer" asp-action="Details" id="customerdetails" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            <span>@T("Admin.Customers.Details")</span>
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.UserManagement.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.Customers.Edit")
+            </a>
+        </div>
+    </div>
+    <section class="content detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="form-horizontal customer-details">
+                @* <nop-cards id="customer-details-cards">
+                    <nop-card asp-name="customer-info" asp-icon="fas fa-info" asp-title="@T("Admin.Customer.CustomersInfo")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateDetail.Info", Model)</nop-card>
+                    @if (Model.Type == (int)CustomerType.Carrier || Model.Type == (int)CustomerType.Shipper)
+                    {
+                        <nop-card asp-name="contacts-info" asp-icon="fas fa-info" asp-title="@T("Admin.Customer.ContactInfo")" asp-hide-block-attribute-name="@T("Admin.Customer.ContactInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateDetail.ContactInfo", Model)</nop-card>
+                    }
+                </nop-cards> *@
+                <div class="row">
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("_CreateOrUpdateDetail.Info", Model)
+                    </div>
+                    @* @if (Model.Type == (int)CustomerType.Carrier || Model.Type == (int)CustomerType.Shipper)
+                    {
+                        <div class="col-md-12">
+                            @await Html.PartialAsync("_CreateOrUpdateDetail.ContactInfo", Model)
+                        </div>
+                    } *@
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

@@ -1,0 +1,280 @@
+﻿@model QuoteDetailsModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Portal.QuoteDetail").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Customer Portal Quotes");
+}
+
+<form method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Portal.QuoteDetail")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a href="@Url.Action("History")">@T("Admin.Portal.Quote.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            @if (Model.IsActive)
+            {
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mark-as-inactive">
+                    @T("Admin.LogisticsQuote.Button.MarkAsInActive")
+                </button>
+            }
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#convert-to-order">
+                <i class="fas fa-exchange-alt"></i>
+                @T("Admin.LogisticsQuote.Button.ConvertToOrder")
+            </button>
+        </div>
+    </div>
+    <section class="content quote-detail-page detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.CustomerInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_Details.QuoteInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_Details.TransportInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_Details.RouteInformation", Model)
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_Details.FinanceInformation", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.VehicleInformation", Model)
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="mark-as-inactive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mark-as-inactive-title" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="mark-as-inactive-title">@T("Admin.Common.AreYouSure")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+                </div>
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        @T("Admin.LogisticsQuote.Button.MarkAsInActive.Text")
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-default" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                        <button type="submit" asp-action="MarkAsInactiveQuote" asp-route-id="@Model.Id" class="btn btn-primary">
+                            @T("Admin.Common.Yes")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<div id="convert-to-order" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="convert-to-order-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="convert-to-order-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body pr-5 pl-5">
+
+                <div class="card-title">
+                    <i class="fas fa-user"></i>
+                    @T("Portal.Quote.Booking.Section.ShipmentInformation") (@T("Portal.Quote.Booking.Section.ShipperContactInfo"))
+                </div>
+
+                <input type="hidden" id="Id" name="Id" value="@Model.Id">
+                <input type="hidden" id="PromoCode" name="PromoCode" value="@Model.BookingModel.PromoCode">
+
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="FirstName">
+                                @T("Portal.Quote.Booking.Fields.FirstName")
+                            </label>
+                            <nop-required />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" id="FirstName" name="FirstName" placeholder="Enter First Name" type="text" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="LastName">
+                                @T("Portal.Quote.Booking.Fields.LastName")
+                            </label>
+                            <nop-required />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" id="LastName" name="LastName" placeholder="Enter Last Name" type="text" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="Email">
+                                @T("Portal.Quote.Booking.Fields.Email")
+                            </label>
+                            <nop-required />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" id="Email" name="Email" placeholder="Enter Email" type="text" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="Phone">
+                                @T("Portal.Quote.Booking.Fields.Phone")
+                            </label>
+                            <nop-required />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" id="Phone" name="Phone" placeholder="Enter Phone" type="text" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="Reference">
+                                @T("Portal.Quote.Booking.Fields.Reference")
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" id="Reference" name="Reference" placeholder="Use Shipper Name If Waiting on PO#" type="text" autocomplete="off" value="@Model.BookingModel.Reference">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="label-wrapper">
+                            <label class="col-form-label" for="PaymentType">
+                                @T("Portal.Quote.Booking.Fields.PaymentType")
+                            </label>
+                            <nop-required />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="PaymentType" name="PaymentType" asp-items="@Model.BookingModel.AvailablePaymentTypes"></select>
+                    </div>
+                </div>
+
+                @Html.AntiForgeryToken()
+
+                <div class="mt-3 text-center">
+                    @T("Admin.LogisticsQuote.Button.ConvertToOrder.Message")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <button type="button" class="btn btn-primary" id="confirm-booking">
+                    @T("Admin.Common.Yes")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    commonPhoneNumber("#Phone");
+    removeSpecialCharactersAndNumber("#FirstName, #LastName");
+    enforceLowerCase("#Email");
+
+    $("#confirm-booking").on('click', async function (e) {
+
+        e.preventDefault();
+
+        const submitBtn = $(this);
+        submitBtn.prop("disabled", true);
+
+        try {
+            const formData = new URLSearchParams();
+
+            $("#convert-to-order")
+                .find("input, select, textarea")
+                .each(function () {
+                const $field = $(this);
+                const name = $field.attr("name");
+
+                if (!name) return;
+
+                if ($field.is(":radio")) {
+                    if ($field.is(":checked")) formData.append(name, $field.val());
+                } else if ($field.is(":checkbox")) {
+                    formData.append(name, $field.is(":checked")); // boolean to string
+                } else {
+                    formData.append(name, $field.val());
+                }
+            });
+
+            const response = await fetch("@Url.Action("ConvertToOrder", "Quote")", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData.toString()
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server Error: ${errorText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result){
+                if(result.error){
+
+                    if (typeof result.error === "string"){
+                        toastr.error(result.error);
+                    }
+                    else {
+                        let errorMessages = [];
+
+                        $.each(result.error, function (field, fieldError) {
+                            if (fieldError.errors && fieldError.errors.length > 0) {
+                                errorMessages.push(fieldError.errors.join(", "));
+                            }
+                        });
+
+                        const finalMessage = errorMessages.join("</br>");
+
+                        toastr.error(finalMessage);
+                    }
+
+                    display_nop_error(result.error);
+                    
+                }
+                else if(result.RedirectUrl){
+                    window.location.href = result.RedirectUrl;
+                }
+            }
+
+        } catch (err) {
+            toastr.error(err.message);
+        } finally {
+            submitBtn.prop("disabled", false);
+        }
+    });
+
+    $(document).on('focusin', function (e) {
+        if ($(e.target).closest('.k-animation-container').length) {
+            e.stopImmediatePropagation();
+        }
+    });
+</script>

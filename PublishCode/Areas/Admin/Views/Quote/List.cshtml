@@ -1,0 +1,312 @@
+@model QuoteSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Portal.Quote.List").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Portal Quotes");
+}
+
+<form asp-controller="Quote" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Portal.Quote.List")
+        </h1>
+        <div class="float-right">
+            <a asp-action="GetQuote" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal quote-listing-page">
+                <div class="cards-group">
+
+                    <div class="card card-default d-card-search d-card custom-card">
+                        <div class="search-row">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search mr-2"><i class="fas fa-search" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body">
+                            <div class="row align-items-center justify-content-center">
+                                <div class="col-md-4 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <nop-editor asp-for="Keyword" html-attributes="@(new { placeholder = T("Admin.Quote.Search.Keyword.PlaceHolder") })" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <nop-editor asp-for="Notes" html-attributes="@(new { placeholder = T("Admin.Quote.Search.Notes.PlaceHolder") })" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 position-relative">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button" id="portal-quote-search" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card card-default d-datatable d-card m-0 custom-card">
+                        <div class="card-body Quote-listing-tbl">
+                            
+
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Name = "portal-quote-grid",
+                                    SearchButtonId = "portal-quote-search",
+                                    UrlRead = new DataUrl("List", "Quote", null),
+                                    UrlUpdate = new DataUrl("Edit", "Quote", null),
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    Filters = new List<FilterParameter>
+                                    {
+                                        new FilterParameter(nameof(Model.Keyword)),
+                                        new FilterParameter(nameof(Model.Notes)),
+                                    }
+                                };
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.QuoteDetails))
+                                {
+                                    Title = T("Portal.Quote.List.Columns.QuoteDetails").Text,
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.EstimatedPrice))
+                                {
+                                    Title = T("Portal.Quote.Fields.EstimatedPrice").Text,
+                                    Encode = false,
+                                    Render = new RenderCustom("renderQuotePriceColumnView")
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.Status))
+                                {
+                                    Title = T("Portal.Quote.Fields.Status").Text,
+                                    Encode = false,
+                                    Render = new RenderCustom("renderQuoteStatusColumnView")
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.RequestDate))
+                                {
+                                    Title = T("Portal.Quote.Fields.RequestDate").Text,
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("Edit"))
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(QuoteModel.Id))
+                                {
+                                    Title = T("Portal.Common.Action").Text,
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderCustom("renderQuoteActionColumnView")
+                                });
+                            }
+
+                            @await Html.PartialAsync("Table", gridModel)
+
+                            <script>
+                                $(document).ready(function (){
+                                    if ($('.card-search').length > 0) {
+                                        if ($('.search-row').hasClass('opened')) {
+                                            $('.card-search').addClass('opened')
+                                        }else{
+                                            $('.card-search').removeClass('opened')
+                                        }
+                                        $(document).on('click','.search-row', function(){
+                                            $('.card-search').toggleClass('opened')
+                                        });
+                                    }
+                                });
+                                function renderQuotePriceColumnView(data, type, row, meta) {
+                                    let color;
+
+                                    if (row.IsActive) {
+                                        color = 'green';
+                                    } else {
+                                        color = 'yellow';
+                                    }
+
+                                    let price = roundDecimal(data, 0, true, true);
+
+                                    return '<span class="grid-report-item text-nowrap price ' + color + '">' + price + '</span >';
+                                }
+
+                                function renderQuoteStatusColumnView(data, type, row, meta) {
+                                    let color;
+
+                                    if (row.IsActive) {
+                                        color = 'green';
+                                    } else {
+                                        color = 'yellow';
+                                    }
+
+                                    return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+                                }
+
+                                function renderQuoteActionColumnView(data, type, row, meta) {
+                                    let buttons = "";
+
+                                    //buttons += '<button type="button" class="btn btn-primary self-mail" data-quoteId="' + row.Id + '">@T("Portal.Quote.EmailToSelf").Text</button><br />';
+
+                                    if (row.IsActive) {
+                                        buttons += `<button type="button" class="btn btn-info" onclick="window.location.href='/Admin/Quote/Booking/${row.Id}';">@T("Portal.Quote.BookOrder").Text</button><br />`;
+                                    }
+                                    else {
+                                        buttons += '<button type="button" class="btn btn-secondary re-quote" data-quoteId="' + row.Id + '">@T("Portal.Quote.ReGenerateQuote").Text</button><br />';
+                                    }
+
+                                    //buttons += '<button type="button" class="btn btn-danger delete-quote" data-quoteId="' + row.Id + '">@T("Portal.Common.Delete").Text</button><br />';
+
+                                    return buttons;
+                                }
+                            </script>
+
+                            <span class="text-danger d-block mt-2 ml-3 mb-2">@(string.Format(T("Portal.Quote.List.Table.Heading").Text, Model.QuoteActiveDay))</span>
+                            <span class="text-danger mt-2 ml-3 mb-2 d-block">@(string.Format(T("Portal.Quote.List.Table.Footer").Text, Model.QuoteActiveDay + 1))</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<div id="Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmation-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    @T("Admin.Common.ActionConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button type="button" id="confirmation-submit-button" class="btn btn-primary">
+                        @T("Admin.Common.Yes")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("div.search-body").keypress(function (event) {
+        if (event.which == 13 || event.keyCode == 13) {
+            $("button#portal-quote-search").click();
+            return false;
+        }
+    });
+
+    let quoteId = 0;
+    let url = "";
+
+    $('#portal-quote-grid').on('click', '.expand-vehicles', function () {
+        var $this = $(this);
+        var $extraVehicles = $this.siblings('.extra-vehicles');
+
+        if ($extraVehicles.is(':visible')) {
+            $extraVehicles.hide();
+            $this.text(' (Show More +' + ($this.data('count') - 1) + ')');
+        } else {
+            $extraVehicles.show();
+            $this.text(' (@T("Portal.Common.ShowLess"))');
+        }
+    });
+
+    $("#Confirmation-Popup .close").click(function () {
+        quoteId = 0;
+        url = "";
+        $("#Confirmation-Popup").modal('hide');
+    });
+
+    $(document).on('click', '.self-mail', function (e) {
+        e.preventDefault();
+        quoteId = $(this).attr("data-quoteId");
+        url = "@Url.Action("SendQuoteMailNotification")";
+        $("#Confirmation-Popup").modal('show');
+    });
+
+    $(document).on('click', '.re-quote', function (e) {
+        e.preventDefault();
+        location.href = "@Url.Action("Edit", "Quote", new { area = AreaNames.Admin })/" + $(this).attr("data-quoteId");
+
+        // var postData = {
+        //     id: $(this).attr("data-quoteId")
+        // };
+        // addAntiForgeryToken(postData);
+
+        // $.post("@Url.Action("ReGenerateQuote")", postData, function (response) {
+        //     quoteId = 0;
+        //     url = "";
+
+        //     if (response) {
+        //         if (response.Message) {
+        //             if (!response.Status) {
+        //                 toastr.error(response.Message);
+        //             }
+        //             else{
+        //                 toastr.success(response.Message);
+        //             }
+        //         }
+        //     }
+
+        //     updateTable('#portal-quote-grid');
+        // });
+    });
+
+    $(document).on('click', '.delete-quote', function (e) {
+        e.preventDefault();
+        quoteId = $(this).attr("data-quoteId");
+        url = "@Url.Action("Delete")";
+        $("#Confirmation-Popup").modal('show');
+    });
+
+    $(document).on('click', '#confirmation-submit-button', function (e) {
+        e.preventDefault();
+
+        var postData = {
+            id: quoteId
+        };
+        addAntiForgeryToken(postData);
+
+        $.post(url, postData, function (response) {
+            quoteId = 0;
+            url = "";
+            $("#Confirmation-Popup").modal('hide');
+
+            if (response) {
+                if (response.Message) {
+
+                    if (!response.Status) {
+                        toastr.error(response.Message);
+                    }
+                    else{
+                        toastr.success(response.Message);
+                    }
+                }
+            }
+
+            updateTable('#portal-quote-grid');
+        });
+    });
+</script>

@@ -1,0 +1,38 @@
+﻿@using Nop.Core.Domain.Orders;
+@model OrderBillOfLadingModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Orders.ViewDispatchInformation.Fields.OrderBolDetails").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Orders");
+}
+
+<form id="bol-detail-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @if (Model.BolType == (int)OrderBOL.PickUpBol)
+            {
+                <span>@T("Admin.OrderBolDetails.PickUp") @Model.Id </span>
+            }
+            else if (Model.BolType == (int)OrderBOL.DeliveryBol)
+            {
+                <span>@T("Admin.OrderBolDetails.Delivery") @Model.Id </span>
+            }
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("admin.order.backtolist")</a>
+            </small>
+        </h1>
+
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <nop-cards id="bol-details-cards">
+                    <nop-card asp-icon="fas fa-file-invoice" asp-name="bol-info" asp-title="@T("Admin.Orders.ViewDispatchInformation")" asp-hide-block-attribute-name="@T("Admin.Orders.ViewDispatchInformation")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("ViewOrderBillOfLading", Model)</nop-card>
+                </nop-cards>
+            </div>
+        </div>
+    </section>
+</form>

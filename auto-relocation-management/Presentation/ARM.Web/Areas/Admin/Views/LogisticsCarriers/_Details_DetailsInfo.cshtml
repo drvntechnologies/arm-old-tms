@@ -1,0 +1,549 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+
+<div class="carrier-information">
+    <div class="row">
+        <div class="col-lg-6 col-xl-6">
+            <div class="card detail-info-card d-card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-info" aria-hidden="true"></i> Company Overview</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(Model.CompanyLegalName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Company Name</div><!-- <b> -->
+                            <div class="input-name"><span>@Model.CompanyLegalName</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.StreetAddress))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Address #1</div>
+                            <div class="input-name"><span>@Model.StreetAddress</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.StreetAddress2))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Address #2</div>
+                            <div class="input-name"><span>@Model.StreetAddress2</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.City))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">City</div>
+                            <div class="input-name"><span>@Model.City</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.StateProvinceName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("LogisticsCarrier.Application.Fields.StateProvince")</div>
+                            <div class="input-name"><span>@Model.StateProvinceName</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.ZipPostalCode))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("LogisticsCarrier.Application.Fields.ZipPostalCode")</div>
+                            <div class="input-name"><span>@Model.ZipPostalCode</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Region))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.Address.Fields.Region")</div>
+                            <div class="input-name"><span>@Model.Region</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.CountryName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("LogisticsCarrier.Application.Fields.Country")</div>
+                            <div class="input-name"><span>@Model.CountryName</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.ContactNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Phone</div>
+                            <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.ContactNumber)</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.EmergencyPhone))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.EmergencyPhone")</div>
+                            <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.EmergencyPhone)</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentEmailAddress))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Email</div>
+                            <div class="input-name"><span>@Model.PaymentEmailAddress</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.AlternateEmailAddress))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Alternate Email</div>
+                            <div class="input-name"><span>@Model.AlternateEmailAddress</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentFaxNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Fax Number</div>
+                            <div class="input-name"><span>@Model.PaymentFaxNumber</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PayTerms))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.PayTerms")</div>
+                            <div class="input-name"><span>@Model.PayTerms</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentMethod) && !string.Equals(Model.PaymentMethod, "0"))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.PaymentMethod")</div>
+                            <div class="input-name"><span>@Model.PaymentMethod</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Website))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Website")</div>
+                            <div class="input-name"><span>@Model.Website</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.SCAC))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.SCAC")</div>
+                            <div class="input-name"><span>@Model.SCAC</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PacketStatus))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.PacketStatus")</div>
+                            <div class="input-name"><span>@Model.PacketStatus</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.InternalRating))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.InternalRating")</div>
+                            <div class="input-name"><span>@Model.InternalRating</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.MCPRating))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.MCPRating")</div>
+                            <div class="input-name"><span>@Model.MCPRating</span></div>
+                        </div>
+                    }
+                    @if (Model.ActiveSince.HasValue)
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.ActiveSince")</div>
+                            <div class="input-name"><span>@Model.ActiveSince.ToDateFormat()</span></div>
+                        </div>
+                    }
+                    <div class="custom-form-group">
+                        <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Blocked")</div>
+                        <div class="input-name"><span>@(Model.IsBlocked ? "Yes" : "No")</span></div>
+                    </div>
+                    @if (Model.IsBlocked && !string.IsNullOrWhiteSpace(Model.BlockedReason))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.BlockedReason")</div>
+                            <div class="input-name"><span>@Model.BlockedReason</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Notes")</div>
+                            <div class="input-name"><span>@Model.Notes</span></div>
+                        </div>
+                    }
+                    @* @if (Model.BrokerInternalCarrierID > 0)
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>Broker Internal Carrier ID</b></div>
+                            <div class="input-name"><span>@Model.BrokerInternalCarrierID</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Preference))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>Preference</b></div>
+                            <div class="input-name"><span>@Model.Preference</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.ContactOption))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>Contact Option</b></div>
+                            <div class="input-name"><span>@Model.ContactOption</span></div>
+                        </div>
+                    } *@
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xl-6">
+            <div class="card detail-info-card d-card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-legal" aria-hidden="true"></i> Legal Information</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(Model.DOTNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">DOT Number</div>
+                            <div class="input-name"><span>@Model.DOTNumber</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.MCNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">MC Number</div>
+                            <div class="input-name"><span>@Model.MCNumber</span></div>
+                        </div>
+                    }
+                    @if (Model.InsuranceExpires.HasValue)
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">Insurance Expires</div>
+                            <div class="input-name"><span>@Model.InsuranceExpires.ToDateFormat()</span></div>
+                        </div>
+                    }
+                    <div class="custom-form-group">
+                        <div class="label-name">Need 1099?</div>
+                        <div class="input-name"><span>@(Model.Need1099 ? T("Admin.Common.Yes").Text : T("Admin.Common.No").Text)</span></div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.EIN))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">EIN #</div>
+                            <div class="input-name"><span>@Model.EIN</span></div>
+                        </div>
+                    }
+                    <div class="custom-form-group">
+                        <div class="label-name"><b>No Load</b></div>
+                        <div class="input-name"><span style="color:@(Model.NoLoad ? "Red" : "Green");">@(Model.NoLoad ? "Yes" : "No")</span></div>
+                    </div>
+                    @* @if (!string.IsNullOrWhiteSpace(Model.SSN))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>SSN #</b></div>
+                            <div class="input-name"><span>@Model.SSN</span></div>
+                        </div>
+                    } *@
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.MailingAddress1) ||
+                    !string.IsNullOrWhiteSpace(Model.MailingAddress2) ||
+                    !string.IsNullOrWhiteSpace(Model.MailingCity) ||
+                    !string.IsNullOrWhiteSpace(Model.MailingStateName) ||
+                    !string.IsNullOrWhiteSpace(Model.MailingZipPostalCode) ||
+                    !string.IsNullOrWhiteSpace(Model.MailingCountryName))
+                {
+                    <div class="card-header with-border">
+                        <h3 class="card-title"><i class="fa fa-map-marker" aria-hidden="true"></i> Mailing Address</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingAddress1))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.StreetAddress")</div>
+                                <div class="input-name"><span>@Model.MailingAddress1</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingAddress2))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.StreetAddress2")</div>
+                                <div class="input-name"><span>@Model.MailingAddress2</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingCity))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.City")</div>
+                                <div class="input-name"><span>@Model.MailingCity</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingStateName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.StateProvince")</div>
+                                <div class="input-name"><span>@Model.MailingStateName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingZipPostalCode))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.ZipPostalCode")</div>
+                                <div class="input-name"><span>@Model.MailingZipPostalCode</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.MailingCountryName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.Mailing.Country")</div>
+                                <div class="input-name"><span>@Model.MailingCountryName</span></div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.FirstContactName) ||
+                    !string.IsNullOrWhiteSpace(Model.FirstContactPhone) ||
+                    !string.IsNullOrWhiteSpace(Model.SecondContactName) ||
+                    !string.IsNullOrWhiteSpace(Model.SecondContactPhone))
+                {
+                    <div class="card-header with-border">
+                        <h3 class="card-title"><i class="fa fa-user" aria-hidden="true"></i> Carrier Contact</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(Model.FirstContactName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>1st Contact</b></div>
+                                <div class="input-name"><span>@Model.FirstContactName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FirstContactPhone))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>1st Contact Phone</b></div>
+                                <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.FirstContactPhone)</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.SecondContactName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>2nd Contact</b></div>
+                                <div class="input-name"><span>@Model.SecondContactName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.SecondContactPhone))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>2nd Contact Phone</b></div>
+                                <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.SecondContactPhone)</span></div>
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Email) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address2) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.StateProvinceName) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.ZipPostalCode) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Region) ||
+          !string.IsNullOrWhiteSpace(Model.RemittanceAddress.CountryName))
+        {
+            <div class="col-lg-6 col-xl-6">
+                <div class="card detail-info-card d-card">
+                    <div class="card-header with-border">
+                        <h3 class="card-title">
+                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            Remittance Information
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Email))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Email")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.Email</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Address")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.Address</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address2))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Address2")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.Address2</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.City))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.City")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.City</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.StateProvinceName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.StateProvince")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.StateProvinceName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.ZipPostalCode))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.ZipPostalCode")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.ZipPostalCode</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Region))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Address.Fields.Region")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.Region</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.CountryName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Country")</b></div>
+                                <div class="input-name"><span>@Model.RemittanceAddress.CountryName</span></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.IsFactoringCompany &&
+            (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Address) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Address2) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.StateProvinceName) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.ZipPostalCode) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Region) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.CountryName) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Company) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.ContactName) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Email) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.PhoneNumber) ||
+            !string.IsNullOrWhiteSpace(Model.FactoryPaymentMethod) ||
+            !string.IsNullOrWhiteSpace(Model.FactoringCompanyPayTerms)))
+        {
+            <div class="col-lg-6 col-xl-6">
+                <div class="card detail-info-card d-card">
+                    <div class="card-header with-border">
+                        <h3 class="card-title">
+                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            @T("Admin.LogisticsCarrier.Fields.FactoringCompany")
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Company))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Company")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.Company</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Address))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Address")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.Address</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Address2))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Address2")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.Address2</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.City))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.City")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.City</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.StateProvinceName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.StateProvince")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.StateProvinceName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.ZipPostalCode))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.ZipPostalCode")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.ZipPostalCode</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Region))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.Address.Fields.Region")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.Region</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.CountryName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Country")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.CountryName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.ContactName))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.ContactName")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.ContactName</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.Email))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.Email")</b></div>
+                                <div class="input-name"><span>@Model.FactoringCompanyAddress.Email</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyAddress.PhoneNumber))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name"><b>@T("Admin.LogisticsCarriersAddressModel.Field.PhoneNumber")</b></div>
+                                <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.FactoringCompanyAddress.PhoneNumber)</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoryPaymentMethod))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.FactoryPaymentMethod")</div>
+                                <div class="input-name"><span>@Model.FactoryPaymentMethod</span></div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.FactoringCompanyPayTerms))
+                        {
+                            <div class="custom-form-group">
+                                <div class="label-name">@T("Admin.LogisticsCarrier.Fields.FactoringCompanyPayTerms")</div>
+                                <div class="input-name"><span>@Model.FactoringCompanyPayTerms</span></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

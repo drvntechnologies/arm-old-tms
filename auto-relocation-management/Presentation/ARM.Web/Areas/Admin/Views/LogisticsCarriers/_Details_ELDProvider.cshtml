@@ -1,0 +1,23 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+
+<div class="card-header with-border">
+	<h3 class="card-title"><i class="fas fa-tablet-alt" aria-hidden="true"></i> @T("Admin.LogisticsCarriers.ELDProvider")</h3>
+</div>
+<div class="card-body">
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.ELD.ComplianceStatus")</div>
+		<div class="input-name"><span>@Model.ELDComplianceStatus</span></div>
+	</div>
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.ELD.ProviderName")</div>
+		<div class="input-name"><span>@Model.ELDProviderName</span></div>
+	</div>
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.ELD.ProviderIdentifier")</div>
+		<div class="input-name"><span>@Model.ELDProviderIdentifier</span></div>
+	</div>
+	<div class="custom-form-group">
+		<div class="label-name">@T("Admin.LogisticsCarrier.Fields.ELD.CompliantBy")</div>
+		<div class="input-name"><span>@Model.ELDCompliantBy</span></div>
+	</div>
+</div>

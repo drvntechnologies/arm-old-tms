@@ -1,0 +1,99 @@
+﻿@model CommissionReportModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Reports.CommissionReport.Details.Title").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Commission report");
+
+    const string hideCommissionDetailsBlockAttributeName = "ReferralOrderPage.HideInfoBlock";
+    var hideCommissionDetailsBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideCommissionDetailsBlockAttributeName);
+}
+
+<form asp-controller="Report" asp-action="ExportToExcelCommission" method="post"> 
+    <input type="hidden" asp-for="@Model.CommissionReportDetailsOrderSearchModel.CommissionId"/>
+    <input type="hidden" asp-for="@Model.CommissionReportDetailsOrderSearchModel.CustomerId"/>
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Reports.CommissionReport.Details.Title") - @Model.CustomerName
+        <small>
+            <i class="fas fa-arrow-circle-left"></i>
+            <a asp-action="CommissionReport">@T("Admin.Reports.CommissionReport.Details.BackToCommissionReport")</a>
+        </small>
+    </h1>    
+    <div class="float-right">
+        <button class="btn btn-green" type="submit">
+            <i class="far fa-file-excel"></i>
+            @T("Admin.Common.ExportToExcel.All")
+        </button>         
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <section class="page-main-area add-leads-pg create-edit-pg-common-design">
+            <div class="container-fluid">
+                <div class="form-horizontal">
+                    <nop-cards>
+                        <nop-card asp-name="commission-info" asp-icon="fas fa-user" asp-title="@T("Admin.Reports.CommissionReport.Details.CustomerInfo")" asp-hide-block-attribute-name="@hideCommissionDetailsBlockAttributeName" asp-hide="@hideCommissionDetailsBlock" asp-advanced="false">
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">                                        
+                                        @if (!string.IsNullOrWhiteSpace(Model.FirstName))
+                                        {
+                                            <div class="custom-form-group  flex-row">
+                                                <div class="label-name w-25">
+                                                    @T("Admin.Reports.CommissionReport.Fields.FirstName")
+                                                </div>
+                                                <div class="input-name w-75">
+                                                    : @Model.FirstName
+                                                </div>
+                                            </div>
+                                        }                                        
+                                        @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+                                        {
+                                            <div class="custom-form-group  flex-row">
+                                                <div class="label-name w-25">
+                                                    @T("Admin.Reports.CommissionReport.Fields.CustomerEmail")
+                                                </div>
+                                                <div class="input-name w-75">
+                                                    : @Model.CustomerEmail
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-6">
+                                        @if (!string.IsNullOrWhiteSpace(Model.LastName))
+                                        {
+                                            <div class="custom-form-group flex-row">
+                                                <div class="label-name w-25">
+                                                    @T("Admin.Reports.CommissionReport.Fields.LastName")
+                                                </div>
+                                                <div class="input-name w-75">
+                                                    : @Model.LastName
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.CustomerPhone))
+                                        {
+                                            <div class="custom-form-group flex-row">
+                                                <div class="label-name w-25">
+                                                    @T("Admin.Reports.CommissionReport.Fields.CustomerPhone")
+                                                </div>
+                                                    <div class="input-name w-75">
+                                                    : @Model.CustomerPhone
+                                                </div>
+                                            </div>                                            
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </nop-card>
+                    </nop-cards>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
+ @await Html.PartialAsync("_CommissionReportDetailsOrderList", Model.CommissionReportDetailsOrderSearchModel)	
+</form>

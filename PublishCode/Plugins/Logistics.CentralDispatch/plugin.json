@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Dispatch",
+  "FriendlyName": "Central Dispatch",
+  "SystemName": "Logistics.CentralDispatch",
+  "Version": "1.10",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "Sigma Solve team",
+  "DisplayOrder": 1,
+  "FileName": "Logistics.CentralDispatch.dll",
+  "Description": "This plugin allow to configure central dispatch order."
+}

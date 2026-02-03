@@ -1,0 +1,95 @@
+﻿@model QuoteDetailsModel
+
+@if (string.IsNullOrWhiteSpace(Model.OriginFormattedAddress) &&
+     string.IsNullOrWhiteSpace(Model.PickupDate) &&
+     string.IsNullOrWhiteSpace(Model.DestinationFormattedAddress) &&
+     string.IsNullOrWhiteSpace(Model.DeliveryDate) &&
+     string.IsNullOrWhiteSpace(Model.DistanceInMile) &&
+     string.IsNullOrWhiteSpace(Model.MileageBend))
+{
+    return;
+}
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-map-marker"></i>
+            @T("Admin.Portal.Quote.TransportInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.OriginFormattedAddress))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.Origin.Location")
+                </div>
+                <div class="input-name">
+                    @Model.OriginFormattedAddress
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.DestinationFormattedAddress))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.Destination.Location")
+                </div>
+                <div class="input-name">
+                    @Model.DestinationFormattedAddress
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.PickupDate))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.PickupDate")
+                </div>
+                <div class="input-name">
+                    @Model.PickupDate
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.DeliveryDate))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.DeliveryDate")
+                </div>
+                <div class="input-name">
+                    @Model.DeliveryDate
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.DistanceInMile))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.Distance")
+                </div>
+                <div class="input-name">
+                    @Model.DistanceInMile
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.MileageBend))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Portal.Quote.MileageBend")
+                </div>
+                <div class="input-name">
+                    @Model.MileageBend
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

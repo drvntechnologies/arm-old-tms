@@ -1,0 +1,27 @@
+﻿@model OrderModel
+
+<div class="card-body carrier-information overflow-hidden">
+	<div class="row">
+		<div class="@(Model.IsChildOrder ? "col-md-12" : "col-md-6")">
+			<div class="card h-100 mb-0">
+				<div class="card-body">
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="Carrier" asp-required="Model.CarrierRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="Carrier" asp-items="Model.AvailableCarriers" class="form-select" />
+							<span asp-validation-for="Carrier"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("#Carrier").on('change', function (){
+		calculateEstimatePrice();
+	})
+</script>

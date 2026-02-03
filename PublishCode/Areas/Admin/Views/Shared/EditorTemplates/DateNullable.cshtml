@@ -1,0 +1,10 @@
+﻿@model DateTime?
+<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@(Model > DateTime.MinValue || Model.HasValue ? Model.Value.ToString("MMM dd, yyyy") : null)" />
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdForModel()").kendoDatePicker({
+            format: "MMM dd, yyyy",
+            culture: "en-US",
+        });
+    });
+</script>

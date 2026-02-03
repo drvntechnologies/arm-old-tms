@@ -1,0 +1,153 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        <div class="form-group row">
+            <div class="col-md-12 custom-size-input-group">
+                <div class="custom-label-box">
+                    <nop-label asp-for="AddQuoteNoteMessage" asp-required="true" />
+                </div>
+                <div class="custom-input-areabox">
+                    <nop-textarea asp-for="AddQuoteNoteMessage" />
+                    <span asp-validation-for="AddQuoteNoteMessage"></span>
+                </div>
+                <div class="custom-btn-area">
+                    <button type="button" id="addQuoteNote" class="btn btn-primary">@T("Admin.LogisticsCarrier.QuoteNotes.AddButton")</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-default d-datatable m-0">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "carriernotes-grid",
+                    UrlRead = new DataUrl("CarrierNotesSelect", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.QuoteNoteSearchModel.CarrierId)] = Model.Id }),
+                    //UrlDelete = new DataUrl("CarrierNoteDelete", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.QuoteNoteSearchModel.CarrierId)] = Model.Id}),
+                    Length = Model.QuoteNoteSearchModel.PageSize,
+                    LengthMenu = Model.QuoteNoteSearchModel.AvailablePageSizes,
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(QuoteNoteModel.CreatedOn))
+                        {
+                            Title = T("Admin.LogisticsCarrier.QuoteNotes.createdonutc").Text,
+                            Width = "100",
+                            Render = new RenderDate()
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Note))
+                        {
+                            Title = T("Admin.LogisticsCarrier.Fields.Note").Text,
+                            Width = "200",
+                            Encode = false
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Customer))
+                        {
+                            Title = T("Admin.LogisticsCarrier.Fields.Customer").Text,
+                            Width = "100"
+                        },
+                        new ColumnProperty(nameof(QuoteNoteModel.Id))
+                        {
+                            Title = T("Admin.Common.Delete").Text,
+                            Width = "100",
+                            Render = new RenderCustom("renderColumnNotesDelete"),
+                            ClassName =  NopColumnClassDefaults.Button
+                        }
+                   }
+               })
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#addQuoteNote').click(function (e) {
+                    e.preventDefault();
+
+                    var quoteNoteMessage = $("#@Html.IdFor(model => model.AddQuoteNoteMessage)").val();
+                    if (!quoteNoteMessage || quoteNoteMessage.trim() == "") {
+                        let message = "@T("Admin.LogisticsCarriers.QuoteNotes.Fields.Note.Validation")";
+                        var validationSpan = $('span[data-valmsg-for="AddQuoteNoteMessage"]');
+                        validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="AddQuoteNoteMessage-error" class="">${message}</span>`).show();
+                        return false;
+                    }
+                    else if(quoteNoteMessage != "" && quoteNoteMessage.length > 1000) {
+                        let message = "@T("Admin.LogisticsQuote.AllFields.Notes.MaxLength")";
+                        var validationSpan = $('span[data-valmsg-for="AddQuoteNoteMessage"]');
+                        validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="AddQuoteNoteMessage-error" class="">${message}</span>`).show();
+                        return false;
+                    }
+
+                    var quoteNoteDisplayToCustomer =
+                        $("#@Html.IdFor(model => model.AddQuoteNoteDisplayToCustomer)").is(':checked');
+                    $('#addQuoteNote').attr('disabled', true);
+
+                    var postData = {
+                        DisplayToCustomer: quoteNoteDisplayToCustomer,
+                        message: quoteNoteMessage,
+                        carrierId: '@Model.Id'
+                    };
+                    addAntiForgeryToken(postData);
+
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("CarrierNoteAdd", "LogisticsCarriers"))",
+                        data: postData,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data.Result) {
+                                //reload grid
+                                updateTable('#carriernotes-grid');
+
+                                $("#@Html.IdFor(model => model.AddQuoteNoteMessage)").val("");
+                                $("#@Html.IdFor(model => model.AddQuoteNoteDisplayToCustomer)").prop("checked", false);
+
+                                toastr.success("@T("Admin.Carriers.Carrier.InternalNotes.Add.Notification")");
+                            } else {
+                                display_nop_error(data);
+                            }
+                        },
+                        complete: function (jqXHR, textStatus) {
+                            $('#addQuoteNote').attr('disabled', false);
+                        }
+                    });
+                });
+
+                $("#AddQuoteNoteMessage").on('input', function () {
+                    let value = $(this).val();
+                    var validationSpan = $('span[data-valmsg-for="AddQuoteNoteMessage"]');
+
+                    if (!value || value.trim() == "") {
+                        validationSpan.show();
+                    } else {
+                        validationSpan.hide();
+                    }
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.Carriers.Carrier.InternalNotes.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <script asp-location="Footer">
+        $("#carriernotes-grid").on("click", ".delete-link", function (e) {
+			const id = $(this).attr("data-deleteId");
+			$("#delete-id").val(id);
+			$("#delete-id").attr("data-url", "@Url.Action("CarrierNoteDeleteGrid")")
+							.attr("data-tableId", "carriernotes-grid");
+		});
+	
+		function renderColumnNotesDelete(data, type, row, meta) {
+			return '<a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt"></i>Delete</a>';
+		}
+    </script>
+}

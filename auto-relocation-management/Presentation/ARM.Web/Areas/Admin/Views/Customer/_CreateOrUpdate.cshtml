@@ -1,0 +1,91 @@
+﻿@model CustomerModel
+
+<div class="validation-top-listarea">    
+    <div asp-validation-summary="All"></div>    
+</div>
+<input asp-for="Id" type="hidden" />
+
+@{
+    const string hideInfoBlockAttributeName = "CustomerPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideOrdersBlockAttributeName = "CustomerPage.HideOrdersBlock";
+    var hideOrdersBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideOrdersBlockAttributeName, defaultValue: true);
+
+    const string hideAddressesBlockAttributeName = "CustomerPage.HideAddressesBlock";
+    var hideAddressesBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideAddressesBlockAttributeName, defaultValue: true);
+
+    const string hideShoppingCartAndWishlistBlockAttributeName = "CustomerPage.HideShoppingCartAndWishlistBlock";
+    var hideShoppingCartAndWishlistBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideShoppingCartAndWishlistBlockAttributeName, defaultValue: true);
+
+    const string hideActivityLogBlockAttributeName = "CustomerPage.HideActivityLogBlock";
+    var hideActivityLogBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideActivityLogBlockAttributeName, defaultValue: true);
+
+    const string hidePlaceOrderBlockAttributeName = "CustomerPage.HidePlaceOrderBlock";
+    var hidePlaceOrderBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hidePlaceOrderBlockAttributeName, defaultValue: true);
+
+    const string hideBackInStockSubscriptionsBlockAttributeName = "CustomerPage.HideBackInStockSubscriptionsBlock";
+    var hideBackInStockSubscriptionsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideBackInStockSubscriptionsBlockAttributeName, defaultValue: true);
+
+    const string hideRewardPointsBlockAttributeName = "CustomerPage.HideRewardPointsBlock";
+    var hideRewardPointsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideRewardPointsBlockAttributeName, defaultValue: true);
+}
+
+<section class="create-edit-pg-common-design">
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="col-md-12">
+                @await Html.PartialAsync("_CreateOrUpdate.Info", Model)
+            </div>
+        </div>
+
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CustomerDetailsBlock, additionalData = Model })
+        @* </nop-cards> *@
+    </div>
+</section>
+
+<div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-id" name="delete-id" />
+                @T("Admin.Common.DeleteConfirmation")
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#delete-confirmation-popup").click(function(e){
+
+        let url = $("#delete-id").attr("data-url");
+        let tableId = $("#delete-id").attr("data-tableId");
+
+        var postData = {
+            id: $("#delete-id").val()
+        };
+        addAntiForgeryToken(postData);
+
+        $.post(url, postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $('#'+tableId).DataTable().draw(false);
+            }
+        });
+    });
+</script>

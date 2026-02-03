@@ -1,0 +1,317 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body carrier-information">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Shipper" asp-required="Model.ShipperRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="Shipper" asp-items="Model.AvailableShipper" class="form-select form-control" />
+                            <span asp-validation-for="Shipper"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AssignedTo" asp-required="Model.AssignedToRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="AssignedTo" asp-items="Model.AvailableAssignedTo" class="form-select form-control" />
+                            <span asp-validation-for="AssignedTo"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="LeadSource" asp-required="Model.LeadSourceRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="LeadSource" />
+                            <span asp-validation-for="LeadSource"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="FirstName" asp-required="Model.FirstNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="FirstName" />
+                            <span asp-validation-for="FirstName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="LastName" asp-required="Model.LastNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="LastName" />
+                            <span asp-validation-for="LastName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="ShipperCompany" asp-required="Model.ShipperCompanyRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="ShipperCompany" />
+                            <span asp-validation-for="ShipperCompany"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Email" asp-required="Model.EmailRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Email" />
+                            <span asp-validation-for="Email"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Phone1" asp-required="Model.Phone1Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Phone1" />
+                            <span asp-validation-for="Phone1"></span>
+                        </div>
+                    </div>
+                    
+
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Phone2" asp-required="Model.Phone2Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Phone2" />
+                            <span asp-validation-for="Phone2"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Mobile" asp-required="Model.MobileRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Mobile" />
+                            <span asp-validation-for="Mobile"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Fax" asp-required="Model.FaxRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Fax" />
+                            <span asp-validation-for="Fax"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Address" asp-required="Model.AddressRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Address" />
+                            <span asp-validation-for="Address"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Zip" asp-required="Model.ZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Zip" />
+                            <span asp-validation-for="Zip"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="City" asp-required="Model.CityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="City" />
+                            <span asp-validation-for="City"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Country" asp-required="Model.CountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="Country" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                            <span asp-validation-for="Country"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="State" asp-required="Model.StateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="State" asp-items="Model.AvailableStates" class="form-select form-control" />
+                            <span asp-validation-for="State"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" style="display:none;">
+                        <div class="label-name">
+                            <nop-label asp-for="Leadstatus" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Leadstatus" />
+                            <span asp-validation-for="Leadstatus"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" style="display:none;">
+                        <div class="label-name">
+                            <nop-label asp-for="Latitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Latitude" />
+                            <span asp-validation-for="Latitude"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" style="display:none;">
+                        <div class="label-name">
+                            <nop-label asp-for="Longitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Longitude" />
+                            <span asp-validation-for="Longitude"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.Country)").change(function () {
+            var selectedItem = $(this).data("kendoDropDownList").value();
+            var ddlStates = $("#@Html.IdFor(model => model.State)").data("kendoDropDownList");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                data: {
+                    "countryId": selectedItem,
+                    "addSelectStateItem": "false"
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var dataSource = ddlStates.dataSource;
+                    dataSource.data([]);
+                    $.each(data,
+                        function (id, option) {
+                            dataSource.add({
+                                text: option.name,
+                                value: option.id
+                            });
+                        });
+                    $("#State").data("kendoDropDownList").value(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#statesAlert").click();
+                }
+            });
+        });
+    });
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.Shipper)").change(function () {
+            var selectedItem = $(this).val();
+
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("CustomerSearchAutoComplete", "LogisticsLeads"))",
+                data: {
+                    customerId: selectedItem,
+                },
+                success: function (data, textStatus, jqXHR) {
+                    if (data.result) {
+                        $('#@Html.IdFor(model => model.Shipper)').val(data.id);
+                        $('#@Html.IdFor(model => model.ShipperName)').val(data.label);
+                        $('#search-shipper-friendly-name').text(data.label);
+                        $('#@Html.IdFor(model => model.FirstName)').val(data.firstName);
+                        $('#@Html.IdFor(model => model.LastName)').val(data.lastName);
+                        $('#@Html.IdFor(model => model.Email)').val(data.email);
+                        $('#@Html.IdFor(model => model.ShipperCompany)').val(data.companyName);
+                        $('#@Html.IdFor(model => model.Phone1)').val(data.phone1);
+                        $('#@Html.IdFor(model => model.City)').val(data.city);
+                        $('#@Html.IdFor(model => model.Zip)').val(data.zip);
+                        $('#@Html.IdFor(model => model.State)').data("kendoDropDownList").value(data.stateId);
+                        $('#@Html.IdFor(model => model.Country)').data("kendoDropDownList").value(data.countryId);
+                    } else {
+                        $('#@Html.IdFor(model => model.Shipper)').val(0);
+                        $('#@Html.IdFor(model => model.ShipperName)').val("");
+                        $('#search-shipper-friendly-name').text("");
+                        $('#@Html.IdFor(model => model.FirstName)').val("");
+                        $('#@Html.IdFor(model => model.LastName)').val("");
+                        $('#@Html.IdFor(model => model.Email)').val("");
+                        $('#@Html.IdFor(model => model.ShipperCompany)').val("");
+                        $('#@Html.IdFor(model => model.Phone1)').val("");
+                        $('#@Html.IdFor(model => model.City)').val("");
+                        $('#@Html.IdFor(model => model.Zip)').val("");
+                        $('#@Html.IdFor(model => model.State)').val(0);
+                        $('#@Html.IdFor(model => model.Country)').val(0);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $("#Zip").keyup(function () {
+        var zipCodeId = $(this).attr('id');
+        if (($("#" + zipCodeId).val().length) >= 4) {
+            var txtZipCode = $("#" + zipCodeId).val();
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#City").val(response.city);
+                    $("#State").data("kendoDropDownList").value(response.state);
+                    $("#Country").data("kendoDropDownList").value(response.country);
+                    $("#Latitude").val(response.latitude);
+                    $("#Longitude").val(response.longitude);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            $("#City").val('');
+            $("#State").data("kendoDropDownList").value(0);
+            $("#Country").data("kendoDropDownList").value(0);
+            $("#Latitude").val(0);
+            $("#Longitude").val(0);
+        }
+    });
+</script>
+
+<script>
+    allowNumberOnly('#Fax');
+    commonPhoneNumber("#Phone1,#Phone2,#Mobile");
+</script>

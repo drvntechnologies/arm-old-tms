@@ -1,0 +1,174 @@
+@model PermissionMappingModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Configuration.ACL").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Access control list");
+}
+@{
+    const string hideSearchACLName = "CustomerListPage.HideSearchBlock";
+    var hideSearchacl = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchACLName);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Configuration.ACL")
+    </h1>
+</div>
+
+<form asp-controller="Security" asp-action="PermissionsSearch" method="post">
+    <div class="container-fluid">
+        <div class="form-horizontal d-form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search d-card-search d-card">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchacl ? "opened" : "")" data-hideAttribute="@hideSearchACLName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchacl ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body @(hideSearchacl ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <nop-label asp-for="Name" />
+                                        </div>
+                                        <div class="col-md-12">
+                                            <nop-editor asp-for="Name" html-attributes="@(new { placeholder = "Enter Permission Name" })" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="submit" id="search-acl" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                        <a asp-action="Permissions" type="button" id="acl-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Cancel")
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form asp-controller="Security" asp-action="Permissions" method="post">
+    @* <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Configuration.ACL")
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.PermissionListButtons, additionalData = Model })
+        </div>
+    </div> *@
+
+    @* <section class="content"> *@
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default">
+                        <div class="card-body p-0">
+                            @* <p>
+                                @T("Admin.Configuration.ACL.Description")
+                                <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Acl", Docs.Acl + Utm.OnAdmin)" asp-add-wrapper="false"/>
+                            </p> *@
+                            @Html.HiddenFor(m => m.Name)
+                            @if (Model.AvailablePermissions.Count == 0)
+                            {
+                                <div class="p-2 text-center">
+                                    <text>No permissions defined</text>
+                                </div>
+                            }
+                            else if (Model.AvailableCustomerRoles.Count == 0)
+                            {
+                                <div class="p-2 text-center">
+                                    <text>No customer roles available</text>
+                                </div>
+                            }
+                            else
+                            {
+                                <script>
+                                $(document).ready(function () {
+                                    @foreach (var cr in Model.AvailableCustomerRoles)
+                                    {
+                                        <text>
+                                            prepareTableCheckboxes('#selectall-@(cr.Id)', '.allow_@(cr.Id)');
+                                        </text>
+                                    }
+                                });
+                                </script>
+                            <div class="d-table-responsive d-access-control-table">
+                                <table id="acl-table" class="table table-hover table-borderless permission-list-tbl d-table table-striped m-0">
+                                    <caption style="display:none;">@T("Admin.Configuration.ACL")</caption>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <strong>@T("Admin.Configuration.ACL.Permission")</strong>
+                                                </th>
+                                                @foreach (var cr in Model.AvailableCustomerRoles)
+                                                {
+                                                    <th scope="col">
+                                                        <div class="checkbox">
+                                                            <label class="d-flex align-items-center">
+                                                                <input type="checkbox" class="mr-2" id="selectall-@(cr.Id)" />
+                                                                <strong>@cr.Name</strong>
+                                                            </label>
+                                                        </div>
+                                                    </th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var pr in Model.AvailablePermissions)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <span>@pr.Name</span>
+                                                    </td>
+                                                    @foreach (var cr in Model.AvailableCustomerRoles)
+                                                    {
+                                                        var allowed = Model.Allowed.ContainsKey(pr.SystemName) && Model.Allowed[pr.SystemName][cr.Id];
+                                                        <td>
+                                                            <input class="allow_@(cr.Id)" type="checkbox" value="@(pr.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null) />
+                                                        </td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    <div class="py-2 pr-2">
+                        <div class="float-right">
+                            <button type="submit" name="save" class="btn btn-primary">
+                                <i class="far fa-save"></i>
+                                @T("Admin.Common.Save")
+                            </button>
+                            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.PermissionListButtons, additionalData = Model })
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @* </section> *@
+</form>
+<script>
+    $(document).ready(function () {
+        $("#backTop").hide();
+    });
+</script>

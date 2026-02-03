@@ -1,0 +1,121 @@
+﻿@model RevenueReportModel
+
+@inject IPriceFormatter priceFormatter
+
+@{
+    var randomNumber = new Random().Next(1000, 9999);
+    var counter = 1;
+}
+
+<div class="customer-report-content">
+    <div class="total-credit-col">
+        <div class="total-credit-info">Total Revenue: </div>
+        <div class="total-credit-value">@await priceFormatter.FormatPriceAsync(Model.TotalRevenue, true, false)</div>
+    </div>
+    <div class="customer-report-table">
+        <table class="table table-hover datatbl-custom-tbl-view parent-tbl">
+            <thead class="table-light">
+                <tr>
+                    <th></th> <!-- For expand/collapse button -->
+                    <th>Company Name</th>
+                    @* <th class="text-center">Quotes</th> *@
+                    <th class="text-center">Orders</th>
+                    @* <th class="text-center">Lost Quotes</th>
+                    <th class="text-center">Win Rate</th>
+                    <th class="text-center">Loss Rate</th> *@
+                    <th class="text-center">Total Revenue</th>
+                    <th class="text-center">Total Carrier Cost</th>
+                    <th class="text-center">Total Accessorial (Customer Price)</th>
+                    <th class="text-center">Total Accessorial (Vendor Price)</th>
+                    <th class="text-center">Net Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model.RevenueReportList)
+                {
+                    var collapseId = $"orders-{counter}-{randomNumber}";
+
+                    <tr>
+                        <td>
+                            <button class="btn btn-sm btn-toggle" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </td>
+                        <td>@customer.Name</td>
+                        @* <td class="text-center">@customer.TotalQuotes</td> *@
+                        <td class="text-center">@customer.TotalOrders</td>
+                        @* <td class="text-center">@customer.LostQuotes</td>
+                        <td class="text-center">@string.Format("{0:N0}%", Math.Round(customer.WinRate, 2))</td>
+                        <td class="text-center">@string.Format("{0:N0}%", Math.Round(customer.LossRate, 2))</td> *@
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(customer.TotalRevenue, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(customer.TotalCarrierCost, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(customer.TotalARAccessorial, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(customer.TotalAPAccessorial, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(customer.TotalProfit, true, false)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="8" class="p-0">
+                            <div id="@collapseId" class="collapse">
+                                <table class="table table-hover table-sm datatbl-custom-Sub-tbl-view child-tbl">
+                                    <colgroup>
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Order Date</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Price</th>
+                                            <th class="text-center">Carrier Cost</th>
+                                            <th class="text-center">Accessorial (Customer Price)</th>
+                                            <th class="text-center">Accessorial (Vendor Price)</th>
+                                            <th class="text-center">Net Profit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in customer.OrderReports)
+                                        {
+                                            <tr>
+                                                <td>@order.OrderId</td>
+                                                <td>@order.OrderDate.ToDateFormat()</td>
+                                                <td>@order.Status</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.Price, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.CarrierCost, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.ARAccessorial, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.APAccessorial, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.Profit, true, false)</td>
+                                            </tr>
+                                        }
+                                        @if (customer.OrderReports.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="9" class="text-center">No orders found.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
+                    counter++;
+                }
+                @if (Model.RevenueReportList.Count == 0)
+                {
+                    <tr>
+                        <td colspan="10">
+                            <div class="no-data-col">@T("Admin.Common.Table.NoRecord")</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

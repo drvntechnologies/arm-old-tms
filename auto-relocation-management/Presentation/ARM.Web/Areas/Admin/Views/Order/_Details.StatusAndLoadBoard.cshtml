@@ -1,0 +1,371 @@
+﻿@model OrderModel
+@using Nop.Services.Catalog
+@using Nop.Core.Domain.Orders
+@inject IPriceFormatter _priceFormatter
+
+@{
+    var isCanceledOrder = string.Equals(Model.Status, LogisticsStatusDefaults.Order.Canceled, StringComparison.InvariantCultureIgnoreCase);
+}
+
+<div class="row status-loadboard-section">
+
+    <div class="col-md-6 col-lg-6 float-left">
+        <div class="card detail-info-card d-card">
+            <div class="card-header with-border clearfix">
+                <div class="card-title">
+                    <i class='far fa-file-alt'></i> @T("Admin.Order.Fields.Status")
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="custom-form-group">
+                    @if (Model.IsChildOrder)
+                    {
+                        <div class="label-name">@T("Admin.Orders.Number") </div>
+                        <div class="input-name">
+                            <div>
+                                <span>@Model.CustomOrderNumber</span>
+                                <span id="mark-important-order" style="@( !Model.HasPriority ? "display:none;" : "")">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </span>
+                                <span class="float-right">
+                                    <button type="button" id="mark-as-priority" style="@( Model.HasPriority || isCanceledOrder ? "display:none;" : "")" class="btn btn-green">
+                                        @T("Admin.Order.Fields.HasPriority.MarkAsPriority")
+                                    </button>
+                                    <button type="button" id="unmark-as-priority" style="@( !Model.HasPriority ? "display:none;" : "")" class="btn btn-gray">
+                                        @T("Admin.Order.Fields.HasPriority.UnMarkAsPriority")
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="label-name">@T("Admin.Parent.Orders.Number") </div>
+                        <div class="input-name">
+                            <div>
+                                <span class="light-purple">
+                                    @Model.CustomOrderNumber
+                                    @if (Model.IsNewOrder && Model.HasPriority)
+                                    {
+                                        <span id="mark-important-order">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </span>
+                                    }
+                                </span>
+
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.AvailableSubOrderIdsForRedirection?.Count > 0)
+                {
+                    <div class="custom-form-group">
+                        <span class="label-name">@T("Admin.Orders.Switch.To.SubOrder")</span>
+                        <div class="input-name flex-wrap-container">
+                            @foreach (var subOrder in Model.AvailableSubOrderIdsForRedirection)
+                            {
+                                <div class="split-container sub-order-list">
+                                    <a class="yellow-brown split-left @(subOrder.HasPriority ? "has-priority" : "")" href="/Admin/Order/Details/@subOrder.LeadId">
+                                        @subOrder.CustomOrderNumber
+                                    </a>
+                                    <a class="yellow-brown split-right" href="/Admin/Order/Edit/@subOrder.LeadId">
+                                        <i class="fas fa-pencil-alt" title="Edit"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="custom-form-group order-status-fildbox">
+                    <div class="label-name text-left"><nop-label asp-for="StatusId" /></div>
+                    <div class="input-name">
+                        <nop-select asp-for="StatusId" asp-items="@Model.AvailableCustomOrderStatuses" class="form-select form-control" />
+                        <span asp-validation-for="StatusId"></span>
+                    </div>
+                </div>                            
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Details.LoadBoard", Model)
+
+</div>
+
+<div id="Loadboard-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Loadboard-confirmation-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="Loadboard-confirmation-popup-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    <input type="hidden" id="save-dispatch" name="" value="false" />
+                    @T("Admin.Common.ActionConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button asp-action="LoadBoardRequest" asp-controller="Order" class="btn btn-primary loadboard-request-btn">@T("Admin.Common.Submit")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="status-alert-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="status-alert-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="status-alert-popup-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="form-horizontal">
+                <input type="hidden" id="order-status-id" />
+                <div class="modal-body" id="status-alert-message-body">
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button type="button" id="update-order-status" class="btn btn-primary">@T("Admin.Common.Submit")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mark-order-alert-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mark-order-alert-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="mark-order-alert-popup-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="form-horizontal">
+                <input type="hidden" id="mark-unmark-status-id" />
+                <div class="modal-body" id="mark-unmark-alert-message-body">
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button type="button" id="mark-unmark-order" class="btn btn-primary">@T("Admin.Common.Submit")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        const logisticsStatus = $("#@Html.IdFor(model => model.StatusId)").val();
+
+        @if (Model.IsNewOrder)
+        {
+            <text>
+                function disableKendoOption($dropDown, values) {
+                    if (!$dropDown) {
+                        return;
+                    }
+
+                    if (!Array.isArray(values)) {
+                        values = [values];
+                    }
+
+                    var disabledSet = new Set(values.map(v => String(v).trim()));
+                    var view = $dropDown.dataSource.view();
+                    var items = $dropDown.ul.find("li");
+
+                    view.forEach(function(item, index) {
+                        var text = String(item.text).trim();
+                        if (disabledSet.has(text)) {
+                            item.disabled = true;
+
+                            $(items[index])
+                                .addClass("k-state-disabled k-disabled")
+                                .attr("aria-disabled", "true")
+                                .css("pointer-events", "none");
+                        }
+                    });
+
+                    $dropDown.unbind("select.disableOption");
+                    $dropDown.bind("select", function (e) {
+                        if ($(e.item).hasClass("k-disabled")) {
+                          e.preventDefault();
+                        }
+                    });
+                }
+
+                const disableOption = setInterval(function(){
+                    var $dropDown = $("#StatusId").data("kendoDropDownList");
+                    if(!$dropDown){
+                        return;
+                    }
+
+                    const statuses = [
+                        "@LogisticsStatusDefaults.Order.Open",
+                        "@LogisticsStatusDefaults.Order.Covered",
+                        "@LogisticsStatusDefaults.Order.Dispatched",
+                        "@LogisticsStatusDefaults.Order.InTransit",
+                        "@LogisticsStatusDefaults.Order.Delivered",
+                    ];
+
+                    disableKendoOption($dropDown, statuses);
+                    clearInterval(disableOption);
+                },100);
+            </text>
+        }
+
+        function setOrdreStatus(value){
+            if (!value) {
+                return false;
+            }
+
+            let statusId = parseInt(value);
+
+            if (statusId <= 0 || isNaN(statusId)){
+                return false;
+            }
+
+            var antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateStatus", "Order")',
+                type: 'POST',
+                data: {
+                    leadId: @Model.LeadId,
+                    statusId: statusId,
+                },
+                headers: {
+                    "RequestVerificationToken": antiForgeryToken
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.alertMessage != undefined && data.alertMessage != "") {
+                        var errorSummary = $('#orderErrorSummary ul');
+                        errorSummary.empty();
+                        $.each(data.alertMessage, function (key, value) {
+                            errorSummary.append('<li>' + value + '</li>');
+                        });
+
+                        $("#@Html.IdFor(model => model.StatusId)").data("kendoDropDownList").value(logisticsStatus);
+                    }
+                    else if (data.error) {
+                        toastr.error(data.error);
+
+                        $("#@Html.IdFor(model => model.StatusId)").data("kendoDropDownList").value(logisticsStatus);
+                    }
+                    else {
+                        location.reload();
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    toastr.error(errorThrown);
+                }
+            });
+        }
+
+        $(document).on('click', "#status-alert-popup .close-popup, #status-alert-popup button.close", function(e){
+            e.preventDefault();
+            $("#order-status-id").val("");
+            $("#status-alert-popup").modal('hide');
+        });
+
+        const newOrderStatus = "@LogisticsStatusDefaults.Order.New";
+        const canceledOrderStatus = "@LogisticsStatusDefaults.Order.Canceled";
+        let currentOrderStatus = $("#StatusId option:selected").text();
+        let currentOrderStatusId = $("#StatusId").val();
+
+        $("#@Html.IdFor(model => model.StatusId)").change(function () {
+
+            const orderStatus = $("#StatusId option:selected").text();
+
+            if (orderStatus == canceledOrderStatus){
+                $("#status-alert-message-body").html(`Are you sure you want to cancel the status from "<strong>${currentOrderStatus}</strong>"?`);
+                $("#order-status-id").val($(this).val());
+                $("#status-alert-popup").modal('show');
+            }
+            else if (orderStatus == newOrderStatus)
+            {
+                $("#status-alert-message-body").html(`Are you sure you want to change the status from "<strong>${currentOrderStatus}</strong>" to "<strong>${orderStatus}</strong>"?`);
+                $("#order-status-id").val($(this).val());
+                $("#status-alert-popup").modal('show');
+            }
+            else {
+                setOrdreStatus($(this).val());
+            }
+        });
+
+        $("#update-order-status").click(function(e){
+            e.preventDefault();
+            setOrdreStatus($("#order-status-id").val());
+            $("#order-status-id").val("");
+            $("#status-alert-popup").modal('hide');
+        });
+
+        $("#status-alert-popup").on("hidden.bs.modal", function () {
+            $("#order-status-id").val("");
+            $("#@Html.IdFor(model => model.StatusId)").data("kendoDropDownList").value(currentOrderStatusId);
+        });
+
+        $(document).on('click', "#mark-order-alert-popup .close-popup, #mark-order-alert-popup button.close", function(e){
+            e.preventDefault();
+            $("#mark-order-alert-popup").modal('hide');
+        });
+
+        $("#mark-order-alert-popup").on("hidden.bs.modal", function () {
+            $("#mark-unmark-status-id").val("");
+        });
+
+        $("#mark-as-priority").click(function(e){
+            e.preventDefault();
+            $("#mark-unmark-status-id").val(true);
+            $("#mark-unmark-alert-message-body").text("@T("Admin.Order.Fields.HasPriority.MarkAsPriority.Confirmation")");
+            $("#mark-order-alert-popup").modal('show');;
+        });
+
+        $("#unmark-as-priority").click(function(e){
+            e.preventDefault();
+            $("#mark-unmark-status-id").val(false);
+            $("#mark-unmark-alert-message-body").text("@T("Admin.Order.Fields.HasPriority.UnMarkAsPriority.Confirmation")");
+            $("#mark-order-alert-popup").modal('show');
+        });
+
+        $("#mark-unmark-order").on('click', function(e){
+            e.preventDefault();
+
+            let postData = {
+                leadId: "@Model.LeadId",
+                hasPriority: toBoolean($("#mark-unmark-status-id").val())
+            };
+            addAntiForgeryToken(postData);
+
+            $.post("@Url.Action("MarkOrderHasPriority")", postData, function (data) {
+                if (!data) return;
+
+                if (data.error){
+                    toastr.error(data.error);
+                    return;
+                }
+
+                if (data.Message){
+                    toastr.success(data.Message);
+
+                    if (postData.hasPriority){
+                        $("#mark-important-order").show();
+						$("#mark-as-priority").hide();
+						$("#unmark-as-priority").show();
+					}
+					else {
+                        $("#mark-important-order").hide();
+						$("#mark-as-priority").show();
+						$("#unmark-as-priority").hide();
+					}
+
+                    $("#mark-order-alert-popup").modal('hide');
+
+                    return;
+                }
+            });
+        });
+    });
+
+</script>

@@ -1,0 +1,19 @@
+﻿@model CommissionModel
+
+@{
+	const string hideCommissionInfoBlockAttributeName = "CommissionPage.HideInfoBlock";
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideCommissionInfoBlockAttributeName);
+}
+<div class="validation-top-listarea">	
+	<div asp-validation-summary="All"></div>	
+</div>
+<input asp-for="Id" type="hidden" />
+<section class="create-edit-pg-common-design">
+	<div class="form-horizontal">
+		<nop-cards id="commission-cards">
+			<nop-card asp-name="customer-info" asp-icon="fas fa-info" asp-title="@T("Admin.Configuration.Settings.CommissionInfo")" asp-hide-block-attribute-name="@hideCommissionInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("_Commission.Info", Model)</nop-card>
+		</nop-cards>
+	</div>
+</section>
+

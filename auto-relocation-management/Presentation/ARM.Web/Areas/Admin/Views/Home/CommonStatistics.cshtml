@@ -1,0 +1,80 @@
+﻿<div class="card card-primary card-outline" id="nopcommerce-common-statistics-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="far fa-chart-bar"></i> Common statistics
+        </div>
+        <div class="card-tools float-right">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body" style="display: block;">
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <div class="inner">
+                        <h3>12</h3>
+                        <p>Flights</p>
+                    </div>
+                    <a class="small-box-footer" href="/Admin/Order/List">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-yellow">
+                    <div class="icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="inner">
+                        <h3>0</h3>
+                        <p>Wastage</p>
+                    </div>
+                    <a class="small-box-footer" href="/Admin/ReturnRequest/List">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-green">
+                    <div class="icon">
+                        <i class="far fa-user"></i>
+                    </div>
+                    <div class="inner">
+                        <h3>7</h3>
+                        <p>Passenger Approval</p>
+                    </div>
+                    <a class="small-box-footer" href="/Admin/Customer/List">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-red">
+                    <div class="icon">
+                        <i class="far fa-list-alt"></i>
+                    </div>
+                    <div class="inner">
+                        <h3>1</h3>
+                        <p>Low stock products</p>
+                    </div>
+                    <a class="small-box-footer" href="/Admin/Report/LowStock">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $("#nopcommerce-common-statistics-card").on("click", 'button[data-card-widget="collapse"]', function () {
+                        var n = !$("#nopcommerce-common-statistics-card").hasClass("collapsed-card");
+                        saveUserPreferences("/Admin/Preferences/SavePreference", "HideCommonStatisticsCard", n)
+                    })
+                })
+            </script>
+        </div>
+    </div>
+</div>

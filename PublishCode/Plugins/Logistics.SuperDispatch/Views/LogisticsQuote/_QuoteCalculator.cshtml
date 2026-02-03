@@ -1,0 +1,528 @@
+﻿@model QuotationModel
+
+<div id="quotation-calculator">
+	<div class="row g-2">
+		<div class="col-md-4">
+			<h3 class="card-title">
+				@T("Logistics.SuperDispatch.Quote.Location.Pickup")
+				<span class="required">*</span>
+			</h3>
+			<div class="form-group row g-2">
+				<div class="col-md-12">
+					<nop-editor asp-for="PickupLocation" html-attributes="@(new { placeholder = "Enter City, State or Zip", autocomplete="off" })" />
+					<span class="text-danger error-message" id="error-PickupLocation"></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<h3 class="card-title">
+				@T("Logistics.SuperDispatch.Quote.Location.Destination")
+				<span class="required">*</span>
+			</h3>
+			<div class="form-group row g-2">
+				<div class="col-md-12">
+					<nop-editor asp-for="DestinationLocation" html-attributes="@(new { placeholder = "Enter City, State or Zip", autocomplete="off" })" />
+					<span class="text-danger error-message" id="error-DestinationLocation"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group row mt-2">
+		<div class="col-auto">
+			<label class="col-form-label" for="VehicleTrailerType">@T("Logistics.SuperDispatch.Quote.Fields.TrailerType")</label>
+		</div>
+		<div class="col-auto">
+
+			@{
+				int count = 0;
+			}
+
+			@foreach (var trailerType in Model.AvailableTrailerTypes)
+			{
+				<input type="radio" id="@trailerType.Value-@count"
+					   value="@trailerType.Value"
+					   name="VehicleTrailerType"
+				@(trailerType.Value == LogisticsDefaults.TransportType.Open.ToLower() ? "checked" : "") />
+
+				<label for="@trailerType.Value-@count">@trailerType.Text</label>
+
+				count++;
+			}
+
+		</div>
+	</div>
+
+	<div class="form-group row">
+		<div class="col-sm-12">
+			<div class="vehicle-header">
+				<label class="col-form-label" for="VehicleType">@T("Logistics.SuperDispatch.Quote.Vehicle.Section")</label>
+				<button type="button" class="btn btn-primary" id="addVehicle">@T("Logistics.SuperDispatch.Quote.Vehicle.Add")</button>
+			</div>
+		</div>
+		<div class="col-sm-12">
+			<div class="table-responsive">
+				<table class="table" id="vehicleTable">
+					<thead>
+						<tr>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.VinNumber")</th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Year") <span class="required">*</span></th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Make") <span class="required">*</span></th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Model") <span class="required">*</span></th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Type") <span class="required">*</span></th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Inoperable")</th>
+							<th>@T("Logistics.SuperDispatch.Quote.Vehicle.Fields.Action")</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group price-row-sidebar price-calc-result-section row" id="divEstPrice" style="display:none;">
+
+		<div class="col-price price-calc-result-itembox col-md-6 col-lg-4">
+			<label class="col-form-label" for="EstimatedPrice">@T("Logistics.SuperDispatch.Quote.Fields.EstimatedPrice"):</label>
+			<div class="form-text-row" id="EstimatedPrice"></div>
+		</div>
+
+		<div class="col-price price-calc-result-itembox col-md-6 col-lg-4">
+			<label class="col-form-label" for="EstimatedCustomerRate">@T("Logistics.SuperDispatch.Quote.Fields.EstimatedCustomerRate"):</label>
+			<div class="form-text-row" id="EstimatedCustomerRate"></div>
+		</div>
+
+		<div class="col-price price-calc-result-itembox col-md-6 col-lg-4">
+			<label class="col-form-label" for="PricePerMile">@T("Logistics.SuperDispatch.Quote.Fields.PricePerMile"):</label>
+			<div class="d-flex price-calc-result-valuebox">
+				<div class="form-text-row" id="PricePerMile"></div>
+				<div class="form-text-row" id="TotalMile"></div>
+			</div>
+		</div>
+
+		<div class="col-price price-calc-result-itembox col-md-6 col-lg-4">
+			<label class="col-form-label" for="Confidence">@T("Logistics.SuperDispatch.Quote.Fields.Confidence"):</label>
+			<div class="form-text-row" id="Confidence"></div>
+		</div>
+
+	</div>
+
+	<div class="text-danger error-message" id="error-Vehicles"></div>
+
+	<div class="form-group row">
+		<div class="col-md-12 text-right mt-2">
+			<input type="submit" id="submitForm" class="btn btn-primary" value="@T("Logistics.SuperDispatch.Quote.GetQuote")" />
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	let vehicleTypeData = @Html.Raw(Json.Serialize(Model.AvailableVehicleType?.Select(x => new
+		{
+			text = x.Text,
+			value = x.Value
+		})));
+	let vehicleIndex = 0;
+	let selectedIndex = -1;
+
+	function addVehicleRow() {
+		let newRow = `<tr class="vehicleRow">
+			<td style="min-width: 250px">
+				<input autocomplete="off" type="text" class="form-control vehicle-vin-number" name="Vehicles[${vehicleIndex}].VinNumber" id="Vehicles_${vehicleIndex}__VinNumber" placeholder="Enter VIN">
+				<span class="text-danger error-message" id="error-Vehicles_${vehicleIndex}__VinNumber"></span>
+			</td>
+			<td>
+				<input autocomplete="off" type="text" class="form-control year" name="Vehicles[${vehicleIndex}].Year" id="Vehicles_${vehicleIndex}__Year">
+				<span class="text-danger error-message" id="error-Vehicles_${vehicleIndex}__Year"></span>
+			</td>
+			<td>
+				<div class="suggestion-drop-parentbox tbl-sugest-filed">
+					<input autocomplete="off" type="text" class="form-control make" name="Vehicles[${vehicleIndex}].Make" id="Vehicles_${vehicleIndex}__Make" placeholder="Enter Make" data-type="Make"/>
+				</div>
+				<span class="text-danger error-message" id="error-Vehicles_${vehicleIndex}__Make"></span>
+			</td>
+			<td>
+				<div class="suggestion-drop-parentbox tbl-sugest-filed">
+					<input autocomplete="off" type="text" class="form-control model" name="Vehicles[${vehicleIndex}].Model" id="Vehicles_${vehicleIndex}__Model" placeholder="Enter Model" data-type="Model"/>
+				</div>
+				<span class="text-danger error-message" id="error-Vehicles_${vehicleIndex}__Model"></span>
+			</td>
+			<td>
+				<select class="vehicleType form-control" name="Vehicles[${vehicleIndex}].Type" id="Vehicles_${vehicleIndex}__Type"></select>
+				<span class="text-danger error-message" id="error-Vehicles_${vehicleIndex}__Type"></span>
+			</td>
+			<td>
+				<input type="checkbox" class="inop" name="Vehicles[${vehicleIndex}].Inoperable" id="Vehicles_${vehicleIndex}__Inoperable">
+			</td>
+			<td>
+				<button type="button" class="btn btn-default common-delete removeRow"><i class="far fa-trash-alt" title="Delete"></i></button>
+			</td>
+		</tr>`;
+
+		$("#vehicleTable tbody").append(newRow);
+
+		allowNumericWithMaxLength("#Vehicles_" + vehicleIndex + "__Year", 4);
+
+		$("#Vehicles_" + vehicleIndex + "__Type").kendoDropDownList({
+			dataTextField: "text",
+			dataValueField: "value",
+			dataSource: vehicleTypeData
+		});
+
+		vehicleIndex++;
+
+		$("#error-Vehicles").text("");
+		$("#divEstPrice").hide();
+	}
+
+	function updateVehicleIndexes() {
+		$(".vehicleRow").each(function (index, row) {
+			$(row).find("input, select, span").each(function () {
+				let id = $(this).attr("id");
+				if (id) {
+					let newId = id.replace(/Vehicles_\d+__/g, `Vehicles_${index}__`);
+					$(this).attr("id", newId);
+				}
+
+				let name = $(this).attr("name");
+				if (name) {
+					let newName = name.replace(/Vehicles\[\d+\]/g, `Vehicles[${index}]`);
+					$(this).attr("name", newName);
+				}
+			});
+		});
+
+		vehicleIndex = $(".vehicleRow").length;
+	}
+
+	$("#addVehicle").click(addVehicleRow);
+
+	$(document).on("click", ".removeRow", function () {
+		const $tr = $(this).closest('tr');
+		const tbody = $(this).closest('table').find('tbody');
+
+		const selectVinNumberId = $tr.find(".vehicle-vin-number").attr("id");
+		const selectYearId = $tr.find(".year").attr("id");
+		const selectMakeId = $tr.find(".make").attr("id");
+		const selectModelId = $tr.find(".model").attr("id");
+
+		sdPreviousVehicleVinNumber[selectVinNumberId] = "";
+		sdPreviousVehicleYear[selectYearId] = "";
+		sdPreviousVehicleMake[selectMakeId] = "";
+		sdPreviousVehicleModel[selectModelId] = "";
+
+		$(this).closest(".vehicleRow").remove();
+		updateVehicleIndexes();
+		$("#divEstPrice").hide();
+
+		const rowCount = tbody.find('tr').length;
+
+		if (rowCount == 0){
+			addVehicleRow();
+			return false;
+		}
+	});
+
+	addVehicleRow();
+
+	$("#submitForm").click(function () {
+		$(".error-message").text("");
+		$("#divEstPrice").hide();
+
+		let postData = {
+			PickupLocation: $("#PickupLocation").val(),
+			DestinationLocation: $("#DestinationLocation").val(),
+			VehicleTrailerType: $("input[name='VehicleTrailerType']:checked").val(),
+			VehiclesModel: []
+		};
+
+		$(".vehicleRow").each(function (index, row) {
+			let vehicleTypeDropdown = $("#"+$(row).find("select.vehicleType").attr("id")).data("kendoDropDownList");
+			let vehicle = {
+				Year: $(row).find(".year").val(),
+				Make: $(row).find(".make").val(),
+				Model: $(row).find(".model").val(),
+				Type: vehicleTypeDropdown ? vehicleTypeDropdown.value() : "",
+				Inoperable: $(row).find(".inop").prop("checked"),
+			};
+			postData.VehiclesModel.push(vehicle);
+		});
+
+		addAntiForgeryToken(postData);
+
+		$.ajax({
+			cache: false,
+			type: "POST",
+			url: "@(Url.Action("CalculatePrice", "SuperDispatch"))",
+			data: postData,
+			success: function (response) {
+				if (response.Success) {
+					$("#EstimatedPrice").text(response.Price);
+					$("#EstimatedCustomerRate").text(response.CustomerRate);
+					$("#PricePerMile").text(response.PricePerMile);
+					$("#TotalMile").text(response.TotalMile);
+					$("#Confidence").text(response.Confidence);
+					$("#divEstPrice").show();
+				} else {
+					$.each(response.Error, function (key, messages) {
+						let errorField = key.replace(/\[(\d+)\]\./g, "_$1__").replace("Model", "");
+						$("#error-" + errorField).text(messages[0]);
+						$("#error-" + errorField).show();
+					});
+				}
+			},
+			error: function () {
+				console.error("An error occurred while submitting the form.");
+			}
+		});
+	});
+
+	$(document).on('input change', 'input, select', function(){
+		const value = $(this).val();
+		const id = $(this).attr('id');
+		const errorId = $(`#error-${id}`);
+
+		if (value){
+			errorId.hide();
+		}
+		else{
+			errorId.show();
+		}
+	});
+
+	let sdPreviousVehicleVinNumber = {};
+	let sdPreviousVehicleYear = {};
+	let sdPreviousVehicleMake = {};
+	let sdPreviousVehicleModel = {};
+	let sdPreviousZipCode = {};
+
+	function sdFetchVehicleType(id) {
+
+		let $tr = $("#"+id).closest('tr');
+
+		let selectYearId = $tr.find(".year").attr("id");
+		let selectMakeId = $tr.find(".make").attr("id");
+		let selectModelId = $tr.find(".model").attr("id");
+		let selectTypeId = $tr.find("select.vehicleType").attr("id");
+
+		let year = $("#" + selectYearId).val();
+		let make = $("#" + selectMakeId).val();
+		let model = $("#" + selectModelId).val();
+
+		let previousYear = sdPreviousVehicleYear[selectYearId];
+		let previousMake = sdPreviousVehicleMake[selectMakeId];
+		let previousModel = sdPreviousVehicleModel[selectModelId];
+
+		let makeError = $("#" + selectMakeId).closest('td')
+											  .find('[id^="error-Vehicles_"][id$="__Make"]');
+		makeError.text("");
+
+		let modelError = $("#" + selectModelId).closest('td')
+											  .find('[id^="error-Vehicles_"][id$="__Model"]');
+		modelError.text("");
+
+		if (previousYear == year && previousMake == make && previousModel == model){
+			return false;
+		}
+
+		sdPreviousVehicleYear[selectYearId] = year;
+		sdPreviousVehicleMake[selectMakeId] = make;
+		sdPreviousVehicleModel[selectModelId] = model;
+
+		if (year.length > 0 && make.length > 0 && model.length > 0)
+		{
+			if (vehicles != null && vehicles != undefined && vehicles.length > 0)
+			{
+				const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === make?.toUpperCase());
+				if (vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+					makeError.text(`Incorrect vehicle make.`);
+				}
+
+				const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === model?.toUpperCase());
+				if (vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+					modelError.text(`Incorrect vehicle model.`);
+				}
+
+				let vehicleType = vehiclesFilteredByModel?.length > 0
+											? vehiclesFilteredByModel[0]?.type.toUpperCase()
+											: "0";
+
+				let type = "0";
+				if (vehicleType){
+					if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+						type = "passenger car";
+					}
+					else if (vehicleType === "SUV"){
+						type = "suv";
+					}
+					else if (vehicleType === "VAN"){
+						type = "van";
+					}
+					else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+						type = "truck";
+					}
+				}
+
+				var dropdown = $("#" + selectTypeId).data("kendoDropDownList");
+				dropdown.dataSource.data().forEach(function (item) {
+					if (item.value.toLowerCase() === type) {
+						dropdown.value(item.value);
+						return false;
+					}
+				});
+				$("#" + selectTypeId).trigger('change');
+			}
+		}
+		else
+		{
+			$("#" + selectTypeId).data("kendoDropDownList").value("0");
+			$("#" + selectTypeId).trigger('change');
+		}
+	}
+
+	$(document).on('focusout', ".year, .make, .model", function () {
+		sdFetchVehicleType($(this).attr('id'));
+	});
+
+	$(document).on('focusout', ".vehicle-vin-number", function () {
+
+		const vinNumber = $(this).val();
+		const vinNumberId = $(this).attr("id");
+
+		sdPreviousVehicleVinNumber[vinNumberId] = vinNumber;
+
+		const $tr = $(this).closest('tr');
+
+		const selectYearId = $tr.find(".year").attr("id");
+		const selectMakeId = $tr.find(".make").attr("id");
+		const selectModelId = $tr.find(".model").attr("id");
+		const selectTypeId = $tr.find("select.vehicleType").attr("id");
+
+		const $year = $("#" + selectYearId);
+		const $make = $("#" + selectMakeId);
+		const $model = $("#" + selectModelId);
+		const $type = $("#" + selectTypeId);
+
+		let yearError = $("#" + selectYearId).closest('td')
+											  .find('[id^="error-Vehicles_"][id$="__Year"]');
+		yearError.text("");
+
+		let makeError = $("#" + selectMakeId).closest('td')
+											  .find('[id^="error-Vehicles_"][id$="__Make"]');
+		makeError.text("");
+
+		let modelError = $("#" + selectModelId).closest('td')
+											  .find('[id^="error-Vehicles_"][id$="__Model"]');
+		modelError.text("");
+
+		if (vinNumber.length == 17) {
+			var postData = { vinNumber: vinNumber };
+
+			addAntiForgeryToken(postData);
+
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("VehicleInfoUpdateUsingVINNumber", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+
+					$year.val(response.VehicleModelYear);
+					$make.val(response.VehicleMake);
+					$model.val(response.VehicleModel);
+
+					sdPreviousVehicleYear[selectYearId] = response.VehicleModelYear;
+					sdPreviousVehicleMake[selectMakeId] = response.VehicleMake;
+					sdPreviousVehicleModel[selectModelId] = response.VehicleModel;
+
+					if (vehicles != null && vehicles != undefined && vehicles.length > 0)
+					{
+						const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === response.VehicleMake?.toUpperCase());
+						if (vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+							makeError.text(`Incorrect vehicle make.`);
+						}
+
+						const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === response.VehicleModel?.toUpperCase());
+						if (vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+							modelError.text(`Incorrect vehicle model.`);
+						}
+
+						let vehicleType = vehiclesFilteredByModel?.length > 0
+													? vehiclesFilteredByModel[0]?.type.toUpperCase()
+													: "0";
+
+						let type = "0";
+						if (vehicleType){
+							if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+								type = "passenger car";
+							}
+							else if (vehicleType === "SUV"){
+								type = "suv";
+							}
+							else if (vehicleType === "VAN"){
+								type = "van";
+							}
+							else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+								type = "truck";
+							}
+						}
+
+						var dropdown = $("#" + selectTypeId).data("kendoDropDownList");
+						dropdown.dataSource.data().forEach(function (item) {
+							if (item.value.toLowerCase() === type) {
+								dropdown.value(item.value);
+								return false;
+							}
+						});
+						$("#" + selectTypeId).trigger('change');
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+				}
+			});
+		}
+		else {
+			$year.val("");
+			$make.val("");
+			$model.val("");
+
+			sdPreviousVehicleYear[selectYearId] = "";
+			sdPreviousVehicleMake[selectMakeId] = "";
+			sdPreviousVehicleModel[selectModelId] = "";
+
+			$type.data("kendoDropDownList").value("0");
+			$type.trigger('change');
+		}
+	});
+
+	function fetchSuggestionsForPlaces(field) {
+		const inputField = field;
+		let input = inputField.val().trim();
+		if (input.length < 2) {
+			hideDropdown();
+			return;
+		}
+
+		$.get("@Url.Action("GetLocationSuggestions", "SuperDispatch")", { input: input }, function (data) {
+			hideDropdown();
+
+			if (!data || !data.suggestions || data.suggestions.length === 0) {
+				hideDropdown();
+				return;
+			}
+
+			showDropdown(inputField, [...new Set(data.suggestions)]);
+		});
+	}
+
+	const debounceCalcFunc = debounce(fetchSuggestionsForPlaces, 500);
+
+	$("#PickupLocation, #DestinationLocation").on("input", function(){
+		debounceCalcFunc($(this));
+	});
+
+	prepareMakeForVehicle('#quotation-calculator input.make');
+	prepareModelForVehicle('#quotation-calculator input.model', 'input.make');
+
+</script>

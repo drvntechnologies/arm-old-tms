@@ -1,0 +1,74 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card-body Carrier-Contact carrier-edit">
+	<div class="row">
+
+		<div class="col-md-12">
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="CarrierType" asp-required="true" />
+				</div>
+				<div class="input-name">
+					<nop-select asp-for="CarrierType" asp-items="Model.AvailableCarrierTypes" class="form-select form-control" />
+					<span asp-validation-for="CarrierType"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="FleetSize" asp-required="true" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="FleetSize" html-attributes='new { placeholder = "Enter Fleet Size" }' />
+					<span asp-validation-for="FleetSize"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="Drivers" asp-required="true" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="Drivers" html-attributes='new { placeholder = "Enter Total Drivers", @oninput = "this.value = this.value.replace(/[^0-9]/g, \"\")" }' />
+					<span asp-validation-for="Drivers"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="Trailers" asp-required="true" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="Trailers" html-attributes='new { placeholder = "Enter Total Trailers", @oninput = "this.value = this.value.replace(/[^0-9]/g, \"\")" }' />
+					<span asp-validation-for="Trailers"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+		$(document).on("input", "#FleetSize", function () {
+		let val = $(this).val();
+
+		val = val.replace(/[^0-9-]/g, '');
+
+		if (val.startsWith("-")) {
+			val = val.substring(1);
+		}
+
+		let parts = val.split("-");
+		if (parts.length > 2) {
+			val = parts[0] + "-" + parts[1];
+		}
+
+		$(this).val(val);
+	});
+
+	$(document).on("blur", "#FleetSize", function () {
+		let val = $(this).val();
+
+		if (val.endsWith("-")) {
+			val = val.slice(0, -1);
+		}
+
+		$(this).val(val);
+	});
+</script>

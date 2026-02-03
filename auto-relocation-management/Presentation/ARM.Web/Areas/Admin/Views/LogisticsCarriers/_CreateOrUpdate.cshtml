@@ -1,0 +1,128 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+@{
+    var customer = await workContext.GetCurrentCustomerAsync();
+
+    const string hideCarriersInfoBlockAttributeName = "CarrierPage.HideCarriersInfoBlock";
+    var hideCarriersInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideCarriersInfoBlockAttributeName);
+
+    const string hideContactInfoBlockAttribute = "CarrierPage.HideContactBlock";
+    var hideContactBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideContactInfoBlockAttribute);
+
+    const string hideOperationBlockAttribute = "CarrierPage.HideOperationBlock";
+    var hideOperationBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideOperationBlockAttribute);
+
+    const string hideInsuranceBlockAttribute = "CarrierPage.HideInsuranceBlock";
+    var hideInsuranceBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInsuranceBlockAttribute);
+
+    const string hideCarriersFilesBlockAttributeName = "CarrierPage.HideCarriersFilesBlock";
+    var hideCarriersFilesBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideCarriersFilesBlockAttributeName);
+    
+    const string hideInternalNotesBlockAttributeName = "CarrierPage.HideInternalNotesBlock";
+    var hideInternalNotesBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInternalNotesBlockAttributeName);
+
+    const string hideDriversInformationBlockAttributeName = "CarrierPage.HideDriversInformationBlock";
+    var hideDriversInformationBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDriversInformationBlockAttributeName);
+
+    const string hideDispatcherInformationBlockAttributeName = "CarrierPage.HideDispatcherInformationBlock";
+    var hideDispatcherInformationBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDispatcherInformationBlockAttributeName);
+
+    const string hideTINDetailsBlockAttributeName = "CarrierPage.TINDetailsBlock";
+    var hideTINDetailsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideTINDetailsBlockAttributeName);
+
+    const string hideELDProviderBlockAttributeName = "CarrierPage.ELDProvider";
+    var hideELDProviderBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideELDProviderBlockAttributeName);
+
+    const string hideBankDetailsBlockAttributeName = "CarrierPage.BankDetails";
+    var hideBankDetailsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideBankDetailsBlockAttributeName);
+
+    const string hideOrderInfoBlockAttributeName = "CarrierPage.HideOrderInfoBlock";    
+    var hideOrderInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideOrderInfoBlockAttributeName);
+}
+<div class="validation-top-listarea">
+    <div asp-validation-summary="All"></div>    
+</div>
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+<section class="page-main-area add-carriers-pg create-edit-pg-common-design">
+    <div class="container-fluid">
+        @* <div asp-validation-summary="All"></div> *@
+        <div class="form-horizontal">
+            <nop-cards id="carriers-cards">
+
+                <nop-card asp-name="carriers-info" asp-icon="fas fa-user" asp-title="@T("Admin.Carriers.Carrier.CarriersInfo")" asp-hide-block-attribute-name="@hideCarriersInfoBlockAttributeName" asp-hide="@hideCarriersInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CarrierInfo", Model)</nop-card>
+
+                <nop-card asp-name="Carrier-Contact" asp-icon="fa fa-phone" asp-title="@T("Admin.CarrierContact.Details")" asp-hide-block-attribute-name="@hideContactInfoBlockAttribute" asp-hide="@hideContactBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_ContactDetails", Model)</nop-card>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <nop-card asp-name="Carrier-operation" asp-icon="fas fa-tools" asp-title="@T("Admin.Carrier.Operation.Details")" asp-hide-block-attribute-name="@hideOperationBlockAttribute" asp-hide="@hideOperationBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_OperationDetails", Model)</nop-card>
+                    
+                        <nop-card asp-icon="fas fa-tablet-alt" asp-name="Carrier-ELDProvider" asp-title="@T("Admin.LogisticsCarriers.ELDProvider")" asp-hide-block-attribute-name="@hideELDProviderBlockAttributeName" asp-hide="@hideELDProviderBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_ELDProvider.cshtml", Model)</nop-card>
+                    </div>
+                    <div class="col-md-6">
+                        <nop-card asp-icon="fas fa-money-check-alt" asp-name="Carrier-BankDetails" asp-title="@T("Admin.LogisticsCarriers.BankDetails")" asp-hide-block-attribute-name="@hideBankDetailsBlockAttributeName" asp-hide="@hideBankDetailsBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_BankDetails.cshtml", Model)</nop-card>
+                    </div>
+                </div>
+
+                <nop-card asp-icon="fas fa-id-card" asp-name="Carrier-TINDetails" asp-title="@T("Admin.Carrier.TINDetails")" asp-hide-block-attribute-name="@hideTINDetailsBlockAttributeName" asp-hide="@hideTINDetailsBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_TINDetails.cshtml", Model)</nop-card>
+
+                <nop-card asp-name="Carrier-Insurance" asp-icon="fas fa-shield-alt" asp-title="@T("Admin.CarrierInsurance.Insurance.Details")" asp-hide-block-attribute-name="@hideInsuranceBlockAttribute" asp-hide="@hideInsuranceBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_Insurance", Model)</nop-card>
+
+                <nop-card asp-name="Carrier-Files" asp-icon="fa fa-file" asp-title="@T("Admin.Carriers.Carrier.CarriersFiles")" asp-hide-block-attribute-name="@hideCarriersFilesBlockAttributeName" asp-hide="@hideCarriersFilesBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_FilesDetails", Model)</nop-card>
+                
+                <nop-card asp-icon="fas fa-newspaper" asp-name="Carrier-InternalNotes" asp-title="@T("Admin.Carriers.Carrier.InternalNotes")" asp-hide-block-attribute-name="@hideInternalNotesBlockAttributeName" asp-hide="@hideInternalNotesBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_InternalNotes", Model)</nop-card>
+                
+                <nop-card asp-icon="fas fa-user" asp-name="Carrier-Drivers" asp-title="@T("Admin.Carriers.Carrier.Drivers")" asp-hide-block-attribute-name="@hideDriversInformationBlockAttributeName" asp-hide="@hideDriversInformationBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_DriversInfo", Model)</nop-card>
+                
+                <nop-card asp-icon="fas fa-user" asp-name="Carrier-Dispatcher" asp-title="@T("Admin.LogisticsCarriers.Dispatcher")" asp-hide-block-attribute-name="@hideDispatcherInformationBlockAttributeName" asp-hide="@hideDispatcherInformationBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_DispatcherInfo.cshtml", Model)</nop-card>
+
+                <nop-card asp-icon="nav-icon fas fa-shopping-cart" asp-name="Order-info" asp-title="@T("Admin.Carriers.Carrier.OrderInfo")" asp-hide-block-attribute-name="@hideOrderInfoBlockAttributeName" asp-hide="@hideOrderInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate_OrderInfo", Model)</nop-card>
+
+            </nop-cards>
+        </div>
+    </div>
+</section>
+
+<div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-id" name="delete-id" />
+                @T("Admin.Common.DeleteConfirmation")
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#delete-confirmation-popup").click(function(e){
+
+        let url = $("#delete-id").attr("data-url");
+        let tableId = $("#delete-id").attr("data-tableId");
+
+        var postData = {
+            id: $("#delete-id").val()
+        };
+        addAntiForgeryToken(postData);
+
+        $.post(url, postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $('#'+tableId).DataTable().draw(false);
+            }
+        });
+    });
+</script>

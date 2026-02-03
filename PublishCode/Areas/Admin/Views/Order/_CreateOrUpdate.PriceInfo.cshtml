@@ -1,0 +1,1295 @@
+﻿@model OrderModel
+
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Customers
+@using Nop.Core.Domain.LogisticsQuotes
+@using Nop.Services
+@using System.Text.Json
+
+@inject CustomerSettings customerSettings
+
+@{
+	var groupedData = Model.AvailableVendors
+		.Select(x => new
+		{
+			Text = x.Text,
+			Value = x.Value,
+			Group = x.Group?.Name ?? ""
+		})
+		.ToList();
+
+	var groupedDataJson = JsonSerializer.Serialize(groupedData);
+}
+
+<input type="hidden" asp-for="PercentagePriceMargin" />
+
+<div class="card-body carrier-information overflow-hidden">
+	<div class="row">
+		<div class="col-md-12" style="@(Model.IsNewOrder || Model.IsChildOrder ? "" : "display: none;")">
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="custom-form-group carrier-assign">
+						<div class="label-name">
+							<nop-label asp-for="IsCarrierAssign" asp-required="true" />
+						</div>
+						<div class="input-name">
+							<div class="radio-group">
+								<input type="radio" name="IsCarrierAssign" @(Model.IsCarrierAssign == true ? "checked" : "") value="true" id="carrier_assign_yes" />
+								<label class="col-form-label" for="carrier_assign_yes" id="carrier_assign_yes_label">@T("Admin.Common.Yes")</label>
+
+								<input type="radio" name="IsCarrierAssign" value="false" @(Model.IsCarrierAssign == false ? "checked" : "") id="carrier_assign_no" />
+								<label class="col-form-label" for="carrier_assign_no" id="carrier_assign_no_label">@T("Admin.Common.No")</label>
+							</div>
+							<span asp-validation-for="IsCarrierAssign"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6 finance-detail" style="@(Model.IsCarrierAssign.HasValue ? "" : "display: none;")">
+			<div class="card h-100 mb-3">
+				<div class="card-body">
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CarrierPayTerms" asp-required="Model.CarrierPayTermsRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="CarrierPayTerms" asp-items="Model.AvailableCarrierPayTerms" class="form-select" />
+							<span asp-validation-for="CarrierPayTerms"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CarrierPay" asp-required="Model.CarrierPayRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="CarrierPay" />
+							<span asp-validation-for="CarrierPay"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CarrierCategory" asp-required="Model.CarrierCategoryRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="CarrierCategory" asp-items="Model.AvailableCarrierCategories" class="form-select" />
+							<span asp-validation-for="CarrierCategory"></span>
+						</div>
+					</div>
+					@if (!Model.IsChildOrder)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="BalancePaymentOption" asp-required="Model.BalancePaymentOptionRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="BalancePaymentOption" asp-items="Model.AvailableBalancePaymentOptions" class="form-select" />
+								<span asp-validation-for="BalancePaymentOption"></span>
+							</div>
+						</div>
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="TermsBegin" asp-required="Model.TermsBeginRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="TermsBegin" asp-items="Model.AvailableTermsBegins" class="form-select" />
+								<span asp-validation-for="TermsBegin"></span>
+							</div>
+						</div>
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="FollowUpDate" />
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="FollowUpDate" />
+								<span asp-validation-for="FollowUpDate"></span>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		@if (Model.IsChildOrder)
+		{
+			<div class="col-md-6 finance-detail" style="@(Model.IsCarrierAssign.HasValue ? "" : "display: none;")">
+				<div class="card h-100 mb-3">
+					<div class="card-body">
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="BalancePaymentOption" asp-required="Model.BalancePaymentOptionRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="BalancePaymentOption" asp-items="Model.AvailableBalancePaymentOptions" class="form-select" />
+								<span asp-validation-for="BalancePaymentOption"></span>
+							</div>
+						</div>
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="TermsBegin" asp-required="Model.TermsBeginRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="TermsBegin" asp-items="Model.AvailableTermsBegins" class="form-select" />
+								<span asp-validation-for="TermsBegin"></span>
+							</div>
+						</div>
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="FollowUpDate" />
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="FollowUpDate" />
+								<span asp-validation-for="FollowUpDate"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+
+		<div class="col-md-6 @(!Model.IsChildOrder ? "finance-detail" : "")" style="@(Model.IsCarrierAssign.HasValue && !Model.IsChildOrder ? "" : "display: none;")">
+			<div class="card h-100 mb-0">
+				<div class="card-body">
+					<div class="custom-form-group" style="@(Model.IsChildOrder ? "display: none;" : "")">
+						<div class="label-name">
+							<nop-label asp-for="LineHaulPrice" asp-required="Model.LogisticsLineHaulPriceRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="LineHaulPrice" />
+							<span asp-validation-for="LineHaulPrice"></span>
+						</div>
+					</div>
+					@* @if(Model.OneDayGuaranteedPriceValue > decimal.Zero)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<label class="col-form-label" for="OneDayGuaranteedPrice">
+									@T("Admin.Orders.Fields.OneDayGuaranteedPrice")
+								</label>
+							</div>
+							<div class="input-name">
+								<input type="text" class="form-control" id="OneDayGuaranteedAmount" disabled />
+							</div>
+						</div>
+					} *@
+					<div class="custom-form-group" style="@(Model.IsChildOrder ? "display: none;" : "")">
+						<div class="label-name">
+							<div class="label-wrapper">
+								<label class="col-form-label" for="EstimatedCustomerPrice">
+									@T("Admin.Orders.Fields.EstimatedCustomerPrice")
+									<i class="fas fa-info-circle tooltip-icon">
+										<span class="custom-tooltip">@T("Admin.Orders.Fields.EstimatedCustomerPrice.Note")</span>
+									</i>
+								</label>
+							</div>
+						</div>
+						<div class="input-name">
+							<input type="text" class="form-control" id="EstimatedCustomerPrice" disabled />
+						</div>
+					</div>
+					<div class="custom-form-group" style="@(Model.IsChildOrder ? "display: none;" : "")">
+						<div class="label-name">
+							<nop-label asp-for="EstimatedCarrierRate" />
+						</div>
+						<div class="input-name">
+							<input type="text" class="form-control" id="EstimatedCarrierPriceRate" disabled />
+							<input type="hidden" asp-for="EstimatedCarrierRate" value="@Model.EstimatedCarrierRate" />
+							<span asp-validation-for="EstimatedCarrierRate"></span>
+						</div>
+					</div>
+
+					@if (!string.IsNullOrWhiteSpace(Model.DiscountCouponCode) && (Model.DiscountPercentage > 0 || Model.DiscountAmountValue > 0))
+					{
+						<div style="@(Model.IsChildOrder || Model.IsNewOrder ? "display: none;" : "")">
+							<div class="custom-form-group">
+								<div class="label-name">
+									<nop-label  asp-for="DiscountCouponCode" />
+								</div>
+								<div class="input-name">
+									<input class="form-control" asp-for="DiscountCouponCode" disabled />
+								</div>
+							</div>
+
+							@if (Model.UsePercentageDiscount)
+							{
+								<div class="custom-form-group">
+									<div class="label-name">
+										<nop-label asp-for="DiscountPercentage" />
+									</div>
+									<div class="input-name">
+										<input class="form-control" asp-for="DiscountPercentage" value="@(Math.Round(Model.DiscountPercentage, 0)) %" disabled />
+									</div>
+								</div>
+							}
+							@if (Model.DiscountAmountValue > 0)
+							{
+								<div class="custom-form-group">
+									<div class="label-name">
+										<nop-label asp-for="DiscountAmountValue" />
+									</div>
+									<div class="input-name">
+										<input class="form-control" asp-for="DiscountAmount" disabled />
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 mt-3 finance-detail" style="@(Model.IsCarrierAssign.HasValue ? "" : "display: none;")">
+			<div class="row">
+				<div class="col-md-12 mb-3">
+					<div class="d-flex mb-2 justify-content-between align-items-center">
+						<label style="letter-spacing: 0.6px;" class="mb-0">@T("Admin.Orders.Fields.ReferredBy"): <span class="referral-name"></span> (<span class="referral-amount">$0.00</span>)</label>
+						<div class="input-name ml-auto">
+							<button type="button" class="btn btn-primary" id="add-new-row">@T("Admin.LogisticsAccessorial.Table.AddNewRecord")</button>
+						</div>
+					</div>
+					<div class="d-table-responsive">
+						<table id="accessorial-table" border="1" class="table dynamic-table accessorial-from-tbl table-hover table-borderless d-table table-striped m-0">
+							<colgroup>
+								<col width="20%" />
+								<col width="20%" />
+								<col width="15%" />
+								<col width="15%" />
+								<col width="10%" />
+								<col width="10%" />
+							</colgroup>
+							<thead>
+								<tr>
+									<th width="20%">@T("Admin.LogisticsAccessorial.Table.Heading.Accessorial")</th>
+									<th width="20%">@T("Admin.LogisticsAccessorial.Table.Heading.Company") <nop-required></th>
+									<th width="15%">@T("Admin.LogisticsAccessorial.Table.Heading.AR")</th>
+									<th width="15%">@T("Admin.LogisticsAccessorial.Table.Heading.AP")
+										<i class="fas fa-info-circle tooltip-icon">
+											<span class="custom-tooltip">@T("Admin.LogisticsAccessorial.Table.Heading.AP.Hint")</span>
+										</i>
+									</th>
+									<th width="10%">@T("Admin.LogisticsAccessorial.Table.Heading.Profit.Margin")</th>
+									<th width="10%">@T("Admin.Common.Action")</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+							<tfoot>
+								<tr>
+									<td colspan="2" class="text-right"><strong><span class="font-weight-500">@T("Admin.LogisticsQuote.Table.InspectionItem.Footer.Total")</span></strong></td>
+									<td><strong><span id="total-AR">$0.00</span></strong></td>
+									<td><strong><span id="total-AP">$0.00</span></strong></td>
+									<td colspan="2"><strong><span id="total-profit">$0.00</span></strong></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card mb-3">
+						<div class="card-body">
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="TotalPrice">
+											@T("Admin.LogisticsQuote.TotalPrice")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									@* @if (Model.IsChildOrder)
+									{
+										<input type="hidden" asp-for="Price" />
+									} *@
+									<input type="text" class="form-control" id="TotalPrice" disabled />
+								</div>
+							</div>
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="GrossProfit">
+											@T("Admin.Orders.Fields.GrossProfit")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<input type="text" class="form-control" id="GrossProfit" disabled />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card mb-0">
+						<div class="card-body">
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="ProfitAmount">
+											@T("Admin.Orders.Fields.ProfitAmount")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<input type="text" class="form-control" id="ProfitAmount" disabled />
+								</div>
+							</div>
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="ProfitPercentageMargin">
+											@T("Admin.Orders.Fields.ProfitPercentageMargin")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<input type="text" class="form-control" id="ProfitPercentageMargin" disabled />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	const availableVendors = @Html.Raw(groupedDataJson);
+	let percentageMargin = "@Model.PercentagePriceMargin";
+	let cacheCarrierPrice = parseFloat($("#CarrierPay").val()) || 0;;
+
+	$(document).on('submit', '#order-form', function(e){
+		$("#PercentagePriceMargin").val(percentageMargin);
+	});
+
+	$("#FollowUpDate").attr("placeholder", "Select Disp FU Date");
+
+	DeliveryPastDate("#EstimatedDeliveryDate")
+
+	$("input[name='IsCarrierAssign']").change(function(){
+		assignCarrier(false);
+	});
+
+	function assignCarrier(hasOnloadRequest){
+		const $isCarrierAssign = $("input[name='IsCarrierAssign']:checked");
+
+		const val = $isCarrierAssign.val() || "";
+		if (val === undefined || val === null || val === ""){
+			$('.carrier-information div.finance-detail').hide();
+			return;
+		}
+
+		$('.carrier-information div.finance-detail').show();
+		$('span[data-valmsg-for="IsCarrierAssign"]').hide();
+
+		const carrierPayTerms = $("#CarrierPayTerms");
+		const carrierPay = $("#CarrierPay");
+		const carrierCategory = $("#CarrierCategory");
+		const balancePaymentOption = $("#BalancePaymentOption");
+		const termsBegin = $("#TermsBegin");
+
+		if (toBoolean(val)) {
+			carrierPayTerms.closest("div.custom-form-group").find('span.required').show();
+			carrierPay.closest("div.custom-form-group").find('span.required').show();
+			carrierCategory.closest("div.custom-form-group").find('span.required').show();
+			balancePaymentOption.closest("div.custom-form-group").find('span.required').show();
+			termsBegin.closest("div.custom-form-group").find('span.required').show();
+
+			carrierPay.data('kendoNumericTextBox').value(cacheCarrierPrice);
+			calculateTotalProfit();
+
+			if (!hasOnloadRequest){
+				updatePaymentOption();
+			}
+		}
+		else {
+			carrierPayTerms.closest("div.custom-form-group").find('span.required').hide();
+			carrierPay.closest("div.custom-form-group").find('span.required').hide();
+			carrierCategory.closest("div.custom-form-group").find('span.required').hide();
+			balancePaymentOption.closest("div.custom-form-group").find('span.required').hide();
+			termsBegin.closest("div.custom-form-group").find('span.required').hide();
+
+			addKendoDropdownValue(carrierPayTerms, "0");
+			addKendoDropdownValue(carrierCategory, "0");
+			addKendoDropdownValue(balancePaymentOption, "0");
+			addKendoDropdownValue(termsBegin, "0");
+
+			$('span[data-valmsg-for="CarrierPayTerms"]').hide();
+			$('span[data-valmsg-for="CarrierPay"]').hide();
+			$('span[data-valmsg-for="CarrierCategory"]').hide();
+			$('span[data-valmsg-for="BalancePaymentOption"]').hide();
+			$('span[data-valmsg-for="TermsBegin"]').hide();
+		}
+	}
+
+	$(document).on('submit', '#order-form', function(e){
+		$('input[data-type="CustomType"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+
+		let isValid = true;
+
+		$("select[data-type='CompanyId']").each(function () {
+
+			var accessorialType = $(this).closest("tr").find("select[data-type='AccessorialTypeId']").val();
+
+			var value = $(this).data("kendoDropDownList").value();
+
+			if ((!value || value === "0") && accessorialType !== "@((int)AccessorialType.Referral)") {
+				$(this).closest("td").find(".field-validation-valid")
+					.addClass("field-validation-error")
+					.text("@T("Admin.LogisticsAccessorial.Table.Heading.Company.Required")");
+				isValid = false;
+			} else {
+				$(this).closest("td").find(".field-validation-valid")
+					.removeClass("field-validation-error")
+					.text("");
+			}
+		});
+
+		if (!$(this).valid()) {
+			e.preventDefault();
+		}
+
+		if (!isValid) {
+			e.preventDefault();
+
+			const errorElement = $("#accessorial-table");
+			if (errorElement.length) {
+				$('html, body').animate({
+					scrollTop: errorElement.offset().top - 100
+				}, 500);
+			}
+			return false;
+		}
+	});
+
+	function initializeKendoNumber(attribute, value = 0){
+		$(attribute).kendoNumericTextBox({
+				value: value,
+				decimals: 2,
+				restrictDecimals: false,
+				format: "c2",
+				// min: 0,
+				spinners: false
+			}).focus(function () {
+				if ($(this).data("kendoNumericTextBox").value() == 0) {
+					$(this).data("kendoNumericTextBox").value('');
+				}
+				else {
+					var input = $(this).data("kendoNumericTextBox").element[0];
+					setTimeout(function () {
+						input.setSelectionRange(input.value.length, input.value.length);
+					}, 0);
+				}
+			}).blur(function () {
+				if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+					$(this).data("kendoNumericTextBox").value(0);
+				}
+			});
+	}
+
+	function initializeKendoSelectDropdown(attribute, hasGroupDropDown = false, storedValue = "0"){
+		
+		if (hasGroupDropDown){
+
+			const previousValue = storedValue || null;
+			let isInitialized = false;
+
+			$(attribute).kendoDropDownList({
+				filter: "contains",
+				dataTextField: "Text",
+				dataValueField: "Value",
+				dataSource: {
+					data: availableVendors,
+					group: { field: "Group" }
+				},
+				optionLabel: {
+					Text: "@T("Admin.Common.Select")",
+					Value: "0"
+				},
+				height: 300,
+				dataBound: function () {
+					if (!isInitialized) {
+						if (previousValue) {
+							this.value(previousValue);
+
+							if (!this.value()) {
+								this.value("0");
+							}
+						} else {
+							this.value("0");
+						}
+
+						isInitialized = true;
+					}
+				},
+				filtering: function (e) {
+					var filter = e.filter;
+				}
+			});
+		} else {
+			$(attribute).kendoDropDownList({
+				filter: "contains",
+				filtering: function (e) {
+					var filter = e.filter;
+				}
+			});
+
+			$(attribute).data("kendoDropDownList").ul.find("li:first").addClass("k-add-new-option");
+		}
+	}
+
+	function reInitializeAccessorialValidation() {
+		var form = $("#order-form");
+		form.removeData("validator");
+		//form.removeData("unobtrusiveValidation");
+		$.validator.unobtrusive.parse(form);
+	}
+
+	let availableAccessorialTypes = arrayManager.getData();
+
+	let isNewOrder = @(Model.IsNewOrder.ToString().ToLower());
+	let isChildOrder = @(Model.IsChildOrder.ToString().ToLower());
+	
+	function getAccessorialHtml(index, accessorialTypes, vendorTypes, id = 0, arAmount = 0, apAmount = 0, typeId = "@((int)AccessorialType.Referral)"){
+		const prefix = "LogisticsAccessorials";
+		if (typeId == "@((int)AccessorialType.Add)"){
+			if (arrayManager.recordExists("Value", "@((int)AccessorialType.Referral)")){
+				typeId = "@((int)AccessorialType.Referral)";
+			}
+			else {
+				typeId = "@((int)AccessorialType.Customs)";
+			}
+		}
+		else if (!arrayManager.recordExists("Value", "@((int)AccessorialType.Referral)")){
+			typeId = "@((int)AccessorialType.Customs)";
+		}
+
+		let referralName = "";
+
+		if (typeId == @((int)AccessorialType.Referral)){
+			referralName = $("#ReferredBy").val();
+			if(referralName == "0" || referralName == "" || referralName == null || referralName == undefined) {
+				referralName = "";
+			}
+		}
+
+		return `<tr>
+					<td class="custom-page">
+						<select class="form-control" data-type="AccessorialTypeId" name="${prefix}[${index}].AccessorialTypeId" id="${prefix}[${index}]_AccessorialTypeId" data-val="true" data-val-required="Accessorial Type is required.">
+							${accessorialTypes}
+						</select>
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].AccessorialTypeId" data-valmsg-replace="true"></span>
+						<div class="customs-type" style="display: none;">
+							<div class="customs-type-flex">
+								<input type="text" class="form-control" data-type="CustomType" name="${prefix}[${index}].CustomType" id="${prefix}[${index}]_CustomType" value="" data-val="true" data-val-required="Please provide a custom type.">
+
+								<span class="revert-icon" title="Revert" data-typeid="${typeId}">
+									<svg height="22" viewBox="0 -960 960 960" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"></path>
+									</svg>
+								</span>
+							</div>
+							<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].CustomType" data-valmsg-replace="true"></span>
+						</div>
+					</td>
+					<td>
+						<select class="form-control" data-type="CompanyId" name="${prefix}[${index}].CompanyId" id="${prefix}[${index}]_CompanyId" data-val="true" data-val-required="Company is required.">
+							${vendorTypes}
+						</select>
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].CompanyId" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<input type="text" data-type="AR" name="${prefix}[${index}].AR" id="${prefix}[${index}]_AR" value="${arAmount}" data-val="true" data-val-required="Customer price is required.">
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].AR" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<input type="text" data-type="AP" name="${prefix}[${index}].AP" id="${prefix}[${index}]_AP" value="${apAmount}" data-val="true" data-val-required="Vendor price is required.">
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].AP" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<input type="text" class="form-control profit-margin" value="$0.00" disabled />
+					</td>
+					<td>
+						<input type="hidden" data-type="Id" name="${prefix}[${index}].Id" id="${prefix}[${index}]_Id" value="${id}">
+						<button type="button" class="btn btn-default common-delete accessorial-delete" data-id="${id}"><i class="far fa-trash-alt" title="Delete"></i></button>
+					</td>
+				</tr>`;
+	}
+
+	function addDefaultEmptyTableRow(tbody) {
+		let rowCount = tbody.siblings('thead').find('th').length;
+		tbody.append(`<tr>
+				<td class="no-record" colspan="${rowCount}">
+					${"@T("Admin.Common.Table.NoRecord")"}
+				</td>
+			</tr>`);
+	}
+
+	$(document).on('click', '#add-new-row', function(e){
+		e.preventDefault();
+		addRow();
+	});
+
+	function addRow() {
+		const tbody = $('#accessorial-table tbody');
+		let rowCount = tbody.find('tr').length;
+
+		if (rowCount == 0){
+			addDefaultEmptyTableRow(tbody);
+			return false;
+		}
+		else{
+			const noAccessorialsRow = tbody.find('tr td[class="no-record"]').closest('tr');
+			if (noAccessorialsRow.length > 0) {
+				noAccessorialsRow.remove();
+				rowCount = 0;
+			}
+		}
+
+		let optionsHtml = '';
+		let typeId = "@((int)AccessorialType.Referral)";
+		if (!arrayManager.recordExists("Value", "@((int)AccessorialType.Referral)")){
+			typeId = "@((int)AccessorialType.Customs)"
+		}
+
+		availableAccessorialTypes.forEach(option => {
+			const selected = typeId == option.Value ? "selected" : "";
+			optionsHtml += `<option value="${option.Value}" ${selected}>${option.Text}</option>`;
+		});
+
+		let vendorOptionsHtml = '';
+		availableVendors.forEach(option => {
+			vendorOptionsHtml += `<option value="${option.Value}">${option.Text}</option>`;
+		});
+
+		tbody.append(getAccessorialHtml(rowCount, optionsHtml, vendorOptionsHtml));
+		initializeKendoEvent(rowCount);
+
+		if ($(`#LogisticsAccessorials\\[${rowCount}\\]_AccessorialTypeId`).val() == @((int)AccessorialType.Referral)){
+			let $dropdown = $(`#LogisticsAccessorials\\[${rowCount}\\]_CompanyId`).data("kendoDropDownList");
+			$dropdown.value("0");
+			$dropdown.enable(false);
+		}
+		else{
+			$(`#LogisticsAccessorials\\[${rowCount}\\]_CompanyId`).data("kendoDropDownList").enable(true);
+		}
+
+		reInitializeAccessorialValidation();
+	}
+
+	$(document).on('click','.accessorial-delete', function(e){
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		removeRow(this, id);
+	});
+
+	function removeRow(button, id) {
+		const row = $(button).closest('tr');
+		const tbody = $(button).closest('table').find('tbody');
+
+		row.remove();
+
+		updateRowIndices(tbody, "LogisticsAccessorials");
+		reInitializeAccessorialValidation();
+		calculateTotalPrice();
+		calculateTotalARPrice();
+		calculateTotalAPPrice();
+
+		const rowCount = tbody.find('tr').length;
+
+		if (rowCount == 0){
+			addDefaultEmptyTableRow(tbody);
+			return false;
+		}
+	}
+
+	function updateRowIndices(tbody, prefix) {
+		function setElement(index, cell, element){
+			let $element = $(cell).find(`${element}[data-type]`);
+			if ($element.length > 0){
+				var type = $element.attr('data-type');
+				$element.attr("name", `${prefix}[${index}].${type}`)
+						.attr("id", `${prefix}[${index}]_${type}`);
+
+				let $span = $(cell).find('span[data-valmsg-for]');
+				if($span.length > 0){
+					$span.attr("data-valmsg-for", `${prefix}[${index}].${type}`);
+				}
+			}
+		};
+
+		tbody.find("tr").each(function(index, html) {
+			for(let cell of $(html).prop('cells')){
+				setElement(index, cell, "input");
+				setElement(index, cell, "select");
+			}
+		});
+	}
+
+	function populateForm() {
+		const tbody = $('#accessorial-table tbody');
+		const existingData = @Html.Raw(Json.Serialize(Model.LogisticsAccessorials));
+
+		if(existingData.length == 0){
+			addDefaultEmptyTableRow(tbody);
+			return false;
+		}
+
+		let kendoDropDownSelectElements = [];
+
+		existingData.forEach((data, index) => {
+			let optionsHtml = '';
+
+			availableAccessorialTypes.forEach(option => {
+				const selected = data.AccessorialTypeId == option.Value ? "selected" : "";
+				optionsHtml += `<option value="${option.Value}" ${selected}>${option.Text}</option>`;
+			});
+
+			let vendorOptionsHtml = '';
+			availableVendors.forEach(option => {
+				const selected = data.CompanyId == option.Value ? "selected" : "";
+				vendorOptionsHtml += `<option value="${option.Value}" ${selected}>${option.Text}</option>`;
+			});
+
+			tbody.append(getAccessorialHtml(index, optionsHtml, vendorOptionsHtml, data.Id, data.AR, data.AP, data.AccessorialTypeId));
+
+			if (data.AccessorialTypeId == "@((int)AccessorialType.Add)"){
+				const $input = $(`#LogisticsAccessorials\\[${index}\\]_CustomType`);
+				$input.val(data.CustomType);
+
+				const $div = $input.closest('div.customs-type');
+				$div.show();
+
+				const $dropDown = $div.closest('td')
+					.find('select[data-type="AccessorialTypeId"]');
+
+				kendoDropDownSelectElements.push($dropDown);
+			}
+
+			initializeKendoEvent(index, data.AR, data.AP, data.CompanyId);
+
+			kendoDropDownSelectElements.forEach(element => {
+				element.data("kendoDropDownList").wrapper.hide();
+			});
+
+			if (data.AccessorialTypeId == @((int)AccessorialType.Referral)){
+				let $dropdown = $(`#LogisticsAccessorials\\[${index}\\]_CompanyId`).data("kendoDropDownList");
+				$dropdown.value("0");
+				$dropdown.enable(false);
+			}
+			else{
+				$(`#LogisticsAccessorials\\[${index}\\]_CompanyId`).data("kendoDropDownList").enable(true);
+			}
+		});
+
+		reInitializeAccessorialValidation();
+	}
+
+	function initializeKendoEvent(index, ar = 0, ap = 0, storedValue = "0") {
+		initializeKendoNumber(`#LogisticsAccessorials\\[${index}\\]_AR`, ar);
+		initializeKendoNumber(`#LogisticsAccessorials\\[${index}\\]_AP`, ap);
+		initializeKendoSelectDropdown(`#LogisticsAccessorials\\[${index}\\]_AccessorialTypeId`);
+		initializeKendoSelectDropdown(`#LogisticsAccessorials\\[${index}\\]_CompanyId`, true, storedValue);
+	}
+
+	function calculateTotalPrice(){
+		let sum = parseFloat($("#LineHaulPrice").val()) || 0;
+		let oneDayGuaranteedPrice = parseFloat(@Model.OneDayGuaranteedPriceValue) || 0;
+		let discountAmount = 0;
+		@if (!string.IsNullOrWhiteSpace(Model.DiscountCouponCode) && !Model.IsChildOrder)
+		{
+			if (Model.UsePercentageDiscount)
+			{
+				<text>
+					discountAmount = (sum - oneDayGuaranteedPrice) * (@Model.DiscountPercentage / 100);
+				</text>
+			}
+			else
+			{
+				<text>
+					discountAmount = +"@Model.DiscountAmountValue";
+				</text>
+			}
+		}
+
+		if(discountAmount < 0){
+			discountAmount = 0;
+		}
+
+		sum -= discountAmount;
+
+		//sum += parseFloat(@Model.OneDayGuaranteedPriceValue) || 0;
+
+		$("input[data-type='AR']").each(function () {
+			sum += parseFloat($(this).val()) || 0;
+		});
+
+		var numericTextBox = $("#Price").data("kendoNumericTextBox");
+
+		if (numericTextBox){
+			numericTextBox.value(roundDecimal(sum, 2, false));
+			numericTextBox.trigger("change");
+		}
+
+		$("#TotalPrice").val(roundDecimal(sum, 2));
+	}
+
+	function calculateTotalARPrice(){
+		let sum = 0;
+
+		$("input[data-type='AR']").each(function () {
+			sum += parseFloat($(this).val()) || 0;
+		});
+
+		$("#total-AR").text(roundDecimal(sum, 2));
+
+		calculateTotalPrice();
+		calculateTotalProfitMargin();
+		calculateTotalProfit();
+	}
+
+	function calculateTotalProfitMargin(){
+
+		let totalProfit = 0;
+
+		$("input.profit-margin").each(function () {
+			var tr = $(this).closest('tr');
+
+			let sumOfAR = 0;
+
+			$(tr).find('input[data-type="AR"]').each(function () {
+				sumOfAR += parseFloat($(this).val()) || 0;
+			});
+
+			let sumOfAP = 0;
+
+			$(tr).find('input[data-type="AP"]').each(function () {
+				sumOfAP += parseFloat($(this).val()) || 0;
+			});
+
+			let sum = sumOfAR - sumOfAP;
+			totalProfit += sum;
+
+			$(this).val(roundDecimal(sum, 2));
+		});
+
+		$("#total-profit").text(roundDecimal(totalProfit, 2));
+	}
+
+	function calculateTotalAPPrice(){
+		let sum = 0;
+
+		$("input[data-type='AP']").each(function () {
+			sum += parseFloat($(this).val()) || 0;
+		});
+
+		$("#total-AP").text(roundDecimal(sum, 2));
+		calculateTotalProfitMargin();
+		calculateTotalProfit();
+	}
+
+	$(document).on('input', "#LineHaulPrice", function(){
+		calculateTotalPrice();
+		calculateTotalProfit();
+	});
+
+	$(document).on('input', "input[data-type='AR']", function(){
+		calculateTotalARPrice();
+	});
+
+	$(document).on('input', "input[data-type='AP']", function(){
+		$(".referral-amount").text(calculateReferralAmountWithDollarSign());
+		calculateTotalAPPrice();
+	});
+
+	function calculateInsuranceAmount(amount = 0){
+		//return (amount * 0.0035) + 150;
+		return (amount * 0.0035);
+	}
+
+	function setAccessorialInsuranceAmount(accessorialSelectInsuranceElement){
+		let totalSum = 0;
+
+		if (isChildOrder){
+			totalSum = parseFloat("@(Model.VehicleInfos.Sum(x => x.VehicleValue))") || 0;
+		}
+		else{
+			$("input[id^='VehicleInfos'][id$='_VehicleValue']").each(function() {
+				let inputValue = parseFloat($(this).val()) || 0;
+				totalSum += inputValue;
+			});
+		}
+
+		let insuranceAmount = 0;
+		if (totalSum > 0){
+			insuranceAmount = calculateInsuranceAmount(totalSum);
+		}
+
+		var numericTextBox = $(accessorialSelectInsuranceElement).closest('tr')
+									//.find('input[data-type="AR"]')
+									.find('input[data-type="AP"]')
+									.data("kendoNumericTextBox");
+
+		numericTextBox.value(insuranceAmount);
+		numericTextBox.trigger("change");
+
+		//calculateTotalARPrice();
+		calculateTotalAPPrice();
+	}
+
+	$(document).on('change', 'select[data-type="AccessorialTypeId"]', function(){
+		let accessorialType = $(this).val();
+
+		if (accessorialType == @((int)AccessorialType.Referral)){
+			let $dropdown = $(this).closest('tr').find("select[data-type='CompanyId']").data("kendoDropDownList");
+			$dropdown.value("0");
+			$dropdown.enable(false);
+		}
+		else{
+			$(this).closest('tr').find("select[data-type='CompanyId']").data("kendoDropDownList").enable(true);
+		}
+
+		if (accessorialType != @((int)AccessorialType.Add)){
+			$(this).closest('td')
+				   .find('input[data-type="CustomType"]')
+				   .closest('div.customs-type')
+				   .find('span.revert-icon')
+				   .attr("data-typeId", accessorialType);
+		}
+
+		if (accessorialType == @((int)AccessorialType.Insurance)){
+			setAccessorialInsuranceAmount(this);
+		}
+		else if (accessorialType == @((int)AccessorialType.Add)){
+			$(this).data("kendoDropDownList").wrapper.hide();
+			$(this).closest('td').find('input[data-type="CustomType"]').closest('div.customs-type').show();
+		}
+
+		$(".referral-amount").text(calculateReferralAmountWithDollarSign());
+
+		calculateTotalProfit();
+	});
+
+	$(document).on('input', "input[id^='VehicleInfos'][id$='_VehicleValue']", function(){
+		$('#accessorial-table select[data-type="AccessorialTypeId"]').each(function(){
+			let accessorialType = $(this).val();
+			if (accessorialType == @((int)AccessorialType.Insurance)){
+				setAccessorialInsuranceAmount(this);
+			}
+		});
+	});
+
+	$(document).on('click', "span.revert-icon", function(){
+		var typeId = $(this).attr("data-typeId");
+
+		const $div = $(this).closest('div.customs-type');
+
+		$div.hide();
+		$div.find('input[data-type="CustomType"]').val("");
+
+		const $dropDown = $div.closest('td')
+			.find('select[data-type="AccessorialTypeId"]')
+			.data("kendoDropDownList");
+
+		$dropDown.wrapper.show();
+		$dropDown.value(typeId);
+	});
+
+	$(function () {
+
+		// let oneDayLoadPrice = $("#OneDayGuaranteedAmount");
+		// if (oneDayLoadPrice){
+		// 	let oneDayLoadPriceAmount = parseFloat(@Model.OneDayGuaranteedPriceValue) || 0;
+		// 	oneDayLoadPrice.val(roundDecimal(oneDayLoadPriceAmount, 2));
+		// }
+
+		assignCarrier(true);
+		populateForm();
+
+		let referral = $("#ReferredBy").val();
+		if (referral == null || referral == undefined){
+			referral = "@Model.ReferredBy";
+		}
+
+		$(".referral-name").text("").closest("label").hide();
+
+		if(referral == "0" || referral == ""){
+			$(".referral-name").text("").closest("label").hide();
+			arrayManager.removeItem("Value", "@((int)AccessorialType.Referral)");
+		}
+		else{
+			$(".referral-amount").text(calculateReferralAmountWithDollarSign());
+			$(".referral-name").text(referral).closest("label").show();
+		}
+		
+		calculateTotalARPrice();
+		calculateTotalAPPrice();
+
+		if (@Model.EstimatedCarrierRate <= 0){
+			calculateEstimatePrice();
+		}
+		else {
+			let estimatedCarrierRate = parseFloat(@Model.EstimatedCarrierRate) || 0;
+
+			$("#EstimatedCarrierPriceRate").val(roundDecimal(estimatedCarrierRate, 2));
+		}
+
+		calculateEstimatedCustomerPrice();
+	});
+
+	const locationDebounceFunc = debounce(updateLocations, 500);
+
+	function updateLocations(field) {
+		var id = field.attr('id');
+		if (id === "PickupAddress_ZipPostalCode" || id === "ShippingAddress_ZipPostalCode")
+		{
+			var value = field.val();
+			let previousPostalCode = previousZipCode[id];
+			if (previousPostalCode == value){
+				return false;
+			}
+		}
+
+		let oldVal = field.attr('data-oldValue');
+		let newVal = field.val();
+
+		if (oldVal !== newVal){
+			calculateEstimatePrice();
+		}
+	}
+
+	$(document).on('focusin', '#PickupAddress_City, #PickupAddress_ZipPostalCode, #ShippingAddress_City, #ShippingAddress_ZipPostalCode', function () {
+		$(this).attr('data-oldValue', $(this).val());
+	});
+
+	$(document).on('focusout','#PickupAddress_City, #PickupAddress_ZipPostalCode, #ShippingAddress_City, #ShippingAddress_ZipPostalCode', function(e){
+		locationDebounceFunc($(this));
+	});
+
+	$(document).on('change','#PickupAddress_StateProvinceId, #PickupAddress_CountryId, #ShippingAddress_StateProvinceId, #ShippingAddress_CountryId', function(e){
+		calculateEstimatePrice();
+	});
+
+	async function calculateEstimatePrice(){
+		if (isNewOrder && !isChildOrder)
+		{
+			return false;
+		}
+
+		const originCountryId = $("#PickupAddress_CountryId").val() ?? "";
+		const destinationCountryId = $("#ShippingAddress_CountryId").val() ?? "";
+		const $carrierPay = $("#CarrierPay");
+		const carrierPayOldValue = $carrierPay.data('kendoNumericTextBox').value();
+
+		if (originCountryId !== "@Model.USCountryId" || destinationCountryId !== "@Model.USCountryId"){
+			$("#EstimatedCarrierRate").val(0);
+			$("#EstimatedCarrierPriceRate").val(roundDecimal(0, 2));
+
+			calculateEstimatedCustomerPrice();
+
+			return false;
+		}
+
+		const originCity = $("#PickupAddress_City").val() ?? "";
+		const originState = await fetchStateAbbreviation($("#PickupAddress_StateProvinceId").val());
+		const originZipCode = $("#PickupAddress_ZipPostalCode").val() ?? "";
+
+		const destinationCity = $("#ShippingAddress_City").val() ?? "";
+		const destinationState = await fetchStateAbbreviation($("#ShippingAddress_StateProvinceId").val());
+		const destinationZipCode = $("#ShippingAddress_ZipPostalCode").val() ?? "";
+
+		let vehicleInfoModels = [];
+
+		if (!isChildOrder)
+		{
+			vehicleInfoModels = [];
+			$("#vehicles div[id^='vehicle_']").each(function (index){
+				var vehicleType = $("select[id^='VehicleInfos" + index + "_VehicleType']").val();
+				var make = $("input[id^='VehicleInfos" + index + "_Make']").val();
+				var vehicleModel = $("input[id^='VehicleInfos" + index + "_VehicleModel']").val();
+				var vehicleYear = $("input[id^='VehicleInfos" + index + "_VehicleYear']").val();
+				var isInoperable = $("input[id^='VehicleInfos" + index + "_IsInoperable']").prop("checked");
+
+				if (CheckInputIsNullOrEmpty(vehicleType) && CheckInputIsNullOrEmpty(make) && CheckInputIsNullOrEmpty(vehicleModel) && CheckInputIsNullOrEmpty(vehicleYear))
+				{
+					vehicleInfoModels.push(
+					{
+						VehicleType: vehicleType,
+						Make: make,
+						Model: vehicleModel,
+						Year: vehicleYear,
+						IsRunning: isInoperable,
+					});
+				}
+			});
+		}
+		else
+		{
+			vehicleInfoModels = @Html.Raw(Json.Serialize(Model.VehicleInfos
+				.Select(x => new 
+					{ 
+						VehicleType = x.VehicleType, 
+						Make = x.Make, 
+						Model = x.VehicleModel, 
+						Year = x.VehicleYear, 
+						IsRunning = x.IsInoperable 
+					}).ToList()));
+		}
+
+		let postData = {
+			originCity: originCity,
+			originState: originState,
+			originZip: originZipCode,
+			destinationCity: destinationCity,
+			destinationState: destinationState,
+			destinationZip: destinationZipCode,
+			trailerType : $("#Carrier").val(),
+			vehicleInfoModels: vehicleInfoModels,
+			companyId: $("#CustomerInformation_CompanyId").val(),
+			distance: distanceInMile
+		}
+
+		addAntiForgeryToken(postData);
+
+		$.post("@Url.Action("CalculateEstimateCarrierPrice", "LogisticsCommon")", postData, function(data){
+			if  (data.Result && data.PercentagePriceMargin > 0){
+				percentageMargin = data.PercentagePriceMargin;
+				$("#PercentagePriceMargin").val(percentageMargin);
+			}
+
+			$("#EstimatedCarrierRate").val(data.CarrierPrice);
+
+			let estimatedCarrierRate = parseFloat(data.CarrierPrice) || 0;
+			let estimatedCarrierRateValue = roundDecimal(estimatedCarrierRate, 2);
+			$("#EstimatedCarrierPriceRate").val(estimatedCarrierRateValue);
+
+			calculateEstimatedCustomerPrice();
+
+			if (estimatedCarrierRate === 0 ||
+				toBoolean("@(!Model.IsChildOrder)"))
+			{
+				return;
+			}
+
+			cacheCarrierPrice = estimatedCarrierRate;
+
+			const isCarrierAssign = $("input[name='IsCarrierAssign']:checked").val();
+			if (isCarrierAssign === undefined || isCarrierAssign === null || isCarrierAssign === ""){
+				return;
+			}
+
+			$carrierPay.data('kendoNumericTextBox').value(estimatedCarrierRate);
+
+			if (carrierPayOldValue != estimatedCarrierRate){
+				let carrierPayOldValueValue = roundDecimal(carrierPayOldValue, 2);
+
+				calculateTotalProfit();
+				toastr.options = {
+					"closeButton": true,
+					"positionClass": "toast-top-right",
+					"onclick": null,
+					"timeOut": 0,
+					"extendedTimeOut": 0,
+					"tapToDismiss": false
+				};
+				toastr.warning(`Carrier rate has been updated from <strong>${carrierPayOldValueValue}</strong> to <strong>${estimatedCarrierRateValue}</strong>. Please review the change.`);
+			}
+		});
+	}
+
+	async function fetchStateAbbreviation(stateId){
+		if(stateId <= 0 || !stateId || stateId.trim().length <= 0) return "";
+
+		try
+		{
+			let data = await new Promise((resolve, reject) => {
+				$.get("@Url.Action("GetStateAbbreviationById", "LogisticsCommon")", {stateId: stateId}, function(data){
+					 resolve(data);
+				})
+				.fail(function(xhr, status, error) {
+					reject(error);
+				});
+			});
+
+			return data;
+		} catch (error) {
+			return "";
+			//console.error('Error fetching state abbreviation:', error);
+		}
+	}
+
+	function calculateTotalProfit(){
+		const totalCost = parseFloat($("#Price").val()) || 0;
+		const totalCarrierPay = parseFloat($("#CarrierPay").val()) || 0;
+		let totalAP = 0;
+		let referralAmount = 0;
+
+		$("#accessorial-table input[data-type='AP']").each(function () {
+			totalAP += parseFloat($(this).val()) || 0;
+		});
+
+		$("#accessorial-table select[data-type='AccessorialTypeId']").find(":selected").each(function () {
+			if($(this).val() == "@((int)AccessorialType.Referral)")
+			{
+				$(this).closest('tr').find('input[data-type="AP"]').each(function () {
+					referralAmount += (parseFloat($(this).val()) || 0);
+				});
+			}
+		});
+
+		let totalProfit = totalCost - totalCarrierPay - totalAP;
+		let grossProfit = totalProfit + referralAmount;
+		let totalProfitMargin = (totalProfit / Math.abs(totalCost)) * 100;
+
+		$("#ProfitAmount").val(roundDecimal(totalProfit, 2));
+		$("#GrossProfit").val(roundDecimal(grossProfit, 2));
+
+		if (isNaN(totalProfitMargin) || !isFinite(totalProfitMargin)){
+			totalProfitMargin = 0;
+		}
+
+		$("#ProfitPercentageMargin").val(totalProfitMargin.toFixed(2)+" %");
+	}
+
+	function calculateReferralAmount(){
+		var referralAmount = 0;
+
+		$('select[data-type="AccessorialTypeId"]').each(function(){
+			if($(this).val() == "@((int)AccessorialType.Referral)"){
+				let inputValue = parseFloat($(this).closest('tr').find('input[data-type="AP"]').val()) || 0;
+				referralAmount += inputValue;
+			}
+		});
+
+		return referralAmount;
+	}
+
+	function calculateReferralAmountWithDollarSign(){
+		var referralAmount = calculateReferralAmount();
+
+		return roundDecimal(referralAmount, 2);
+	}
+
+	$("#CarrierPay").on('input', function(){
+		cacheCarrierPrice = parseFloat($(this).val()) || 0;
+		calculateTotalProfit();
+
+		// calculateEstimatedCustomerPrice();
+	});
+
+	function calculateEstimatedCustomerPrice(){
+		const totalCarrierPay = parseFloat($("#EstimatedCarrierRate").val()) || 0;
+
+		$("#EstimatedCustomerPrice").val(roundDecimal(totalCarrierPay / (1 - percentageMargin/100), 2));
+	}
+
+	function CheckInputIsNullOrEmpty(input) {
+		let isSuccess = true;
+		if (input == undefined || input == null || input == "") {
+			isSuccess = false;
+		}
+		return isSuccess;
+	}
+
+</script>

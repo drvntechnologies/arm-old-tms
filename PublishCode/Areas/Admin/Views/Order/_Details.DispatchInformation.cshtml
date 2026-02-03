@@ -1,0 +1,148 @@
+﻿@model OrderModel
+
+@if (!Model.LogisticsOrderCarrierMappings.Any())
+{
+	return;
+}
+
+<div class="card detail-info-card">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="fas fa-user"></i>
+			@T("Admin.DispatchInformation")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="form-group row">
+			<div class="col-md-12">
+				<div class="quote-information d-table-responsive">
+					<table class="table table-hover table-borderless hyperlink-table d-table table-striped m-0">
+						<colgroup>
+							<col width="23%" />
+							<col width="21%" />
+							<col width="21%" />
+							<col width="25%" />
+							@if (Model.ShowQuickBoolBillId)
+							{
+								<col width="5%" />
+							}
+							<col width="5%" />
+						</colgroup>
+						<thead>
+							<tr>
+								<th>
+									@T("Admin.Orders.OrderCarrierMapping.Fields.CarrierId")
+								</th>
+								<th>
+									@T("Admin.Orders.OrderCarrierMapping.Fields.Driver")
+								</th>
+								<th>
+									@T("Admin.Orders.OrderCarrierMapping.Fields.Dispatcher")
+								</th>
+								<th>
+									@T("Admin.Orders.OrderCarrierMapping.Fields.DispatchInstructions")
+								</th>
+								@if (Model.ShowQuickBoolBillId)
+								{
+									<th>
+										@T("Admin.Orders.QuickBooks.BillIds")
+									</th>
+								}
+								<th>
+									@T("Admin.Common.Delete")
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model.LogisticsOrderCarrierMappings)
+							{
+								<tr>
+									<td>
+										@Html.Raw(item.CarrierDetail)
+									</td>
+									<td>
+										@Html.Raw(item.DriverDetail)
+									</td>
+									<td>
+										@Html.Raw(item.DispatcherDetail)
+									</td>
+									<td>
+										@item.DispatchInstructions
+									</td>
+									@if (Model.ShowQuickBoolBillId)
+									{
+										<td>
+											@Html.Raw(item.QuickBookBillDetails)										
+										</td>
+									}
+									<td>
+										<button type="button" class="btn btn-default common-delete" data-target="#Cancel-Confirmation-Popup" data-toggle="modal" data-id="@item.Id">
+											<i class="far fa-trash-alt" title="Delete"></i>
+										</button>
+									</td>
+								</tr>
+							}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="order-carrier-mapping-delete" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="order-carrier-mapping-delete-title" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+				<h4 class="modal-title" id="order-carrier-mapping-delete-title">@T("Admin.Common.AreYouSure")</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+				</div>
+				<div class="form-horizontal">
+					<div class="modal-body">
+						@T("Admin.Common.DeleteConfirmation")
+					</div>
+					<div class="modal-footer">
+						<span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.NoCancel")</span>
+					<button type="button" id="order-carrier-mapping-delete-btn" class="btn btn-danger float-right">
+							@T("Admin.Common.Delete")
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	let orderCarrierMappingId = 0;
+	$("#order-carrier-mapping-delete-btn").click(function(e){
+		let postData = {
+			id: orderCarrierMappingId
+		}
+
+		addAntiForgeryToken(postData);
+
+		$.post("@Url.Action("DeleteOrderAndCarrierMapping")", postData, function(data){
+			if (!data){
+				return;
+			}
+
+			if (data.Result){
+				location.reload();
+			}
+
+			if (data.ErrorMessages){
+				toastr.error(data.ErrorMessages);
+				return;
+			}
+		});
+	});
+
+	$(".common-delete").click(function(e){
+		orderCarrierMappingId = $(this).attr("data-id");
+		$("#order-carrier-mapping-delete").modal('show');
+	});
+
+	$("#order-carrier-mapping-delete .close").click(function(e){
+		orderCarrierMappingId = 0;
+		$("#order-carrier-mapping-delete").modal('hide');
+	});
+</script>

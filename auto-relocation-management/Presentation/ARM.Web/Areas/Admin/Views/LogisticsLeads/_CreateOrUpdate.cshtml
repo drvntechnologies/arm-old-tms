@@ -1,0 +1,12 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+
+<div asp-validation-summary="All"></div>
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+<section class="page-main-area add-leads-pg leads-create">
+        <nop-cards id="lead-cards">
+            <nop-card asp-icon="fas fa-user" asp-name="shipper-info" asp-title="@T("Admin.LogisticsLead.ShipperInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.ShipperInfo")" asp-hide="false" asp-advanced="false" class="accordion-body" style="padding:0;">@await Html.PartialAsync("_CreateOrUpdate.ShipperInfo", Model)</nop-card>
+        <nop-card asp-icon="fas fa-truck" asp-name="origin-destination-info" asp-title="@T("Admin.LogisticsLead.OriginDestinationInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.OriginDestinationInfo")" asp-hide="false" asp-advanced="false" class="accordion-body" style="padding:0;">@await Html.PartialAsync("_CreateOrUpdate.OriginDestinationInfo", Model)</nop-card>
+        <nop-card asp-icon="fas fa-shipping-fast" asp-name="shipping-Info" asp-title="@T("Admin.LogisticsLead.ShippingInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.ShippingInfo")" asp-hide="false" asp-advanced="false" class="accordion-body" style="padding:0;">@await Html.PartialAsync("_CreateOrUpdate.ShippingInfo", Model)</nop-card>
+        <nop-card asp-icon="fas fa-truck" asp-name="vehicle-info" asp-title="@T("Admin.LogisticsLead.VehicleInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.VehicleInfo")" asp-hide="false" asp-advanced="false" class="accordion-body" style="padding:0;">@await Html.PartialAsync("_CreateOrUpdate.VehicleInfo", Model)</nop-card>
+        </nop-cards>
+</section>

@@ -1,0 +1,116 @@
+﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
+
+@using ARM.Web.Areas.Admin.Models.Referrals
+@using Nop.Core
+@using Nop.Services.Common
+@using Nop.Web.Framework.UI
+
+@model ReferralReportModel
+
+@inject IGenericAttributeService genericAttributeService
+@inject INopHtmlHelper NopHtml
+@inject IWorkContext workContext
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.Referral.Order.Management.Title").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Referral Management");
+
+	const string hideReferralInfoBlockAttributeName = "ReferralOrderPage.HideInfoBlock";
+	var hideReferralInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideReferralInfoBlockAttributeName);
+}
+
+<form asp-controller="Referral" asp-action="Management" method="post">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Admin.Referral.Order.Management.Title") - @Model.ReferPayee
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="Report">@T("Admin.Referral.Reports.Management.BackToReferral")</a>
+			</small>
+		</h1>
+		<div class="float-right">
+			&nbsp;
+		</div>
+	</div>
+	<section class="content">
+		<div class="container-fluid">
+			<section class="page-main-area add-leads-pg create-edit-pg-common-design">
+				<div class="container-fluid">
+					<div class="form-horizontal">
+						<nop-cards>
+							<nop-card asp-name="referral-info" asp-icon="fas fa-user" asp-title="@T("Admin.Referral.Profile.Title")" asp-hide-block-attribute-name="@hideReferralInfoBlockAttributeName" asp-hide="@hideReferralInfoBlock" asp-advanced="false">
+
+								<input type="hidden" asp-for="Id" />
+
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="custom-form-group">
+												<div class="label-name">
+													<nop-label asp-for="ReferPayee" />
+												</div>
+												<div class="input-name">
+													<input class="form-control text-box single-line" asp-for="ReferPayee" type="text" disabled>
+												</div>
+											</div>
+											<div class="custom-form-group">
+												<div class="label-name">
+													<nop-label asp-for="Email" />
+												</div>
+												<div class="input-name">
+													<nop-editor asp-for="Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+													<span asp-validation-for="Email"></span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="custom-form-group">
+												<div class="label-name">
+													<nop-label asp-for="PhoneNumber" />
+												</div>
+												<div class="input-name">
+													<nop-editor asp-for="PhoneNumber" />
+													<span asp-validation-for="PhoneNumber"></span>
+												</div>
+											</div>
+											<div class="custom-form-group">
+												<div class="label-name">
+													<nop-label asp-for="Note" />
+												</div>
+												<div class="input-name">
+													<nop-textarea asp-for="Note" html-attributes="@(new { placeholder = "Enter Note" })" />
+													<span asp-validation-for="Note"></span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="text-center col-12">
+											<button type="submit" class="btn btn-primary">
+												<i class="far fa-save"></i>
+												@T("Admin.Common.Save")
+											</button>
+										</div>
+									</div>
+								</div>
+
+							</nop-card>
+						</nop-cards>
+					</div>
+				</div>
+			</section>
+		</div>
+	</section>
+
+	@await Html.PartialAsync("_OrderManagement", Model.ReferralOrderSearchModel)
+
+</form>
+
+<script>
+	commonPhoneNumber("#PhoneNumber");
+	enforceLowerCase("#Email");
+</script>

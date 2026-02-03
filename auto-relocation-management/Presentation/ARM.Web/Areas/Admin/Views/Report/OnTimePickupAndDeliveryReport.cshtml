@@ -1,0 +1,245 @@
+﻿@model OnTimePickupAndDeliverySearchModel
+
+@{
+    // Page title
+    ViewBag.PageTitle = T("Admin.OnTimePickupAndDelivery.Reports").Text;
+
+    // Active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("On-Time Pickup and Delivery report");
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.OnTimePickupAndDelivery.Reports")
+    </h1>
+    <div class="float-right report-filter-right">
+        <button id="export-excel" class="btn btn-green" type="button">
+            <i class="far fa-file-excel"></i>
+            @T("Admin.Common.ExportToExcel.All")
+        </button>
+    </div>
+</div>
+<section class="content on-time-pickup-delivery-report">
+    <div class="container-fluid">
+        <div class="form-horizontal-custom">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row opened" data-hideattribute="OnTimePickupAndDeliveryReportPage.HideSearchBlock">
+                            <div class="search-text">Search</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-up" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body" style="">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="CompanyName">Company Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="form-control text-box single-line" id="CompanyName" placeholder="Enter Company Name" name="CompanyName" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="dateRange">
+                                                    Select Actual Pickup Date Range
+                                                    @* <i class="fas fa-info-circle tooltip-icon">
+                                                        <span class="custom-tooltip">
+                                                            @T("Admin.OnTimePickupDelivery.PickUp.DateRange.Filter.Hint")
+                                                        </span>
+                                                    </i> *@
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="custom-dateInput-view">
+                                                <input type="text" id="pickup-date-range" class="form-control" placeholder="Select Actual Pickup Date Range" />
+                                                <label for="pickup-date-range" class="custom-dateIcon-box"><i class="far fa-calendar-alt"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="dateRange">
+                                                    Select Actual Delivery Date Range
+                                                    @* <i class="fas fa-info-circle tooltip-icon">
+                                                        <span class="custom-tooltip">
+                                                            @T("Admin.OnTimePickupDelivery.Delivery.DateRange.Filter.Hint")
+                                                        </span>
+                                                    </i> *@
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="custom-dateInput-view">
+                                                <input type="text" id="delivery-date-range" class="form-control" placeholder="Select Actual Delivery Date Range" />
+                                                <label for="delivery-date-range" class="custom-dateIcon-box"><i class="far fa-calendar-alt"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (Model.AllowToSelectCreatedBy)
+                                {
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="CreatedBy" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="CreatedBy" asp-items="Model.AvailableCreatedByCustomers" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-report" class="btn btn-primary btn-search">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    <button type="button" id="report-btncancel" class="btn btn-primary btn-cancel-search">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default card-search d-card-search d-card">
+                    <div class="card-body">
+                        <div class="customer-report-page" id="div_OnTimePickupAndDeliveryReport"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        initializeDatePicker();
+        refreshData();
+    });
+
+    function initializeDatePicker() {
+        flatpickr("#pickup-date-range, #delivery-date-range", {
+            mode: "range",
+            dateFormat: "M d, Y",
+            allowInput: false,
+            maxDate: "today",
+        });
+    }
+
+    $("#search-report").click(function () {
+		refreshData();
+	});
+    
+    $("#report-btncancel").click(function () {
+        $("#CompanyName").val("");
+
+        const pickupDatePicker = document.querySelector("#pickup-date-range")._flatpickr;
+        if (pickupDatePicker) {
+            pickupDatePicker.clear();
+        }
+
+        const deliveryDatePicker = document.querySelector("#delivery-date-range")._flatpickr;
+        if (deliveryDatePicker) {
+            deliveryDatePicker.clear();
+        }
+
+        refreshData();
+	});
+
+    function refreshData() {
+        const pickupDateRangeValue = $("#pickup-date-range").val();
+        const deliveryDateRangeValue = $("#delivery-date-range").val();
+
+        const pickupDateRange = pickupDateRangeValue.split(" to ");
+        const pickupStartDate = pickupDateRange.length === 2 ? pickupDateRange[0] : pickupDateRangeValue;
+        const pickupEndDate = pickupDateRange.length === 2 ? pickupDateRange[1] : pickupDateRangeValue;
+
+        const deliveryDateRange = deliveryDateRangeValue.split(" to ");
+        const deliveryStartDate = deliveryDateRange.length === 2 ? deliveryDateRange[0] : deliveryDateRangeValue;
+        const deliveryEndDate = deliveryDateRange.length === 2 ? deliveryDateRange[1] : deliveryDateRangeValue;
+
+        $.ajax({
+            url: "/Admin/Report/LoadOnTimePickupAndDeliveryReportView",
+            method: "GET",
+            data: {
+                companyName: $("#CompanyName").val(),
+                pickupStartDate: pickupStartDate,
+                pickupEndDate: pickupEndDate,
+                deliveryStartDate: deliveryStartDate,
+                deliveryEndDate: deliveryEndDate,
+                salesRepId: $("#CreatedBy").data("kendoDropDownList").value()
+            },
+            success: function (data) {
+                $("#div_OnTimePickupAndDeliveryReport").html(data);
+            },
+            error: function (error) {
+                console.error("Error reloading report view:", error);
+            }
+        });
+    }
+
+    $("#export-excel").on("click", function (e) {
+        e.preventDefault();
+        exportReport();
+    });
+
+    function exportReport() {
+        const pickupDateRangeValue = $("#pickup-date-range").val();
+        const deliveryDateRangeValue = $("#delivery-date-range").val();
+
+        const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+        const companyName = $("#CompanyName").val();
+
+        const pickupDateRange = pickupDateRangeValue.split(" to ");
+        const pickupStartDate = pickupDateRange.length === 2 ? pickupDateRange[0] : pickupDateRangeValue;
+        const pickupEndDate = pickupDateRange.length === 2 ? pickupDateRange[1] : pickupDateRangeValue;
+
+        const deliveryDateRange = deliveryDateRangeValue.split(" to ");
+        const deliveryStartDate = deliveryDateRange.length === 2 ? deliveryDateRange[0] : deliveryDateRangeValue;
+        const deliveryEndDate = deliveryDateRange.length === 2 ? deliveryDateRange[1] : deliveryDateRangeValue;
+
+        $.ajax({
+            url: `/Admin/Report/ExportOnTimePickupAndDeliveryReport`,
+            method: "POST",
+            data: { 
+                pickupStartDate,
+                pickupEndDate,
+                deliveryStartDate,
+                deliveryEndDate,
+                companyName,
+                salesRepId: $("#CreatedBy").data("kendoDropDownList").value(),
+                __RequestVerificationToken: antiForgeryToken
+            },
+            xhrFields: { 
+                responseType: 'blob' 
+            },
+            success: function (data, status, xhr) {
+                var blob = new Blob([data], { type: xhr.getResponseHeader("Content-Type") });
+                var link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `on_time_pickup_and_delivery_report.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function (error) {
+                console.error("Error exporting report:", error);
+            }
+        });
+    }
+</script>

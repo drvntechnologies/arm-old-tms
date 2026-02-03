@@ -1,0 +1,282 @@
+﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
+
+@using ARM.Web.Areas.Admin.Models.Referrals
+@using Nop.Core
+@using Nop.Services.Common
+@using Nop.Web.Framework.Models.DataTables
+@using Nop.Web.Framework.UI
+
+@model ReferralSearchModel
+
+@inject IGenericAttributeService genericAttributeService
+@inject INopHtmlHelper NopHtml
+@inject IWorkContext workContext
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Configuration.Settings.Referral").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Referral settings");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "ReferralPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Configuration.Settings.Referral")
+    </h1>
+    <div class="float-right">
+        <button type="button" data-toggle="modal" id="addReferralButton" data-target="#referral-add-popup" class="btn btn-primary">@T("Admin.Common.AddNewRecord")</button>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal d-form-horizontal">
+            <div class="cards-group">
+
+                <div class="card card-default card-search d-card-search d-card">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <nop-label asp-for="Name" />
+                                        </div>
+                                        <div class="col-md-12">
+                                            <nop-editor asp-for="Name" html-attributes="@(new { placeholder = "Enter Referral Name" })" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-referral" class="btn btn-primary btn-search">
+                                        <i class="fas fa-search"></i>
+                                        @T("Admin.Common.Search")
+                                    </button>
+                                    <button type="button" id="referral-btncancel" class="btn btn-primary btn-cancel-search">
+                                        <i class="fas fa-times"></i>
+                                        @T("Admin.Common.Clear")
+                                    </button>
+                                </div>
+                                <script>
+                                    cancelSearch("#referral-btncancel");
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default d-datatable d-card m-0">
+                    <div class="card-body">
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "referrer-grid",
+                            UrlRead = new DataUrl("List", "Referral", null),
+                            UrlUpdate = new DataUrl("Update", "Referral", null),
+                            //UrlDelete = new DataUrl("Delete", "Referral", null),
+                            SearchButtonId = "search-referral",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.Name)),
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(ReferralModel.Name))
+                                {
+                                    Title = T("Admin.Configuration.Settings.Referral.Fields.Name").Text,
+                                    Width = "300",
+                                    Editable = true,
+                                    EditType = EditType.String
+                                },
+                                new ColumnProperty(nameof(ReferralModel.Active))
+                                {
+                                    Title = T("Admin.Configuration.Settings.Referral.Fields.Active").Text,
+                                    Width = "300",
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderBoolean(),
+                                    Editable = true,
+                                    EditType = EditType.Checkbox
+                                },
+                                new ColumnProperty(nameof(ReferralModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "200",
+                                    ClassName =  NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonsInlineEdit()
+                                },
+                                new ColumnProperty(nameof(ReferralModel.Id))
+                                {
+                                    Title = T("Admin.Common.Delete").Text,
+                                    Width = "100",
+                                    ClassName =  NopColumnClassDefaults.Button,
+                                    Render = new RenderCustom("renderColumnDelete"),
+                                    //Render = new RenderButtonRemove(T("Admin.Common.Delete").Text)
+                                }
+                            }
+                        })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-id" name="delete-id" />
+                @T("Admin.Common.DeleteConfirmation")
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="referral-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="referral-add-popup-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="referral-add-popup-title">@T("Admin.Common.AddNewRecord")</h4>
+                <button type="button" class="close" id="close-referral-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body d-form">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="@Model.ReferralModel.Name" asp-required="true" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="@Model.ReferralModel.Name" html-attributes="@(new { placeholder = "Enter Referral Name" })" />
+                                <span asp-validation-for="@Model.ReferralModel.Name"></span>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <div class="col-3 col-md-3">
+                                <nop-label asp-for="@Model.ReferralModel.Active" />
+                            </div>
+                            <div class="col-3 col-md-9 align-items-center d-flex">
+                                <input type="checkbox" asp-for="@Model.ReferralModel.Active" class="mt-0" />
+                                <span asp-validation-for="@Model.ReferralModel.Active"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <div class="col-md-3">                                
+                            </div>
+                            <div class="col-md-9">       
+                                <div class="field-validation-error" id="add-edit-Referral-errorMessages"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="addReferrer" class="btn btn-primary">@T("Admin.Common.AddNewRecord")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    removeSpecialCharactersAndNumber("#Name, #ReferralModel_Name", true);
+    
+    function renderColumnDelete(data, type, row, meta) {
+        return '<a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+    }
+
+    $(document).on('input', "#referrer-grid tbody td[data-columnname='Name'] input.userinput", function(){
+        $(this).val($(this).val().replace(/[^a-zA-Z\s]/g, ''));
+    });
+
+    $("#referrer-grid").on("click", ".delete-link", function (e) {
+        const id = $(this).attr("data-deleteId");
+        $("#delete-id").val(id);
+    });
+
+    $("#delete-confirmation-popup").click(function(){
+        var postData = {
+            id: $("#delete-id").val()
+        };
+        addAntiForgeryToken(postData);
+
+        $.post("@Url.Action("Delete")", postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $("#referrer-grid").DataTable().draw(false);
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $('#addReferrer').click(function () {
+            $('#addReferrer').attr('disabled', true);
+            var postData = {
+                Name: $("#@Html.IdFor(model => model.ReferralModel.Name)").val(),
+                Active: $("#@Html.IdFor(model => model.ReferralModel.Active)").prop('checked'),
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Html.Raw(Url.Action("Create", "Referral", null))",
+                data: postData,
+                success: function (data, textStatus, jqXHR) {
+                    if (data.Result) {
+                        //reload grid
+                        updateTable('#referrer-grid');
+
+                        $("#close-referral-add-popup").trigger("click");
+
+                        //clear input value
+                        $("#@Html.IdFor(model => model.ReferralModel.Name)").val('');
+                        $("#@Html.IdFor(model => model.ReferralModel.Active)").prop('checked', false);
+
+                        toastr.success("@T("Admin.Configuration.Settings.Referral.Add.Success")");
+                    } else {
+                        //display errors if returned
+                        $("#add-edit-Referral-errorMessages").html(data.error);
+                    }
+                },
+                complete: function (jqXHR, textStatus) {
+                    $('#addReferrer').attr('disabled', false);
+                }
+            });
+        });
+
+        $("#addReferralButton, #close-referral-add-popup").click(function (){
+            $("#add-edit-Referral-errorMessages").html("");
+        });
+    });
+</script>

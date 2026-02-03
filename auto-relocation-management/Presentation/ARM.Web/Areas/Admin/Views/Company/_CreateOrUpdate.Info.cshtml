@@ -1,0 +1,314 @@
+﻿@model CompanyModel
+
+<div class="card-body">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Name" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Name" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                            <span asp-validation-for="Name"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Domain" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Domain" html-attributes="@(new { placeholder = "Enter Company Domain" })" />
+                            <span asp-validation-for="Domain"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AccountingEmail" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="AccountingEmail" html-attributes="@(new { placeholder = "Enter Accounting Email" })" />
+                            <span asp-validation-for="AccountingEmail"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PhoneNumber" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PhoneNumber" />
+                            <span asp-validation-for="PhoneNumber"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Note" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="Note" html-attributes="@(new { placeholder = "Enter Notes" })" />
+                            <span asp-validation-for="Note"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PercentagePriceMargin" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-template="DecimalWithPercentage" asp-for="PercentagePriceMargin" />
+                            <span asp-validation-for="PercentagePriceMargin"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="StandardReferralAmountValue" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="StandardReferralAmountValue" />
+                            <span asp-validation-for="StandardReferralAmountValue"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="FVPValue" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="FVPValue" />
+                            <span asp-validation-for="FVPValue"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AccountType" asp-required="Model.AccountTypeRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="AccountType" asp-items="Model.AvailableAccountTypes" />
+                            <span asp-validation-for="AccountType"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="CouponCode" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="CouponCode" html-attributes="@(new { placeholder = "Enter Coupon Code" })" />
+                            <span asp-validation-for="CouponCode"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group custom-checkbox-ui">
+                        <div class="label-name">
+                            <nop-label asp-for="UsePercentage" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="UsePercentage" />
+                            <span asp-validation-for="UsePercentage"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" id="discount-percentage" style=@(Model.UsePercentage ? "" : "display:none;")>
+                        <div class="label-name">
+                            <nop-label asp-for="DiscountPercentage" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-template="DecimalWithPercentage" asp-for="DiscountPercentage" />
+                            <span asp-validation-for="DiscountPercentage"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" id="discount-amount" style=@(!Model.UsePercentage ? "" : "display:none;")>
+                        <div class="label-name">
+                            <nop-label asp-for="DiscountAmountValue" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DiscountAmountValue" />
+                            <span asp-validation-for="DiscountAmountValue"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" >
+                        <div class="label-name">
+                            <nop-label asp-for="Address" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Address" html-attributes="@(new { placeholder = "Enter Address" })" />
+                            <span asp-validation-for="Address"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" >
+                        <div class="label-name">
+                            <nop-label asp-for="City" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="City" html-attributes="@(new { placeholder = "Enter City" })" />
+                            <span asp-validation-for="City"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" >
+                        <div class="label-name">
+                            <nop-label asp-for="StateProvinceId" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="StateProvinceId" asp-items="Model.AvailableStates" />
+                            <span asp-validation-for="StateProvinceId"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="ZipCode" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="ZipCode" />
+                            <span asp-validation-for="ZipCode"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Region" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Region" html-attributes="@(new { placeholder = "Enter Region / Province" })" />
+                            <span asp-validation-for="Region"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" >
+                        <div class="label-name">
+                            <nop-label asp-for="CountryId" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries" />
+                            <span asp-validation-for="CountryId"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group" >
+                        <div class="label-name">
+                            <nop-label asp-for="PrimarySalesRep" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="PrimarySalesRep" asp-items="Model.AvailablePrimarySalesRep" />
+                            <span asp-validation-for="PrimarySalesRep"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="SecondarySalesRep" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="SecondarySalesRep" asp-items="Model.AvailableSecondarySalesRep" />
+                            <span asp-validation-for="SecondarySalesRep"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<nop-alert asp-alert-id="statesAlert" asp-alert-message="@T("Admin.Common.Alert.States.Failed")" />
+<script>
+    function getStateFromCountry(selectedItem, $stateKendoDropDownList) {
+        if (!selectedItem || !$stateKendoDropDownList) return false;
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+            data: {
+                "countryId": selectedItem,
+                "addSelectStateItem": "false"
+            },
+            success: function (data, textStatus, jqXHR) {
+                var dataSource = $stateKendoDropDownList.dataSource;
+                dataSource.data([]);
+                $.each(data,
+                    function (id, option) {
+                        dataSource.add({
+                            text: option.name,
+                            value: option.id
+                        });
+                    });
+                $stateKendoDropDownList.value(0);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
+        });
+    };
+
+    commonPhoneNumber("#PhoneNumber");
+    allowAplhaNumericWithMaxLength("#CouponCode", 12);
+    restrictToCityNameFormat("#City");
+    allowUniversalZip("#ZipCode");
+    allowOnlyPrimaryDomain("#Domain");
+    enforceLowerCase("#AccountingEmail");
+
+    $("#@Html.IdFor(model => model.CountryId)").change(function () {
+        var selectedItem = $(this).data("kendoDropDownList").value();
+        var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+
+    let previousZipCode = $("#ZipCode").val();
+    
+    const debounceFunc = debounce(fetchZipCodes, 500);
+
+    function fetchZipCodes(field) {
+        var zipCodeId = field.attr('id');
+        var txtZipCode = $("#" + zipCodeId).val();
+
+        if(previousZipCode == txtZipCode){
+            return false;
+        }
+
+        previousZipCode = txtZipCode;
+
+        if (txtZipCode.length === 5) {
+            $("#"+ zipCodeId).prop('readonly', true);
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+
+                    $("#"+ zipCodeId).prop('readonly', false);
+
+                    if (response.country != $("#CountryId").val()){
+                        return;
+                    }
+
+                    $("#City").val(response.city);
+                    $("#CountryId").data("kendoDropDownList").value(response.country);
+                    $("#StateProvinceId").data("kendoDropDownList").value(response.state);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#"+ zipCodeId).prop('readonly', false);
+                }
+            });
+        }
+        else {
+            $("#"+ zipCodeId).prop('readonly', false);
+        }
+    }
+
+    $("#ZipCode").keyup(function () {
+        debounceFunc($(this));
+    });
+
+    $("#UsePercentage").on('change', function(){
+        const isChecked = $(this).prop('checked');
+        if (isChecked){
+            $("#discount-percentage").show();
+			$("#discount-amount").hide();
+        } else{
+            $("#discount-percentage").hide();
+            $("#discount-amount").show();
+        }
+    });
+
+</script>

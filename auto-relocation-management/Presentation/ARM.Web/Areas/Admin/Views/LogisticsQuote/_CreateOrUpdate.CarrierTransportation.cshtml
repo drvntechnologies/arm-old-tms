@@ -1,0 +1,28 @@
+﻿@using Nop.Core.Domain.LogisticsQuotes
+@model LogisticsQuoteModel
+
+<div class="card-body carrier-information overflow-hidden">
+	<div class="row">
+		<div class="col-md-6 mb-3">
+			<div class="card h-100 mb-0">
+				<div class="card-body">
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CarrierType" asp-required="Model.LogisticsQuoteCarrierTypeRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="CarrierType" asp-items="Model.AvailableCarrierTypes" class="form-select" />
+							<span asp-validation-for="CarrierType"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("#CarrierType").on('change', function (){
+		calculateEstimatePrice();
+	});
+</script>

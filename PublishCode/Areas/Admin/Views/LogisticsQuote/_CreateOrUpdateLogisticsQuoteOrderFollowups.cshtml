@@ -1,0 +1,185 @@
+@model LogisticsQuoteOrderFollowupsInfoModel
+
+<div class="validation-summary-errors" data-valmsg-summary="true">
+    <ul id="ulValidate">
+       
+        </ul>
+        </div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="SelectedAssignee" type="hidden" />
+<input asp-for="LeadId" type="hidden" value="@(Context.Request.Query["leadId"])" />
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try { window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click(); }
+        catch (e) { }
+        window.close();    
+    </script>
+}
+<script>   
+
+    function toggleShowOptions(opt) {       
+        if (opt == '# Days') {
+            $('#pnlDisplayDays').show();
+            $('#pnlDisplayDate').hide();
+        }
+        if (opt == 'On Date/Time') {
+            $('#pnlDisplayDays').hide();
+            $('#pnlDisplayDate').show();
+        }
+        if (opt == 'No further follow-ups') {
+            $('#pnlDisplayDays').hide();
+            $('#pnlDisplayDate').hide();
+        }
+    }
+
+    $('#btnFollowup').click(function(e) {
+         var isValidate= true;
+        $("#ulValidate").html('');
+       
+        if($("#EmailTemplateId").val()=='' && $("#TextingTemplateId").val()=='' )
+        {          
+            $("#ulValidate").append('<li>@T("Admin.LogisticsOrderFollowups.Fields.EmailTextingTemplate.Required")</li>');
+             isValidate= false;
+        }   
+        if($('input[name="Scheduled"]:checked').val() =='On Date/Time')
+        {
+            if($("#FollowupOn").val()=='01/01/0001 12:00 AM' || $("#FollowupOn").val()==null ||$("#FollowupOn").val()=='' || $("#FollowupOn").val()==undefined)
+            {                
+                 $("#ulValidate").append('<li>@T("Admin.LogisticsOrderFollowups.Fields.FollowUpDate.Required")</li>');
+                 isValidate= false;
+            }
+        }
+        var selectedVal = jQuery.map($(':checkbox[name=Assignee]:checked'), function (n, i) {
+                            return n.value;
+                           }).join('|');                          
+        if(selectedVal==null ||selectedVal=='' || selectedVal==undefined)
+        {            
+            $("#ulValidate").append('<li>@T("Admin.LogisticsOrderFollowups.Fields.Assignee.Required")</li>');
+            isValidate= false;
+        }
+        $("#SelectedAssignee").val(selectedVal);
+        if(!isValidate)
+        {          
+            e.preventDefault();
+        }       
+    });
+   
+</script>
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-popup">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <nop-label asp-for="FollowUpType" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <nop-select asp-for="FollowUpType" asp-items="Model.AvailableFollowUpType" asp-required="true"  />
+                                    <span asp-validation-for="FollowUpType"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <nop-label asp-for="Scheduled" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <div id="theme-selection-block" class="theme-selection-block clearfix">
+                                    @foreach (var day in Model.AvailableScheduled)
+                                    {
+                                        <div class="checkbox form-check">
+                                            <label class="form-check-label">
+                                                <span>
+                                                    <input type="radio" onclick="toggleShowOptions('@day.Value');" name="Scheduled" value="@day.Value" @(day.Value=="# Days"? "checked=\"checked\"" : "") />@day.Text
+                                                </span>
+                                            </label>
+                                        </div>
+                                    }
+                                    <span asp-validation-for="Scheduled"></span>
+                                    </div>  
+                                </div>
+                            </div>    
+                             <div class="form-group row" id="pnlDisplayDays">
+                                        <div class="col-sm-3">
+                                            <nop-label asp-for="Days" />
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <nop-select asp-for="Days" asp-items="Model.AvailableDays" />
+                                            <span asp-validation-for="Days"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row" id="pnlDisplayDate" style="display:none;">
+                                        <div class="col-md-3">
+                                            <nop-label asp-for="FollowupOn" />
+                                        </div>
+                                        <div class="col-md-9">
+                                            <nop-editor asp-for="FollowupOn"  />
+                                            <span asp-validation-for="FollowupOn"></span>
+                                        </div>
+                                    </div>
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <nop-label asp-for="EmailTemplateId" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <nop-select asp-for="EmailTemplateId" asp-items="Model.AvailableEmailTemplates" asp-required="true"  />
+                                    <span asp-validation-for="EmailTemplateId"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <nop-label asp-for="TextingTemplateId" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <nop-select asp-for="TextingTemplateId" asp-items="Model.AvailableTextingTemplate" asp-required="true"  />
+                                     <p>Text's and Email's will be sent at the time specified by "Next Scheduled Follow-up"</p>
+                                     <span asp-validation-for="TextingTemplateId"></span>
+                                </div>
+                                
+                            </div>
+                           
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="Note" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="Note" />          
+                                    <span asp-validation-for="Note"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-12" style="background-color:#dee2e6;">
+                                    <div>
+                                        <label class="col-form-label" for="Name">Assign To</label>                                       
+                                    </div>
+                                </div>
+                            </div>
+                                                        
+                                    @foreach (var users in Model.AvailableAssignee.Select((e, i) => new { user = e, Grouping = (i / 3) }).GroupBy(e => e.Grouping))
+                                    {     
+                                          @:<div class="form-group row" style="margin-bottom:-2px !important;">
+                                            @foreach (var u in users.Select(x => x.user))
+                                            { 
+                                                 <div class="col-md-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <span>
+                                                            <input type="checkbox" Name="Assignee" value="@u.Value"/> @u.Text
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                               </div>
+                                            }
+                                       @: </div>
+                                    }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

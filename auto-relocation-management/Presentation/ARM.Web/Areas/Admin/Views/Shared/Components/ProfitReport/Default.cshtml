@@ -1,0 +1,113 @@
+﻿@model ProfitReportModel
+
+@inject IPriceFormatter priceFormatter
+
+@{
+    var randomNumber = new Random().Next(1000, 9999);
+    var counter = 1;
+}
+
+<div class="customer-report-content">
+    <div class="total-credit-col">
+        <div class="total-credit-info">Total Net Profit: </div>
+        <div class="total-credit-value">@await priceFormatter.FormatPriceAsync(Model.TotalProfit, true, false)</div>
+    </div>
+    <div class="customer-report-table">
+        <table class="table table-hover datatbl-custom-tbl-view parent-tbl">
+            <thead class="table-light">
+                <tr>
+                    <th></th> <!-- Expand/Collapse Button -->
+                    <th>Company Name</th>
+                    <th class="text-center">Orders</th>
+                    <th class="text-center">Total Price</th>
+                    <th class="text-center">Total Carrier Cost</th>
+                    <th class="text-center">Total Accessorial (Vendor Price)</th>
+                    <th class="text-center">Total Net Profit</th>
+                    <th class="text-center">Total Net Margin (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var profitReport in Model.ProfitReportList)
+                {
+                    var collapseId = $"orders-{counter}-{randomNumber}";
+
+                    <tr>
+                        <td>
+                            @if (profitReport.CustomerProfitReports != null && profitReport.CustomerProfitReports.Any())
+                            {
+                                <button class="btn btn-sm btn-toggle" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>@profitReport.Name</td>
+                        <td class="text-center">@profitReport.TotalOrders</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(profitReport.Price, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(profitReport.CarrierCost, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(profitReport.Accessorial, true, false)</td>
+                        <td class="text-center">@await priceFormatter.FormatPriceAsync(profitReport.Profit, true, false)</td>
+                        <td class="text-center">@profitReport.Margin%</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" class="p-0">
+                            <div id="@collapseId" class="collapse">
+                                <table class="table table-hover table-sm datatbl-custom-Sub-tbl-view child-tbl">
+                                    <colgroup>
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Order#</th>
+                                            <th>Order Date</th>
+                                            <th class="text-center">Price</th>
+                                            <th class="text-center">Carrier Cost</th>
+                                            <th class="text-center">Accessorial (Vendor Price)</th>
+                                            <th class="text-center">Net Profit</th>
+                                            <th class="text-center">Net Margin (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in profitReport.CustomerProfitReports)
+                                        {
+                                            <tr>
+                                                <td class ="text-center">@order.OrderNumber</td>
+                                                <td>@(order.OrderDate.ToDateFormat())</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.Price, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.CarrierCost, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.Accessorial, true, false)</td>
+                                                <td class="text-center">@await priceFormatter.FormatPriceAsync(order.Profit, true, false)</td>
+                                                <td class="text-center">@order.Margin%</td>
+                                            </tr>
+                                        }
+                                        @if (!profitReport.CustomerProfitReports.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="3" class="text-center">No orders found.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
+                    counter++;
+                }
+                @if (Model.ProfitReportList.Count == 0)
+                {
+                    <tr>
+                        <td colspan="10">
+                            <div class="no-data-col">@T("Admin.Common.Table.NoRecord")</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

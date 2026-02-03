@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Dispatch",
+  "FriendlyName": "Super Dispatch",
+  "SystemName": "Logistics.SuperDispatch",
+  "Version": "1.18.1",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "Sigma Solve team",
+  "DisplayOrder": 1,
+  "FileName": "Logistics.SuperDispatch.dll",
+  "Description": "This plugin allow to configure super dispatch order."
+}

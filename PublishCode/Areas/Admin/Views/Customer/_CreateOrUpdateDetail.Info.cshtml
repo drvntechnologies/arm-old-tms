@@ -1,0 +1,234 @@
+﻿@model CustomerModel
+
+@using Newtonsoft.Json
+@using Nop.Core.Domain.Customers;
+
+<div class="common-detail">
+	<div class="row">
+		<div class="col-lg-8 col-xl-6">
+			<div class="card detail-info-card d-card">
+				<div class="card-header with-border">
+					<h3 class="card-title">
+						<i class="fa fa-info" aria-hidden="true"></i>
+						@T("Admin.Customer.CustomersInfo")
+					</h3>
+				</div>
+				<div class="card-body">
+					@if (!string.IsNullOrWhiteSpace(Model.FirstName))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Customers.Fields.FirstName")
+							</div>
+							<div class="input-name">
+								@Model.FirstName
+							</div>
+						</div>
+					}
+					@if (!string.IsNullOrWhiteSpace(Model.LastName))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Customers.Fields.LastName")
+							</div>
+							<div class="input-name">
+								@Model.LastName
+							</div>
+						</div>
+					}
+					<div class="custom-form-group" style="display:none">
+						<div class="label-name">
+							@T("Admin.Customer.Fields.Type")
+						</div>
+						<div class="input-name">
+							@if (Model.Type == (int)CustomerType.User)
+							{
+								@CustomerType.User
+							}
+							else if (Model.Type == (int)CustomerType.Carrier)
+							{
+								@CustomerType.Carrier
+							}
+							else if (Model.Type == (int)CustomerType.Shipper)
+							{
+								@CustomerType.Shipper
+							}
+						</div>
+					</div>
+					@* @if (!string.IsNullOrWhiteSpace(Model.Company))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">
+                                @T("Admin.Customers.Customers.Fields.Company")
+                            </div>
+                            <div class="input-name">
+                                @Model.Company
+                            </div>
+                        </div>
+                    } *@
+					@if (!string.IsNullOrWhiteSpace(Model.Email))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Customers.Fields.Email")
+							</div>
+							<div class="input-name">
+								@Model.Email
+							</div>
+						</div>
+					}
+					@if (!string.IsNullOrWhiteSpace(Model.Phone))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Customers.Fields.Phone")
+							</div>
+							<div class="input-name">
+								@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone)
+							</div>
+						</div>
+					}
+					@if (!string.IsNullOrWhiteSpace(Model.Supervisor))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Fields.Supervisor")
+							</div>
+							<div class="input-name">
+								@Model.Supervisor
+							</div>
+						</div>
+					}
+					@if (!string.IsNullOrWhiteSpace(Model.CustomerRoleNames))
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								@T("Admin.Customers.Customers.Fields.CustomerRoles")
+							</div>
+							<div class="input-name">
+								@Model.CustomerRoleNames
+							</div>
+						</div>
+					}
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customers.Customers.Fields.Active")
+						</div>
+						<div class="input-name">
+							@(Model.Active ? T("Admin.Common.Yes").Text : T("Admin.Common.No").Text)
+						</div>
+					</div>
+					@*<div class="custom-form-group">
+                        <div class="label-name">
+                            @T("Admin.Customers.Customers.Fields.Username")
+                        </div>
+                        <div class="input-name">
+                            @Model.Username
+                        </div>
+                    </div>
+					<div class="custom-form-group">
+                        <div class="label-name">
+                            @T("Admin.Customer.Fields.Notes")
+                        </div>
+                        <div class="input-name">
+                            @Model.Notes
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            @T("Admin.Customer.Fields.PolicyNumber")
+                        </div>
+                        <div class="input-name">
+                            @Model.PolicyNumber
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            @T("Admin.Customer.Fields.ICCMCNumber")
+                        </div>
+                        <div class="input-name">
+                            @Model.ICCMCNumber
+                        </div>
+                    </div> *@
+				</div>
+			</div>
+		</div>
+		@* <div class="col-lg-6 col-xl-6">
+			<div class="card detail-info-card d-card">
+				<div class="card-header with-border">
+					<h3 class="card-title">
+						<i class="fa fa-map-marker" aria-hidden="true"></i>
+						Address
+					</h3>
+				</div>
+				<div class="card-body">
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customer.Fields.Address")
+						</div>
+						<div class="input-name">
+							@Model.Address
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customers.Customers.Fields.City")
+						</div>
+						<div class="input-name">
+							@Model.City
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customers.Customers.Fields.Country")
+						</div>
+						<div class="input-name">
+							@Model.Country
+						</div>
+					</div>
+
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customers.Customers.Fields.StateProvince")
+						</div>
+						<div class="input-name">
+							@Model.State
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customers.Customers.Fields.ZipPostalCode")
+						</div>
+						<div class="input-name">
+							@Model.ZipPostalCode
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customer.Fields.InsuranceCompanyName")
+						</div>
+						<div class="input-name">
+							@Model.InsuranceCompanyName
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customer.Fields.InsuranceCompanyAddress")
+						</div>
+						<div class="input-name">
+							@Model.InsuranceCompanyAddress
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							@T("Admin.Customer.Fields.CompanyPhone")
+						</div>
+						<div class="input-name">
+							@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.CompanyPhone)
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> *@
+	</div>
+</div>

@@ -1,0 +1,342 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        <div class="card-header with-border clearfix d-flex align-items-center">
+            <div class="ml-auto">
+                <button type="button" id="create-dispatcher" class="btn btn-primary">
+                    <i class="fa fa-plus"></i>
+                    @T("Admin.LogisticsDispatcher.View.AddDispatcher")
+                </button>
+            </div>
+        </div>
+
+        <div class="card d-datatable m-0">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "dispatcher-grid",
+                    UrlRead = new DataUrl("DispatcherList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsDispatcherSearchModel.CarrierId)] = Model.Id }),
+                    Length = Model.LogisticsDispatcherSearchModel.PageSize,
+                    LengthMenu = Model.LogisticsDispatcherSearchModel.AvailablePageSizes,
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(LogisticsDispatcherModel.Name))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Name").Text,
+                            Width = "200"
+                        },
+                        new ColumnProperty(nameof(LogisticsDispatcherModel.Email))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Email").Text,
+                            Width = "200"
+                        },
+                        new ColumnProperty(nameof(LogisticsDispatcherModel.Phone))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Phone").Text,
+                            Width = "100"
+                        },
+                        new ColumnProperty(nameof(LogisticsDispatcherModel.Id))
+                        {
+                            Title = T("Admin.Common.Action").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderCustom("renderDispatcherColumnEditDelete")
+						}
+                    }
+                })
+                <script>
+                    function renderDispatcherColumnEditDelete(data, type, row, meta) {
+                        return '<button type="button" data-dispatcher-id="' + data + '" class="btn btn-default edit-dispatcher"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                    }
+
+                    $("#dispatcher-grid").on("click", ".delete-link", function (e) {
+                        const id = $(this).attr("data-deleteId");
+                        $("#delete-id").val(id);
+                        $("#delete-id").attr("data-url", "@Url.Action("DispatcherDelete")")
+                                        .attr("data-tableId", "dispatcher-grid");
+                    });
+                </script>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.LogisticsCarriers.Dispatcher.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="dispatcher-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dispatcher-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="dispatcher-add-popup-title">@T("Admin.LogisticsCarriers.View.AddNewDispatcher")</h4>
+                    <button type="button" class="close" id="close-dispatcher-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="DispatcherId" name="DispatcherId" type="hidden" />
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DispatcherFirstName">@T("Admin.LogisticsCarriers.View.Dispatcher.Fields.FirstName")</label>
+                                    @if (Model.DispatcherFirstNameRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DispatcherFirstName" name="DispatcherFirstName" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DispatcherFirstName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DispatcherLastName">@T("Admin.LogisticsCarriers.View.Dispatcher.Fields.LastName")</label>
+                                    @if (Model.DispatcherLastNameRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DispatcherLastName" name="DispatcherLastName" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DispatcherLastName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DispatcherEmail">@T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Email")</label>
+                                    @if (Model.DispatcherEmailRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DispatcherEmail" name="DispatcherEmail" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DispatcherEmail" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DispatcherPhone">@T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Phone")</label>
+                                    @if (Model.DispatcherPhoneRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DispatcherPhone" name="DispatcherPhone" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DispatcherPhone" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">                                    
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="field-validation-error" id="add-edit-dispatcher-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-dispatcher" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#DispatcherPhone");
+        removeSpecialCharactersAndNumber("#DispatcherFirstName, #DispatcherLastName");
+        enforceLowerCase("#DispatcherEmail");
+
+        function resetDispatcherForm() {
+            $("#DispatcherId").val("");
+            $("#DispatcherFirstName").val("");
+            $("#DispatcherLastName").val("");
+            $("#DispatcherEmail").val("");
+            $("#DispatcherPhone").val("");
+
+            $('span[data-valmsg-for="DispatcherFirstName"]').hide();
+            $('span[data-valmsg-for="DispatcherLastName"]').hide();
+            $('span[data-valmsg-for="DispatcherEmail"]').hide();
+            $('span[data-valmsg-for="DispatcherPhone"]').hide();
+            $("#add-edit-dispatcher-errorMessages").html("");
+        }
+
+        $(function () {
+            $('#save-dispatcher').click(function () {
+                $('#save-dispatcher').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id = $("#DispatcherId");
+                const $firstName = $("#DispatcherFirstName");
+                const $lastName = $("#DispatcherLastName");
+                const $email = $("#DispatcherEmail");
+                const $phone = $("#DispatcherPhone");
+
+                let firstName = $firstName.val();
+                let lastName = $lastName.val();
+                let email = $email.val();
+                let phone = $phone.val();
+
+                @if (Model.DispatcherFirstNameRequired)
+                {
+                    <text>
+                        if (!firstName || firstName.trim() == "") {
+                            let message = "@T("Admin.LogisticsDispatcher.FirstName.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DispatcherFirstName"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherFirstName-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DispatcherLastNameRequired)
+                {
+                    <text>
+                        if (!lastName || lastName.trim() == "") {
+                            let message = "@T("Admin.LogisticsDispatcher.LastName.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DispatcherLastName"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherLastName-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DispatcherEmailRequired)
+                {
+                    <text>
+                        if (!email || email.trim() == "") {
+                            let message = "@T("Admin.LogisticsDispatcher.Email.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DispatcherEmail"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherEmail-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DispatcherPhoneRequired)
+                {
+                    <text>
+                        if (!phone || phone.trim() == "") {
+                            let message = "@T("Admin.LogisticsDispatcher.Phone.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DispatcherPhone"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherPhone-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+
+                if (!isValid) {
+                    $('#save-dispatcher').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    Id: $id.val(),
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Email: email,
+                    Phone: phone,
+                    CarrierId: "@Model.Id"
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("DispatcherCreate", "LogisticsCarriers", null))";
+                if ($id.val() > 0) {
+                    url = "@Html.Raw(Url.Action("DispatcherEdit", "LogisticsCarriers", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#dispatcher-grid');
+                                $("#close-dispatcher-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";
+                            $.each(data.error, function (key, value) {
+                                if (value.errors) {
+                                    $.each(value.errors, function (index, error) {
+                                        errorMessages += "<p class='m-0'>" + error +"</p>";
+                                    });
+                                }
+                            });
+                            $("#add-edit-dispatcher-errorMessages").html(errorMessages);
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-dispatcher').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $(document).on('click', "#close-dispatcher-add-popup", function () {
+            resetDispatcherForm();
+            $("#dispatcher-add-popup").modal('hide');
+        });
+
+        $(document).on('input', "#DispatcherFirstName, #DispatcherLastName, #DispatcherEmail, #DispatcherPhone", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-dispatcher", function (e) {
+            e.preventDefault();
+            $("#dispatcher-add-popup-title").text("@T("Admin.LogisticsCarriers.View.AddNewDispatcher")");
+            resetDispatcherForm();
+            $("#dispatcher-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-dispatcher", function (e) {
+            e.preventDefault();
+            $("#add-edit-dispatcher-errorMessages").html("");
+            var dispatcherId = $(this).attr('data-dispatcher-id');
+            if (dispatcherId > 0) {
+                $("#dispatcher-add-popup-title").text("@T("Admin.LogisticsCarriers.View.EditDispatcher")");
+                $.get("@Html.Raw(Url.Action("DispatcherEdit", "LogisticsCarriers"))", { id: dispatcherId }, function (data) {
+                    if (data.Result) {
+                        $("#DispatcherId").val(data.Id);
+                        $("#DispatcherFirstName").val(data.FirstName);
+                        $("#DispatcherLastName").val(data.LastName);
+                        $("#DispatcherEmail").val(data.Email);
+                        $("#DispatcherPhone").val(data.Phone);
+
+                        $("#dispatcher-add-popup").modal('show');
+                    }
+                    else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

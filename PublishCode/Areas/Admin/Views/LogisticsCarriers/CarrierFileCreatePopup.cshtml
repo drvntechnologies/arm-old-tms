@@ -1,0 +1,27 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogisticsCarriers
+@model LogisticsCarriersFilesModel
+@{
+	Layout = "_AdminPopupLayout";
+
+	//page title
+	ViewBag.PageTitle = T("Admin.LogisticsCarriersFiles.Add").Text;
+}
+
+<form asp-controller="LogisticsCarriers" asp-action="CarrierFileCreatePopup"
+	  asp-route-btnId="@Context.Request.Query["btnId"]"
+	  asp-route-formId="@Context.Request.Query["formId"]" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off" enctype="multipart/form-data">
+	<main class="right-main-area">
+		<div class="page-title-area">
+			<h3 class="mb-2">
+				@T("Admin.LogisticsCarriersFiles.Add")
+				<div class="button pull-right">
+					<button type="submit" name="save" class="btn btn-primary">
+						<i class="far fa-save"></i>
+						@T("Admin.Common.Save")
+					</button>
+				</div>
+			</h3>
+		</div>
+		@await Html.PartialAsync("_CreateOrUpdateLogisticsCarrierFileInfo", Model)
+	</main>
+</form>

@@ -1,0 +1,369 @@
+﻿@inject IWebHelper webHelper
+@inject IDateTimeHelper dateTimeHelper
+@inject IPermissionService permissionService
+@inject ICustomerService customerService
+@inject IEventPublisher eventPublisher
+@inject ILanguageService languageService
+@inject LocalizationSettings localizationSettings
+@inject StoreInformationSettings storeInformationSettings
+@inject ICompanyService companyService
+
+@using System.Globalization
+@using Nop.Core
+@using Nop.Core.Domain
+@using Nop.Core.Domain.Localization
+@using Nop.Core.Events;
+@using static Nop.Services.Common.NopLinksDefaults
+@using Nop.Services.Localization
+@using Nop.Services.Customers
+@using Nop.Services.Companies
+@using Nop.Services.Helpers
+@using Nop.Services.Security
+@using Nop.Web.Components;
+@using Nop.Web.Extensions;
+@using Nop.Web.Framework.UI
+@using Nop.Web.Framework;
+
+@{
+    var returnUrl = webHelper.GetRawUrl(Context.Request);
+
+    //page title
+    string adminPageTitle = !string.IsNullOrWhiteSpace(ViewBag.PageTitle) ? ViewBag.PageTitle : "";
+    //adminPageTitle += T("Admin.PageTitle").Text;
+
+    //has "Manage Maintenance" permission?
+    var canManageMaintenance = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageMaintenance);
+
+    //avatar
+    var currentCustomer = await workContext.GetCurrentCustomerAsync();
+    var isAdmin = await customerService.IsAdminAsync(currentCustomer);
+    //event
+    await eventPublisher.PublishAsync(new PageRenderingEvent(NopHtml));
+
+    var darkmode = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), "admin-theme-darkmode");
+    //info: we specify "Admin" area for actions and widgets here for cases when we use this layout in a plugin that is running in a different area than "admin"
+}
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@Html.GetUIDirection(localizationSettings.IgnoreRtlPropertyForAdminArea)">
+<head>
+    <title>@adminPageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @NopHtml.GenerateHeadCustom()
+
+    @* CSS & Script resources *@
+    @{
+        await Html.RenderPartialAsync("_AdminScripts");
+    }
+
+    @*Insert favicon and app icons head code*@
+    @await Component.InvokeAsync(typeof(FaviconViewComponent))
+</head>
+<body class="hold-transition sidebar-mini layout-fixed control-sidebar-slide-open @(darkmode ? "darkmode" : "")">
+    <div class="throbber">
+        <div class="curtain">
+        </div>
+        <div class="curtain-content">
+            <div>
+                <h1 class="throbber-header">@T("Common.Wait")</h1>
+                <p>
+                    <img src="@Url.Content("~/css/admin/images/throbber-synchronizing.gif")" alt="" />
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="ajaxBusy">
+        <span>&nbsp;</span>
+    </div>
+    <div class="wrapper custom-wrapper">
+        @if (IsSectionDefined("header"))
+        {
+            @RenderSection("header")
+        }
+        else
+        {
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderBefore })
+            <nav class="main-header navbar navbar-expand-md navbar-dark bg-dark">
+                <ul class="navbar-nav pl-2 pl-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link" id="nopSideBarPusher" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
+                    </li>
+                    @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderToggleAfter })
+                </ul>
+                <a href="@Url.Content("~/Admin")" class="brand-link navbar-dark">
+                    <img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></span>
+                </button>
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderNavbarBefore })
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav ml-auto pl-2">
+                        @* <li class="nav-item dark-light-switch">
+                                <p class="custom-control custom-switch m-0">
+                                    <label class="light-lable"> Light</label>
+                                    <input class="custom-control-input" id="DarkModeSwitch" type="checkbox">
+                                    <label class="custom-control-label switch-lable" for="DarkModeSwitch">Dark</label>
+                                </p>
+                            </li>
+                            <li class="nav-item dark-light-switch">
+                            @if (darkmode)
+                            {
+                                <script>
+                                    $("body").addClass('darkmode');
+                                </script>
+                            }
+                            else
+                            {
+                                <script>
+                                    $("body").removeClass('darkmode');
+                                </script>
+                            }
+                            <p class="custom-control custom-switch m-0">
+                                <label class="light-lable"> @T("Admin.Header.ThemeMode.Light")</label>
+                                <input class="custom-control-input" id="DarkModeSwitch" type="checkbox" checked="@darkmode">
+                                <label class="custom-control-label switch-lable" for="DarkModeSwitch">@T("Admin.Header.ThemeMode.Dark")</label>
+                            </p>
+                        </li> *@
+
+                        <li class="nav-item">
+                            @await Component.InvokeAsync("AdminLanguageSelector")
+                        </li>
+
+                        <li class="nav-item">
+                            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.HeaderMiddle })
+                        </li>
+                        @* <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Index" asp-area="" class="nav-link">@T("Admin.Header.PublicStore")</a>
+                        </li> *@
+
+                        <li class="nav-item">
+                            @await Component.InvokeAsync(typeof(AdminLanguageSelectorViewComponent))
+                        </li>
+                        @if (await customerService.IsRegisteredAsync(currentCustomer))
+                        {
+                            var company = await companyService.GetCompanyByIdAsync(currentCustomer.CompanyId);
+                            <li class="nav-item">
+                                <a href="#" class="nav-link disabled">@(company?.Name ?? await customerService.GetCustomerFullNameAsync(currentCustomer))</a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Customer" asp-action="Logout" asp-area="" class="nav-link">@T("Admin.Header.Logout")</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderMiddle })
+                        </li>
+
+                        @if (canManageMaintenance)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" href="#" data-toggle="dropdown">
+                                    <i class="fas fa-cogs"></i>
+                                </a>
+                                <ul class="maintenance-menu dropdown-menu dropdown-menu-right" role="menu">
+                                    <li class="dropdown-item">
+                                        <form asp-controller="Common" asp-action="ClearCache" asp-area="@AreaNames.Admin">
+                                            <input name="returnurl" type="hidden" value="@returnUrl">
+                                            <div class="input-group-append">
+                                                <button type="submit" style="width:210px;background-color: Transparent;">
+                                                    <span>@T("Admin.Header.ClearCache")</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </li>
+                                    <li class="dropdown-item">
+                                        <form asp-controller="Common" asp-action="RestartApplication" asp-area="@AreaNames.Admin">
+                                            <input name="returnurl" type="hidden" value="@returnUrl">
+                                            <button id="restart-application" type="submit" style="width:210px;background-color: Transparent;">
+                                                <span>@T("Admin.Header.RestartApplication")</span>
+                                            </button>
+                                            <script>
+                                                $(document).ready(function () {
+                                                $("#restart-application").click(function (e) {
+                                                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(T("Admin.Header.RestartApplication.Progress").Text))');
+                                                });
+                                                });
+                                            </script>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderNavbarAfter })
+            </nav>
+
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderAfter })
+        }
+        @if (IsSectionDefined("headermenu"))
+        {
+            @RenderSection("headermenu")
+        }
+        else
+        {
+            <aside class="main-sidebar sidebar-dark-primary elevation-4">
+                <!-- Brand Logo -->
+                @if (isAdmin)
+                {
+                    <a href="@Url.Content("~/Admin")" class="brand-link logo-switch">
+                        <img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xl logo-xl" />
+                        <img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs" />
+                    </a>
+                }
+                else
+                {
+                    <a href="javascript:void(0)" class="brand-link logo-switch">
+                        <img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xl logo-xl" />
+                        <img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs" />
+                    </a>
+                }
+
+                <div class="sidebar">
+                    <div class="sidebar-form">
+                        <div id="search-box">
+                            @* <i class="fa fa-search" aria-hidden="true"></i> *@
+                            <input type="text" class="form-control admin-search-box typeahead" placeholder="@T("Admin.Menu.Search")">
+                        </div>
+                    </div>
+                    <nav class="mt-2">
+                        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.SearchBoxBefore })
+                        <script>
+                            $(document).ready(function () {
+                            Admin.Search.init();
+                            });
+                        </script>
+                        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.MenuBefore })
+                        @await Html.PartialAsync("Menu")
+
+                    </nav>
+                </div>
+            </aside>
+        }
+        <div class="content-wrapper content-wrapper-new" style="position: relative;">
+            <div class="custom-page">
+                @await Html.PartialAsync("Notifications")
+                <nop-antiforgery-token />
+                @RenderBody()
+            </div>
+        </div>
+        @if (!storeInformationSettings.HidePoweredByNopCommerce)
+        {
+            <div class="main-footer">
+            <div class="container-fluid">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-xs-12 text-md-left text-center">
+                        </div>
+                        <div class="col-md-4 col-xs-12 text-center">
+                        </div>
+                        <div class="col-md-4 col-xs-12 text-md-right text-center">
+                            Powered by <a href="@(OfficialSite.Main + Utm.OnAdminFooter)" target="_blank">nopCommerce</a>
+                        </div>
+                        @*  @if (!storeInformationSettings.HidePoweredByNopCommerce)
+                        {
+                            <div class="col-md-4 col-xs-12 text-md-left text-center">
+                                @*Would you like to remove the "Powered by nopCommerce" link in the bottom of the footer?
+                                    Please find more info at https://www.nopcommerce.com/nopcommerce-copyright-removal-key * @
+                                Powered by <a href="@(OfficialSite.Main + Utm.OnAdminFooter)" target="_blank">nopCommerce</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-4 col-xs-12"></div>
+                        }
+                        <div class="col-md-4 col-xs-12 text-center">
+                            @((await dateTimeHelper.ConvertToUserTimeAsync(DateTime.Now)).ToString("f", CultureInfo.CurrentCulture))
+                        </div>
+                        <div class="col-md-4 col-xs-12 text-md-right text-center">
+                            <b>nopCommerce version @NopVersion.FULL_VERSION</b>
+                        </div> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    <script>
+        var AdminLTEOptions = {
+            boxWidgetOptions: {
+                boxWidgetIcons: {
+                    collapse: 'fa-minus',
+                    open: 'fa-plus'
+                }
+            }
+        };
+    </script>
+    @{
+        //scroll to a selected card (if specified)
+        var selectedCardName = Html.GetSelectedCardName();
+        if (!String.IsNullOrEmpty(selectedCardName))
+        {
+            <script>
+                location.hash = '#@(selectedCardName)';
+            </script>
+        }
+    }
+    <a id="backTop" class="btn btn-back-top bg-teal"></a>
+    <script>
+        $(document).ready(function () {
+            //enable "back top" arrow
+            $('#backTop').backTop();
+
+            //enable tooltips
+            $('[data-toggle="tooltip"]').tooltip({ placement: 'bottom' });
+
+
+        });
+
+
+        //change darkmode-lightmode
+        $('#DarkModeSwitch').change(function () {
+            var darkmode = $('#DarkModeSwitch').prop('checked');
+            saveUserPreferences(rootAppPath + 'admin/preferences/savepreference', 'admin-theme-darkmode', darkmode);
+
+            if (darkmode == 0) {
+                $("body").removeClass('darkmode');
+                $('#normal-logo').attr('src', '/css/admin/images/logo.png');
+                $('#normal-logo-mini').attr('src', '/css/admin/images/logo-mini.png');
+            }
+            else {
+                $("body").addClass('darkmode');
+                $('#normal-logo').attr('src', '/css/admin/images/logo-dark.png');
+                $('#normal-logo-mini').attr('src', '/css/admin/images/logo-mini.png');
+            }
+
+            window.location.reload(true);
+        });
+    </script>
+
+
+    @*<script>
+
+        const body = document.querySelector('body');
+        const button = document.querySelector('#DarkModeSwitch');
+        function toggleDark() {
+            if (body.classList.contains('darkmode')) {
+                body.classList.remove('darkmode');
+                localStorage.setItem("theme", "light");
+                button.innerHTML = "Turn on dark mode";
+            } else {
+                body.classList.add('darkmode');
+                localStorage.setItem("theme", "darkmode");
+                button.innerHTML = "Turn off dark mode";
+            }
+        }
+
+        if (localStorage.getItem("theme") === "darkmode") {
+            body.classList.add('darkmode');
+            button.innerHTML = "Turn off dark mode";
+        }
+
+        document.querySelector('#DarkModeSwitch').addEventListener('click', toggleDark);
+    </script> *@
+
+    @NopHtml.GenerateScripts(ResourceLocation.Footer)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
+</body>
+</html>

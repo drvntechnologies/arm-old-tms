@@ -1,0 +1,74 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+<div class="card-body carrier-information">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="EstimatedShippingDate" asp-required="Model.EstimatedShippingDateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="EstimatedShippingDate" />
+                            <span asp-validation-for="EstimatedShippingDate"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleRun" asp-required="Model.VehicleRunRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="VehicleRun" asp-items="Model.AvailableVehicleRun" class="form-select form-control" />
+                            <span asp-validation-for="VehicleRun"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="ShipVia" asp-required="Model.ShipViaRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="ShipVia" asp-items="Model.AvailableShipVia" class="form-select form-control" />
+                            <span asp-validation-for="ShipVia"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="ShipperInformation" asp-required="Model.ShipperInformationRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="ShipperInformation" />
+                            <span asp-validation-for="ShipperInformation"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DispatchInstructions" asp-required="Model.DispatchInstructionsRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-textarea asp-for="DispatchInstructions" />
+                            <span asp-validation-for="DispatchInstructions"></span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+           
+        </div>
+
+    </div>
+</div>

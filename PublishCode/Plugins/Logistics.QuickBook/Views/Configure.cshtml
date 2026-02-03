@@ -1,0 +1,118 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<form asp-controller="QuickBook" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Enabled" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Enabled" />
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ProductionUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ProductionUrl" />
+                        <span asp-validation-for="ProductionUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="SandBoxUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="SandBoxUrl" />
+                        <span asp-validation-for="SandBoxUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="IsSandBox" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="IsSandBox" />
+                        <span asp-validation-for="IsSandBox"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ClientId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ClientId" />
+                        <span asp-validation-for="ClientId"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ClientSecret" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ClientSecret" />
+                        <span asp-validation-for="ClientSecret"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="RefreshToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RefreshToken" />
+                        <span asp-validation-for="RefreshToken"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="CompanyId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="CompanyId" />
+                        <span asp-validation-for="CompanyId"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="RedirectUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RedirectUrl" />
+                        <span asp-validation-for="RedirectUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="WebhookVerifierToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="WebhookVerifierToken" />
+                        <span asp-validation-for="WebhookVerifierToken"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ShowLastWebhookReceivedTimeInFooter" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ShowLastWebhookReceivedTimeInFooter" />
+                        <span asp-validation-for="ShowLastWebhookReceivedTimeInFooter"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <input type="submit" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

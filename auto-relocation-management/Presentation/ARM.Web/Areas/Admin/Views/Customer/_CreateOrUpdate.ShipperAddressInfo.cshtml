@@ -1,0 +1,318 @@
+@model CustomerModel
+
+@using Nop.Services
+@using System.Reflection;
+
+<div class="card-body" id="shipperCustomerAddress">
+
+    @foreach (var logisticsShipperCustomerAddressInfo in Model.LogisticsShipperCustomerAddress)
+    {
+        @await Html.PartialAsync("_CreateOrUpdate.AddressInfo", logisticsShipperCustomerAddressInfo)
+    }
+    <div class="row">
+        <button type="button" class="btn btn-primary col-md-2" id="addNewOriginAddress">@T("Admin.Customer.OriginAddress.AddNew")</button>
+    </div>
+</div>
+<script>
+    var removedAddressInfo = 0;
+    var addressInfoCounter = @Model.LogisticsShipperCustomerAddress.Count;
+    $(document).ready(function () {
+        // Counter to keep track of the number of address fields
+        for (let i = 0; i < addressInfoCounter; i++) {
+
+            var addName = 'LogisticsShipperCustomerAddress[' + i + ']';
+            var addId = 'LogisticsShipperCustomerAddress' + i;
+
+            $('#shipperAddress_' + i + ' [name]').each(function () {
+                // Get the current name attribute value
+                var currentName = $(this).attr('name');
+                var currentId = $(this).attr('id');
+
+                // Concatenate the custom string
+                var newName = addName + "." + currentName;
+                var newId = addId + "_" + currentId;
+
+                // Set the new name attribute value
+                $(this).attr('name', newName);
+                $(this).attr('id', newId);
+            });
+            reApplyNumericTextBox(addId);
+        }
+
+        // Add New button click event
+        $('#addNewOriginAddress').click(function () {
+            $.ajax({
+                url: '@Url.Action("AddNewShipperCustomerAddress", "Customer")', // Replace with your controller action
+                data: { index: addressInfoCounter },
+                type: 'get',
+                success: function (partialView) {
+                    $('#shipperCustomerAddress').append(partialView);
+
+                    var addName = 'LogisticsShipperCustomerAddress[' + addressInfoCounter + ']';
+                    var addId = 'LogisticsShipperCustomerAddress' + addressInfoCounter;
+                    $('#shipperAddress_' + addressInfoCounter + ' [name]').each(function () {
+                        // Get the current name attribute value
+                        var currentName = $(this).attr('name');
+                        var currentId = $(this).attr('id');
+
+                        // Concatenate the custom string
+                        var newName = addName + "." + currentName;
+                        var newId = addId + "_" + currentId;
+                        // Set the new name attribute value
+
+                        $(this).attr('name', newName);
+                        $(this).attr('id', newId);
+
+                        if (currentName == "OriginZip") {
+                            $(this).attr('onkeyup', "ZipRequest('" + addId + "','" + newId + "')");
+                        }
+
+                        if (currentName == "DestinationZip") {
+                            $(this).attr('onkeyup', "DestinationZipRequest('" + addId + "','" + newId + "')");
+                        }
+
+                        if (currentName == "OriginCountry") {
+                            $(this).attr('onchange', "originCountryRequest('" + addId + "','" + newId + "')");
+                        }
+                        if (currentName == "DestinationCountry") {
+                            $(this).attr('onchange', "destinationCountryRequest('" + addId + "','" + newId + "')");
+                        }
+
+                        $("select#" + newId).kendoDropDownList({
+                            filter: "contains",
+                            filtering: function (e) {
+                                var filter = e.filter;
+                            }
+                        });
+                    });
+                    reApplyNumericTextBox(addId);
+                    addressInfoCounter++;
+
+                }
+            });
+        });
+    });
+    function RemoveShipperAddress(index) {
+        if ($("#shipperCustomerAddress .shipperCustomerAddressList").length == 1) {
+            toastr.error("@T("Admin.Customer.Fields.OriginAddress.Message.Minimum")");
+
+            return false;
+        }
+
+        var addressId = $('#LogisticsShipperCustomerAddress' + (index - 1) + '_Id').val();
+
+        $.ajax({
+            url: '@Url.Action("RemoveShipperCustomerAddress", "Customer")', // Replace with your controller action
+            data: { index: index, Id: addressId },
+            type: 'get',
+            success: function (partialView) {
+                $('#shipperAddress_' + (index - 1)).remove();
+                removedAddressInfo++;
+                if (removedAddressInfo == addressInfoCounter) {
+                    addressInfoCounter++;
+                    removedAddressInfo++;
+                }
+                reIndexing();
+            }
+        });
+    }
+
+    function reIndexing() {
+        addressInfoCounter = 0;
+        $("#shipperCustomerAddress .shipperCustomerAddressList").each(function () {
+            $(this).find('input, select, button').each(function () {
+                var currentName = $(this).attr('name');
+                var currentId = $(this).attr('id');
+                var addId = 'LogisticsShipperCustomerAddress' + addressInfoCounter;
+                if (currentName != undefined) {
+                    var newName = currentName.replace(/\[\d+\]/, "[" + addressInfoCounter + "]");
+                    $(this).attr('name', newName);
+                }
+                if (currentId != undefined) {
+                    var replacedId = currentId.replace(/\d/g, addressInfoCounter);
+                    $(this).attr('id', replacedId);
+
+                    if (replacedId == addId + "_OriginZip") {
+                        $(this).attr('onkeyup', "ZipRequest('" + addId + "','" + replacedId + "')");
+                    }
+                    if (replacedId == addId + "_DestinationZip") {
+                        $(this).attr('onkeyup', "DestinationZipRequest('" + addId + "','" + replacedId + "')");
+                    }
+                    if (replacedId == "removeAddressBtn") {
+                        var count = addressInfoCounter + 1;
+                        $(this).attr('onclick', 'RemoveShipperAddress(' + count + ')');
+                    }
+                    if (replacedId == addId + "_OriginCountry") {
+                        $(this).attr('onchange', "originCountryRequest('" + addId + "','" + replacedId + "')");
+                    }
+                    if (replacedId == addId + "_DestinationCountry") {
+                        $(this).attr('onchange', "destinationCountryRequest('" + addId + "','" + replacedId + "')");
+                    }
+                }
+            });
+
+            var counter = '@T("Admin.Customer.Fields.OriginAddressCount")';
+            $(this).find(".counter").html(counter.replace("{0}", addressInfoCounter + 1))
+            $(this).attr("id", "shipperAddress_" + addressInfoCounter)
+            addressInfoCounter++;
+        })
+    }
+
+    function reApplyNumericTextBox(Id) {
+    @{
+
+        Type type = typeof(LogisticsShipperCustomerAddressInfoModel);
+
+        foreach (PropertyInfo propInfo in type.GetProperties())
+        {
+            if (propInfo.PropertyType == typeof(decimal?) || propInfo.PropertyType == typeof(decimal))
+            {
+                // The property is of type decimal?
+                string propertyName = propInfo.Name;
+                <text>
+                                        var propertyName = '@propertyName';
+                    var elementId = Id + "_" + propertyName;
+                    var existingNumericTextBox = $("#" + elementId).data("kendoNumericTextBox");
+                    try {
+                        if (!existingNumericTextBox) {
+                            // If the NumericTextBox already exists, destroy it
+                            if ($("#" + elementId).is(":visible") && ($("#" + elementId).attr("type") === "text" || $("#" + elementId).attr("type") === "number")) {
+                                $("#" + elementId).kendoNumericTextBox({
+                                    value: $("#" + elementId).val(),
+                                    decimals: '@(propInfo.PropertyType == typeof(int) || propInfo.PropertyType == typeof(int?))'.toLowerCase() === "true" ? 0 : 2,
+                                    restrictDecimals: true,
+                                    format: '@(propInfo.PropertyType == typeof(int) || propInfo.PropertyType == typeof(int?))'.toLowerCase() === "true" ? "# " : "#.00",
+                                    min: 0
+                                });
+                            } existingNumericTextBox.destroy();
+                        }
+                    }
+                    catch {
+
+                    }
+
+                </text>
+
+            }
+        }
+
+    }
+
+    }
+
+</script>
+<script>
+    function ZipRequest(addId, newId) {
+        if (($("#" + newId).val().length) >= 4) {
+            var txtZipCode = $("#" + newId).val();
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#" + addId + "_OriginCity").val(response.city);
+                    $("#" + addId + "_OriginCountry").data("kendoDropDownList").value(response.country);
+                    $("#" + addId + "_OriginState").data("kendoDropDownList").value(response.state);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            $("#" + addId + "_OriginCity").val("");
+            $("#" + addId + "_OriginCountry").data("kendoDropDownList").value("0");
+            $("#" + addId + "_OriginState").data("kendoDropDownList").value("0");
+        }
+    }
+
+    function DestinationZipRequest(addId, newId) {
+        if (($("#" + newId).val().length) >= 4) {
+            var txtZipCode = $("#" + newId).val();
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#" + addId + "_DestinationCity").val(response.city);
+                    $("#" + addId + "_DestinationCountry").data("kendoDropDownList").value(response.country);
+                    $("#" + addId + "_DestinationState").data("kendoDropDownList").value(response.state);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            $("#" + addId + "_DestinationCity").val("");
+            $("#" + addId + "_DestinationCountry").data("kendoDropDownList").value("0");
+            $("#" + addId + "_DestinationState").data("kendoDropDownList").value("0");
+        }
+    }
+</script>
+
+<script>
+    function originCountryRequest(addId, newId) {
+        var selectedItem = $("#" + newId).data("kendoDropDownList").value();
+        var ddlStates = $("#" + addId + "_OriginState").data("kendoDropDownList");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+            data: {
+                "countryId": selectedItem,
+                "addSelectStateItem": "false"
+            },
+            success: function (data, textStatus, jqXHR) {
+                var dataSource = ddlStates.dataSource;
+                dataSource.data([]);
+                $.each(data,
+                    function (id, option) {
+                        dataSource.add({
+                            text: option.name,
+                            value: option.id
+                        });
+                    });
+                $("#" + addId + "_OriginState").data("kendoDropDownList").value(0);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $("#statesAlert").click();
+            }
+        });
+    }
+
+    function destinationCountryRequest(addId, newId) {
+        var selectedItem = $("#" + newId).data("kendoDropDownList").value();
+        var ddlStates = $("#" + addId + "_DestinationState").data("kendoDropDownList");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+            data: {
+                "countryId": selectedItem,
+                "addSelectStateItem": "false"
+            },
+            success: function (data, textStatus, jqXHR) {
+                var dataSource = ddlStates.dataSource;
+                dataSource.data([]);
+                $.each(data,
+                    function (id, option) {
+                        dataSource.add({
+                            text: option.name,
+                            value: option.id
+                        });
+                    });
+                $("#" + addId + "_DestinationState").data("kendoDropDownList").value(0);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $("#statesAlert").click();
+            }
+        });
+    }
+</script>

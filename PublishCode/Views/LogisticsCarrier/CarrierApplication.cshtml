@@ -1,0 +1,585 @@
+﻿@model Nop.Web.Models.LogisticsCarrier.LogisticsCarrierApplicationModel
+@inject IThemeContext themeContext
+@{
+    Layout = "_ColumnsOne";
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+    //title
+    NopHtml.AddTitleParts(T("LogisticsCarrier.Application.PageTitle.CarrierApplication").Text);
+    //NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/bootstrap.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/font-awesome.min.css");
+}
+
+<script asp-exclude-from-bundle="true" src="~/js/public.carrierapplication.js" asp-location="Footer"></script>
+<link href="~/Themes/@themeName/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="~/Themes/@themeName/Content/css/carrier-application.css" rel="stylesheet" type="text/css" />
+
+<div class="page">
+    <div class="page-body carrier-pg-body">
+        <form asp-route="CarrierApplication" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <main class="carrier-pg">
+                <div class="carrier-bg-area">
+                    <div class="main-cardbox">
+                        <h3>Carrier Setup - 3 Easy Steps!</h3>
+                        <ul class="hidden-dot-listing">
+                            <li><strong class="serif">STEP 1:</strong> Complete the Carrier Application Form.</li>
+                            <li><strong class="serif">STEP 2:</strong> Read the Carrier Agreement and accept the Terms and Conditions.</li>
+                            <li><strong class="serif">STEP 3:</strong> Submit, Email or Fax a copy of your W-9 and Certificate of Insurance.</li>
+                        </ul>
+
+                        <h5>Insurance Requirements:</h5>
+                        <ul class="insurance-info-listing">
+                            <li>
+                                Automobile Liability ("AL")
+                                <ul>
+                                    <li>Minimum Per Truck / $1,000,000</li>
+                                </ul>
+                            </li>
+                            <li>
+                                Motor Truck Cargo ("Cargo")
+                                <ul>
+                                    <li>1 Car Hauler / $50,000</li>
+                                    <li>2-3 Car Hauler / $100,000</li>
+                                    <li>4 Car Hauler / $150,000</li>
+                                    <li>5+ Car Hauler / $250,000</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>
+                                    The certificate must show the cargo insurance deductible, and list Auto Relocation Management as "Certificate Holder".
+                                    Please note: Insurance policies with a binder, declarations certificate or invalid policy numbers (TBA or TBD) will not be processed.
+                                </strong>
+                                <br>
+                                <strong>We do not accept insurance company statements or invoices.</strong>
+                            </li>
+                        </ul>
+                        <br>
+                        <h4>Step 1 - Application Form</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="CompanyLegalName" class="form-label"></label>
+                                    <sup><nop-required /> </sup>
+                                    <input asp-for="CompanyLegalName" class="form-control" />
+                                    <span asp-validation-for="CompanyLegalName"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="DBAName" class="form-label"></label>
+                                    <input asp-for="DBAName" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                     <label class="form-label">Contact Person<sup> <nop-required /></sup></label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input asp-for="ContactPersonFirstName" class="form-control mb-2" placeholder="@T("LogisticsCarrier.Application.Fields.ContactPersonFirstName")" />
+                                            <span asp-validation-for="ContactPersonFirstName"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input asp-for="ContactPersonLastName" class="form-control mb-2" placeholder="@T("LogisticsCarrier.Application.Fields.ContactPersonLastName")" />
+                                            <span asp-validation-for="ContactPersonLastName"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="ContactNumber" class="form-label"></label>
+                                    <sup> <nop-required /></sup>
+                                    <input asp-for="ContactNumber" class="form-control" />
+                                    <span asp-validation-for="ContactNumber"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="form-label">Payment Address <sup> <nop-required /></sup></label>
+                                    <input asp-for="StreetAddress" class="form-control mb-2" placeholder="@T("LogisticsCarrier.Application.Fields.StreetAddress")" />
+                                    <span asp-validation-for="StreetAddress"></span>
+                                    <input asp-for="StreetAddress2" class="form-control mb-2" placeholder="@T("LogisticsCarrier.Application.Fields.StreetAddress2")" />
+                                    <span asp-validation-for="StreetAddress2"></span>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input asp-for="City" class="form-control mb-2" placeholder="@T("LogisticsCarrier.Application.Fields.City")" />
+                                            <span asp-validation-for="City"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                            <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                            <span asp-validation-for="StateProvinceId"></span>
+                                        </div>
+                                    </div>
+                                    <input asp-for="ZipPostalCode" class="form-control" placeholder="@T("LogisticsCarrier.Application.Fields.ZipPostalCode")" />
+                                    <span asp-validation-for="ZipPostalCode"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6"></div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="PaymentFaxNumber" class="form-label"></label>
+                                    <input asp-for="PaymentFaxNumber" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="AlternateFaxNumber" class="form-label"></label>
+                                    <input asp-for="AlternateFaxNumber" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="PaymentEmailAddress" class="form-label"></label>
+                                    <sup><nop-required /></sup>
+                                    <input asp-for="PaymentEmailAddress" class="form-control" />
+                                    <span asp-validation-for="PaymentEmailAddress"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="AlternateEmailAddress" class="form-label"></label>
+                                    <input asp-for="AlternateEmailAddress" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="InsuranceAgentsName" class="form-label"></label>
+                                    <sup><nop-required /></sup>
+                                    <input asp-for="InsuranceAgentsName" class="form-control" />
+                                    <span asp-validation-for="InsuranceAgentsName"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="InsuranceAgentsPhone" class="form-label"></label>
+                                    <input asp-for="InsuranceAgentsPhone" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="ICCNumberMC" class="form-label"></label>
+                                    <sup><nop-required /></sup>
+                                    <input asp-for="ICCNumberMC" class="form-control" />
+                                    <span asp-validation-for="ICCNumberMC"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="DOTNumber" class="form-label"></label>
+                                    <input asp-for="DOTNumber" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <p>I give my permission to Auto Relocation Management to be named as a Certificate Holder on my Insurance Policies and to discuss my coverage with prospective auto shippers. I hereby give these consents and permissions and certify the accuracy of the above information.</p>
+                        <br>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="SignerName" class="form-label"></label>
+                                    <sup><nop-required /></sup>
+                                    <input asp-for="SignerName" class="form-control" />
+                                    <span asp-validation-for="SignerName"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label asp-for="SignerTitle" class="form-label"></label>
+                                    <sup><nop-required /></sup>
+                                    <input asp-for="SignerTitle" class="form-control" />
+                                    <span asp-validation-for="SignerTitle"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4 pe-0">
+                                <strong>Transport Tie Down Requirements:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <p>Auto Relocation Management frequently requires the use of over-the-tire-straps to secure vehicles. Any undercarriage damaged caused by the use of chains will be charged to the transporter.</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h4>Number of Trucks</h4>
+                                <div class="form-group mb-2">
+                                    <label asp-for="FirstCarHaulerType" class="form-label"></label>
+                                    <select asp-for="FirstCarHaulerType" asp-items="Model.AvailableCarHaulerTypes" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label asp-for="SecondCarHaulerType" class="form-label"></label>
+                                    <select asp-for="SecondCarHaulerType" asp-items="Model.AvailableCarHaulerTypes" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label asp-for="ThirdCarHaulerType" class="form-label"></label>
+                                    <select asp-for="ThirdCarHaulerType" asp-items="Model.AvailableCarHaulerTypes" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label asp-for="ForthCarHaulerType" class="form-label"></label>
+                                    <select asp-for="ForthCarHaulerType" asp-items="Model.AvailableCarHaulerTypes" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label asp-for="FifthCarHaulerType" class="form-label"></label>
+                                    <select asp-for="FifthCarHaulerType" asp-items="Model.AvailableCarHaulerTypes" class="form-select form-select-md mb-3" aria-label=".form-select-lg example"></select>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Transport Type</h5>
+                                <div class="row">
+
+                                    @foreach (var item in Model.AvailableTransportTypes)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <div class="chkTransportType">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               name="SelectedTransportTypes"
+                                                               value="@item.Value"
+                                                                            @if (Model.SelectedTransportTypes.Contains(item.Value))
+                                                                            {
+                                                                                <text> checked </text>
+                                                                            }
+                                                        />
+                                                         @if (item.Value == "Other")
+                                                                            {
+                                                            <input asp-for="TransportTypeOther" placeholder="Other" class="w-100 form-control" />
+                                                                            }
+                                                                            else{
+                                                        @item.Text}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @*<input asp-for="TransportTypeOther" asp-disabled="true" placeholder="Other" />*@
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Equipment Types</h5>
+                                <div class="row">
+                                    @foreach (var item in Model.AvailableEquipmentTypes)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <div class="">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               name="SelectedEquipmentTypes"
+                                                               value="@item.Value"
+                                                                            @if (Model.SelectedEquipmentTypes.Contains(item.Value))
+                                                                            {
+                                                                                <text> checked </text>
+                                                                            }
+                                                        /> @if (item.Value == "Other")
+                                                                            {
+                                                            <input asp-for="EquipmentTypeOther" placeholder="Other" class="w-100 form-control" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @item.Text
+                                                                            }
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @*<input asp-for="EquipmentTypeOther" asp-disabled="true" placeholder="Other" />*@
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h5><label asp-for="PrefferedRoutes"></label></h5>
+                                <textarea asp-for="PrefferedRoutes" rows="3" class="form-control"> </textarea>
+                                <br>
+                                <p>*Please note: wheel lifts are <u>PROHIBITED</u></p>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <h4>Step 2 - Carrier Agreement</h4>
+                        <p class="disc-p-tg">This TRANSPORT SERVICES AGREEMENT (this “Agreement”) is effective as of the date signed and accepted by Auto Relocation Management as indicated on the signature page of this Agreement (the "Effective Date"). , between Auto Relocation Management, LLC, a Missouri limited liability company (“Auto Relocation Management”), and a broker who is authorized by its customers to negotiate and arrange for transportation of their shipments in interstate commerce, with offices located at (102 4th st, Hillsboro, MO 63050) and the undersigned entity (the "TRANSPORT COMPANY").     ANY AND ALL LAW SUITS WILL BE HELD IN SAINT LOUIS, MO COUNTY. </p>
+
+                        <p class="disc-p-tg">
+                            <span>1.</span>&nbsp;&nbsp;&nbsp;<b>OPERATING  AUTHORITY AND COMPLIANCE WITH LAW.</b> TRANSPORT COMPANY represents and warrants that it is in the business of and has knowledge and experience with respect to, the interstate transportation of motor vehicles and that it possesses all licenses, permits and authority under both federal and state requirements to legally perform all services to be provided under this Agreement, including the transportation of  automotive freight  throughout the  lower  FORTY‐EIGHT  (48)  contiguous  states of the United States of America (the “Services”). TRANSPORT COMPANY further represents and warrants that it is, and will remain in good standing with the Federal Motor Carrier Safety Administration (“FMCSA”) as a for‐ hire motor carrier. TRANSPORT COMPANY shall provide all equipment to be used in the performance of the Services, which such equipment shall be maintained by TRANSPORT COMPANY in good order and condition and in accordance with all applicable laws, rules, and regulations. TRANSPORT COMPANY shall be solely responsible for the performance of the Services and all costs and expense related thereto including, but not limited to, costs for license plates, insurance, fuel, fuel tax, and highway use tax, wages, etc. If TRANSPORT COMPANY is providing Drive‐Away Services (as defined in Section 2 below), TRANSPORT COMPANY will provide an appropriate license plate and will ensure that its auto liability insurance covers the operation of vehicles being transported in this manner. TRANSPORT COMPANY warrants and represents that no passengers  will  be  allowed  in  any  vehicle  being  operated  pursuant  to  this  Agreement.  TRANSPORT COMPANY further warrants that it will not transport, store or treat any illegal, hazardous or toxic substances or wastes to, from, or at the origin or destination points and that it will not otherwise cause any nuisance at any such location.
+                        </p>
+
+                        <p class="disc-p-tg"><span>2.</span>&nbsp;&nbsp;&nbsp;<b>SERVICES.</b>TRANSPORT COMPANY agrees to provide the Services in the manner as ordered from time to time by Auto Relocation Management during the Term of this Agreement, which Services may include provision of drive‐ away service whereby TRANSPORT COMPANY is operating the vehicles to be transported (“Drive‐Away Services”). Notwithstanding the foregoing, TRANSPORT COMPANY will not perform the Drive‐Away Services unless expressly requested by Auto Relocation Management in writing (including, but not limited to, in the applicable transportation order) with respect to the movement in question. TRANSPORT COMPANY agrees to perform such Services in a timely manner and in accordance with all applicable federal, state and local laws, regulations and ordinances. TRANSPORT COMPANY warrants and represents that all personnel performing the Services will be  fully  licensed  and  qualified  to  perform  such  Services  in  accordance  with  all  applicable  laws  and TRANSPORT COMPANY shall be responsible for all acts or omissions of any such personnel as if they were employees of TRANSPORT COMPANY and all such personnel will be under the exclusive direction and control of TRANSPORT COMPANY. TRANSPORT COMPANY shall obtain a legible name and signature on a completed condition report of vehicle (whether in electronic or paper format) at pick up. TRANSPORT COMPANY  shall  also  obtain  a  legible  name  and signature  on a  completed  condition report  of vehicle (whether in electronic or paper format) at delivery. Any and all damage claims resulting from or involving incomplete condition reports or bills of lading (including, but not limited to, electronic versions of such documents) will be the responsibility of TRANSPORT COMPANY and any loss or damage with respect to shipments where TRANSPORT COMPANY fails to obtain completed bills of lading or condition reports will be deemed to have occurred during transit by TRANSPORT COMPANY. In no event will any tariff, terms or conditions (including those on the bill of lading), service guide, or other documentation maintained or issued by TRANSPORT COMPANY apply to the Services provided to Auto Relocation Management or its customers under this Agreement.  This  Agreement  does  not  obligate  Auto Relocation Management to  tender  any  minimum  volume  of  cargo  to TRANSPORT COMPANY.</p>
+
+                        <p class="disc-p-tg"><span>3.</span>&nbsp;&nbsp;&nbsp;<b>FEES.</b>Auto Relocation Management  shall pay to TRANSPORT  COMPANY such  fees  for  its  performance of the Services provided under this Agreement as agreed upon by Auto Relocation Management and TRANSPORT COMPANY and confirmed in a written transport order sent by Auto Relocation Management to TRANSPORT COMPANY, or any supplement or revision thereto. TRANSPORT COMPANY shall sign and return any such order to Auto Relocation Management prior to pick‐up or, as the case may be issue  such  electronic  or  digital  acknowledgment  of  the  transport  order,  but  if  TRANSPORT  COMPANY accepts  any  shipment that  is  subject  to  an order, TRANSPORT  COMPANY  will  be  bound  by the order regardless of whether TRANSPORT COMPANY signs the order. TRANSPORT COMPANY shall bill Auto Relocation Management no later than forty eight (48) hours after delivery of the applicable shipment. Notwithstanding the foregoing, Auto Relocation Management  may,  in  its  sole  discretion,  waive  the  invoice  requirement  by  developing  or  otherwise  making available to TRANSPORT COMPANY an electronic application to be used to facilitate communication and exchange of documentation related to services. Auto Relocation Management shall employ the method of payment agreed to a dispatch of shipment or, if no such agreement is reached, then via means otherwise acceptable to Auto Relocation Management. Auto Relocation Management shall pay TRANSPORT COMPANY within a reasonable time after confirming that delivery of shipment has occurred and that no damage to the freight has occurred or other claims of loss have occurred during transport. If Auto Relocation Management remits payment to TRANSPORT COMPANY without receiving an invoice from TRANSPORT COMPANY, TRANSPORT COMPANY acknowledges and agrees that the payment received from Auto Relocation Management is correct unless TRANSPORT COMPANY disputes the amount of such payment within sixty (60) days of issuance. Auto Relocation Management reserves the right to withhold or offset payment with respect to amounts for which TRANSPORT COMPANY is liable under this Agreement. Auto Relocation Management shall charge TRANSPORT COMPANY or offset a fee of $25 if TRANSPORT COMPANY first invoices Auto Relocation Management for unbilled shipments more than ninety (90) days following the pick‐up date. Auto Relocation Management shall have no responsibility for payment of invoices for a shipment that was dispatched at least one hundred and eighty (180) days prior to Auto Relocation Management’s receipt of the invoice. In no event will TRANSPORT COMPANY seek payment of any amounts due or alleged to be due under this Agreement from any third party including, but not limited to, any provider or customer of Auto Relocation Management. TRANSPORT COMPANY shall have no lien on any vehicles or other cargo transported hereunder.  Auto Relocation Management does not pay any Dry Run Fee's for vehicles not ready at the pickup location. Carriers do not have the authority to hold a unit or charge storage fees in any circumstances. You MUST notify Auto Relocation Management if there are any issues with delivering the unit immediately. If a carrier takes a unit to their carrier storage facility due to no other options, the carrier must send Auto Relocation Management a written formal notice. Once Auto Relocation Management acknowledges receiving the written formal notice, Auto Relocation Management has 14 business days to resolve the issue before any fees accumulate. Shall Auto Relocation Management fail to pick the unit up from the carriers storage location within that 14 business day period, the carrier has the right to start charging Auto Relocation Management $25 a day ONLY for storage fees. This notion will be void shall there be no acknowledgment from Auto Relocation Management via formal written documentation, and Auto Relocation Management will not be held responsible for any expenses.</p>
+
+                        <p class="disc-p-tg"><span>4.</span>&nbsp;&nbsp;&nbsp;<b>TERM.</b>The term of this Agreement shall begin on the Effective Date and shall continue for a period of five (5) years (the “Term”). The Term shall automatically extend for additional terms of one (1) year each, unless terminated by either party by written notice within the ninety (90) day period prior to the end of the then current term. Notwithstanding the foregoing, either party may terminate this Agreement at any time upon thirty (30) days’ written notice to the other party.</p>
+
+                        <p class="disc-p-tg"><span>5.</span>&nbsp;&nbsp;&nbsp;<b>RECEIPTS AND BILLS OF LADING.</b>TRANSPORT COMPANY agrees to provide evidence of pickup in the form designated by Auto Relocation Management, indicating the quantity of vehicles picked up and the description and condition of each vehicle in the shipment. TRANSPORT COMPANY further agrees to provide evidence of delivery in the form designated by Auto Relocation Management, indicating the quantity of vehicles delivered and the description and condition of each vehicle delivered, with such evidence accepted and acknowledged by the recipient of the shipment in writing. TRANSPORT COMPANY will deliver such evidence to Auto Relocation Management within forty eight (48) hours of shipment delivery.</p>
+
+                        <p class="disc-p-tg"><span>6.</span>&nbsp;&nbsp;&nbsp;<b>INSURANCE.</b>TRANSPORT COMPANY shall obtain and maintain in full force and effect, at all times during which it provides Services under this Agreement, all insurance required under any federal, state or local law, including without limitation, the United States Department of Transportation, and will also comply with the requirements set forth on Exhibit A attached hereto, as such minimum coverage requirements may be amended from time to time by Auto Relocation Management by written notice to TRANSPORT COMPANY.</p>
+
+                        <p class="disc-p-tg">
+                            <span>7.</span>&nbsp;&nbsp;&nbsp;<b>GENERAL  PROCEDURES.</b>TRANSPORT  COMPANY  shall  follow  Auto Relocation Management’s General  Procedures  for Carriers, as amended by Auto Relocation Management from time to time, a current copy of which is attached hereto as Exhibit B, in performing Services under this Agreement. If TRANSPORT COMPANY fails to comply with such procedures, in addition to, and without in any way limiting, any other right or remedy of Auto Relocation Management, or its customer, Auto Relocation Management may assess a non‐compliance fee in an amount of up to $100.00, which non‐compliance fee shall be applied against the fees paid to TRANSPORT COMPANY by Auto Relocation Management for Services performed under this Agreement. Never asking Origin or Destination for payment as the payment will be issued by Auto Relocation Management. Failure to follow, may result in a probation period.
+                            <br>
+                            All Services provided by TRANSPORT COMPANY shall be provided in its capacity as an independent contractor. In no event will the relationship of Auto Relocation Management and TRANSPORT COMPANY be deemed to be any other than that of independent contractors including, but not limited to, a relationship of joint venturers, employer/employee, principal/agent, or partners. In no event will any personnel used by TRANSPORT COMPANY in performance of Services hereunder be deemed to be an employee of Auto Relocation Management or any of Auto Relocation Management’s affiliates, and TRANSPORT COMPANY agrees to defend, indemnify, and hold harmless Auto Relocation Management, its affiliates, and each of their officers, directors, agents and employees from and against any and all Claims arising from or related to any attempt by any personnel used by TRANSPORT COMPANY in the performance of Services hereunder to seek employment status or any rights, benefits or protections afforded by such status, from Auto Relocation Management or any of its affiliated entities. I acknowledge in signing this agreement, ARM will be paying untaxed money to the my entity. I acknowledge RESPONSIBILITY  of taxes owed to any agency are at the expense of my entity. I fully UNDERSTAND I am completely responsible for taxes.
+                        </p>
+
+                        <p class="disc-p-tg"><span>8.</span>&nbsp;&nbsp;&nbsp;<b>CARGO LOSS AND DAMAGE.</b>TRANSPORT COMPANY will be liable for all loss or damage to any cargo tendered by Auto Relocation Management pursuant to this Agreement as a “carrier” pursuant to the Carmack Amendment as currently codified at 49 U.S.C. §14706 and as amended from time to time. TRANSPORT COMPANY’s liability will be for the lesser of the cost of repair or the retail value of the cargo so lost, damaged or destroyed, as determined  by  the NADA Guide Clean Retail  Value.  No limitation of liability will apply to TRANSPORT COMPANY’s liability under this provision. All claims will be processed in accordance with 49 C.F.R. Part 370, except that TRANSPORT COMPANY will pay, deny or otherwise settle all claims within forty‐five (45) days of the date of the claim.  Auto Relocation Management will also HOLD PAY in the event of a Damage Claim.</p>
+
+                        <p class="disc-p-tg"><span>9.</span>&nbsp;&nbsp;&nbsp;<b>INDEMNITY.</b>TRANSPORT  COMPANY  shall  indemnify,  defend  and  hold  Auto Relocation Management,  its  customers, suppliers (including, but not limited to, vehicle auctions) and each of their officers, directors, employees, contractors and agents harmless for, from and against any and all claims, damages, losses, fines, costs (including attorney fees) and liabilities of any kind (“Claims”), including, without limitation, Claims arising out of the breach of this Agreement by TRANSPORT COMPANY, injuries or death to persons, damage to or loss of freight or other property, Claims arising from bills of lading or other documentation, Claims related to employment benefits brought by individuals used by TRANSPORT COMPANY in the provision of services hereunder, and other Claims arising out of the performance of Services under this Agreement, except to the extent such Claims are directly and proximately caused by the negligence or intentional misconduct of the party seeking defense, or indemnity. As used in this Section  8, the term TRANSPORT COMPANY shall mean TRANSPORT COMPANY, its officers, directors, members, employees, independent contractors, subcontractors, agents, successors and assigns. As used in this Section  8, the term Auto Relocation Management shall mean Auto Relocation Management, its customers, officers, directors, members, employees, independent contractors, subcontractors, agents, successors and assigns. All entities and individuals entitled to defense or indemnity under this provision shall be third‐party beneficiaries of this provision.</p>
+
+                        <p class="disc-p-tg"><span>10.</span>&nbsp;&nbsp;&nbsp;<b>NON‐SOLICITATION OF Auto Relocation Management CUSTOMERS.</b>TRANSPORT COMPANY shall not, during the Term and for a period of twelve (12) months thereafter, solicit or accept automotive freight transportation business, directly or indirectly, from any shipper, consignor, consignee or customer of Auto Relocation Management for which Auto Relocation Management orders Services from TRANSPORT COMPANY under this Agreement, unless TRANSPORT COMPANY previously performed automotive freight transportation services for such party prior to the Effective Date. In the event of  a  breach  of  this  Section    9  by  TRANSPORT  COMPANY,  Auto Relocation Management shall  be  entitled  to  injunctive  relief prohibiting such breach and, in addition, as liquidated damages and not as a penalty, a sum equal to twenty percent (20%) of the gross revenue resulting from transportation services provided to such customer in violation of this Section  9. TRANSPORT COMPANY agrees to provide any and all documentation requested by Auto Relocation Management to verify such revenue.</p>
+
+                        <p class="disc-p-tg"><span>11.</span>&nbsp;&nbsp;&nbsp;<b>AUDIT RIGHTS.</b>TRANSPORT COMPANY acknowledges and consents to Auto Relocation Management performing audits, due diligence, and investigative activity, with or without notice to TRANSPORT COMPANY, related to TRANSPORT COMPANY’s compliance with the terms of this agreement and the conditions set forth herein, either during the on‐boarding stage or from time to time thereafter as Auto Relocation Management reasonably determines prudent. The costs of any such activity will be borne by Auto Relocation Management (to the extent Auto Relocation Management incurs any out of pocket expenses in connection with the activity audit) unless the activity reveals that TRANSPORT COMPANY is in material breach of this Agreement, in which case (i) Auto Relocation Management may terminate this Agreement immediately, (ii) TRANSPORT COMPANY will pay Auto Relocation Management on demand for any costs incurred in connection with the activity, and (iii) Auto Relocation Management may pursue any other rights or remedies available to Auto Relocation Management under this Agreement, at law, in equity or otherwise.</p>
+
+                        <p class="disc-p-tg"><span>12.</span>&nbsp;&nbsp;&nbsp;<b>BACKGROUND SCREENING.</b>TRANSPORT COMPANY agrees to conduct a background screening of its driver personnel prior to such driving performing Services under this Agreement. The screen shall include, but not be limited to, a social security verification check, criminal history check and motor vehicle report check. TRANSPORT COMPANY agrees to: (i) perform, at least once every twenty‐four (24) months, a seven (7) year criminal background and OFAC check on all individuals providing Services hereunder on behalf of TRANSPORT COMPANY that will come into direct contact with any of Auto Relocation Management’s customers or any vehicles to be transported hereunder; and (ii) not to use any such individual(s) in connection with the provision of Services, if such criminal background check reveals: (1) a discrepancy in the individual’s social security number or address; (2) that such person was charged or convicted for, or otherwise pleaded no contest to, any felony, including without limitation, any matter involving controlled substances (or alcohol abuse), assault or battery, threats, harassment or stalking, dishonesty (e.g., theft, fraud, embezzlement), dangerous weapons, kidnapping, extortion or bribery, offenses related to intellectual property, and computer related crimes. Auto Relocation Management and the TRANSPORT COMPANY shall ensure that all such checks are performed in accordance with all applicable laws and regulations. TRANSPORT COMPANY will check the motor vehicle report of each driver providing Services under this Agreement at least annually to ensure that the driver remains eligible to perform Services in accordance with all applicable laws, rules and regulations, as well as any standards that TRANSPORT COMPANY imposes on its driver personnel.</p>
+
+                        <p class="disc-p-tg"><span>13.</span>&nbsp;&nbsp;&nbsp;<b>BROKERING PROHIBITION.</b>TRANSPORT COMPANY agrees that the Services provided procured pursuant to this Agreement shall be performed solely by equipment operating pursuant to TRANSPORT COMPANY’s for‐hire motor carrier operating authorities. TRANSPORT COMPANY expressly agrees not to broker or subcontract shipments tendered by Auto Relocation Management to any third‐party without first obtaining express prior written consent from Auto Relocation Management for each shipment. If TRANSPORT COMPANY subcontracts any portion of the Services to any third‐party, regardless of whether it reserved authorization to do so and without limiting any other remedy of Auto Relocation Management, Auto Relocation Management may remit payment to the party actually performing the Services, which payment will relieve Auto Relocation Management of any obligation to pay TRANSPORT COMPANY with respect to such Services.</p>
+
+                        <p class="disc-p-tg"><span>14.</span>&nbsp;&nbsp;&nbsp;<b>SEVERABILITY.</b>In the event that any portion of this Agreement is held to be unenforceable by a court  of  competent  jurisdiction,  the  parties  agree  that  such  portion  shall  be  severable  and  that  the remaining provisions of this Agreement shall continue in force and effect.</p>
+
+                        <p class="disc-p-tg"><span>15.</span>&nbsp;&nbsp;&nbsp;<b>ASSIGNMENT OF AGREEMENT.</b>This Agreement may not be assigned or transferred in whole or in part without the written consent of Auto Relocation Management. This Agreement may not be modified except in writing signed by both parties.</p>
+
+                        <p class="disc-p-tg"><span>16.</span>&nbsp;&nbsp;&nbsp;<b>GOVERNANCE.</b>This Agreement shall be governed by the laws of the state of Missouri and applicable federal  laws.  Any  action  or  claims  brought  under  this  Agreement  shall  be  brought  and  maintained exclusively in the courts of appropriate jurisdiction serving Jefferson County, MO hereby consent to the jurisdiction of such courts and waive any challenge to jurisdiction of or venue in such courts. The parties hereby waive any and all rights and remedies provided by Part B for Subtitle IV of Title 49 to the U.S. Code to the extent any such rights and remedies conflict with this Agreement.</p>
+
+                        <p class="disc-p-tg"><span>17.</span>&nbsp;&nbsp;&nbsp;<b>FINAL AGREEMENT.</b>This Agreement constitutes the final and complete agreement between the parties relating to the transportation of automotive freight by TRANSPORT COMPANY for Auto Relocation Management and this Agreement supersedes all prior negotiations, discussions and agreements, oral or written, relating thereto. Auto Relocation Management failure to enforce or insist upon any right or remedy under this Agreement, or any obligation of TRANSPORT  COMPANY  (including,  but  not  limited to,  any of  TRANSPORT  COMPANY’s  obligations  with respect to required insurance coverages), shall not be deemed a waiver of Auto Relocation Management right to enforce such rights, remedies or TRANSPORT COMPANY obligation.</p>
+
+                        <p class="disc-p-tg"><span>18.</span>&nbsp;&nbsp;&nbsp;<b>ATTORNEY’S FEES.</b> In the event of a breach of this Agreement by either party, the breaching party shall pay all attorney’s fees and court costs incurred by the non‐breaching party with respect to such breach whether or not suit is instituted. This TRANSPORT SERVICES AGREEMENT (this “Agreement”) is entered as of the date signed and accepted by Auto Relocation Management as indicated on the signature page of this Agreement (the "Effective Date"). , between Auto Relocation Management, LLC, a Missouri limited liability company (“Auto Relocation Management”), and a broker who is authorized by its customers to negotiate and arrange for transportation of their shipments in interstate commerce, with offices located at (102 4th st, Hillsboro, MO 63050) and the undersigned entity (the "TRANSPORT COMPANY").</p>
+
+                        <br>
+                        <br>
+                        <p>This TRANSPORT SERVICES AGREEMENT (this “Agreement”) is effective as of the date signed and accepted by Auto Relocation Management as indicated on the signature page of this Agreement (the "Effective Date"). , between Auto Relocation Management, LLC, a Missouri limited liability company (“Auto Relocation Management”), and a broker who is authorized by its customers to negotiate and arrange for transportation of their shipments in interstate commerce, with offices located at (102 4th st, Hillsboro, MO 63050) and the undersigned entity (the "TRANSPORT COMPANY").</p>
+                        <br>
+
+                        <div>
+                            This Broker/Carrier Agreement is being entered into by and between <input asp-for="BrokerName" class="brokername"  /> a (hereinafter referred to as “BROKER”), and <input asp-for="CarrierName"  class="carriername"  /> , (hereinafter referred to as “CARRIER”) as defined below, on this
+                                <nop-date-picker asp-day-name="@Html.NameFor(x => x.DateOfAggrementDay)"
+                                                 asp-month-name="@Html.NameFor(x => x.DateOfAggrementMonth)"
+                                                 asp-year-name="@Html.NameFor(x => x.DateOfAggrementYear)"
+                                                 asp-begin-year="@(DateTime.Now.AddYears(-110))"
+                                                 asp-end-year="@(DateTime.UtcNow)"
+                                                 asp-selected-date="@Model.ParseDateOfAggrement()" /> </div>
+                            
+                            
+                        
+                        <p>I. PARTIES</p>
+                        <p>A. <input asp-for="PartiesBrokerName" class="parties-brokername"  /> is the “Broker” as that term is defined under 49 U.S.C. § 13102(2) or any regulation, amendment or renumbered law by which the United States or any agency thereof defines a freight broker and any applicable federal or state regulations, statutes, decisional law or administrative law. BROKER will arrange for the freight tendered by a shipper to be transported by CARRIER under the means, manner, method, and terms selected by the shipper or CARRIER, but BROKER is not engaged in the business of and will not act as a “Carrier,” “Motor Carrier,” or “Freight Forwarder,” as those terms are defined under 49 U.S.C. § 13102, and BROKER is not engaged in the business of and will not act as a “Rail Carrier” as that term is defined under 49 U.S.C. § 11706.</p>
+                        <p>B. <input asp-for="PartiesCarrierName" class="parties-carriername"  /> is the “CARRIER,” and hereby agrees to transport freight identified by BROKER as requiring transportation services.</p>
+                        <p>C. BROKER and CARRIER will sometimes be referred to collectively as “The Parties.”</p>
+
+                        <p>II. RECITALS</p>
+                        <p>1. Term- The term of this Agreement shall be one (1) year, commencing on the date listed above. If not cancelled by one of The Parties, the Agreement shall automatically renew itself for consecutive one year terms. The Agreement can be terminated at any time by either of The Parties with thirty (30) days written or electronic notice to the other party, provided all balances are settled, and the termination can be with or without cause.</p>
+                        <p>2. Broker Requirements- BROKER warrants that it is licensed to arrange for the transportation of freight pursuant to license number MC-<input asp-for="MCNumber" class="mc-number"  /> , but that it does not transport freight, and that it will maintain such authority as required by all applicable federal and state laws and regulations throughout the course of this Agreement. BROKER also warrants that it will maintain a surety bond or trust fund agreement as required by the Federal Motor Carrier Safety Administration in the amount of $75,000.00 or in such amount as may be amended from time to time and furnish CARRIER with proof of same upon request.</p>
+
+                        <p>
+                            3. Broker Obligations- Broker shall pay CARRIER for services rendered in an amount equal to the rates and charges agreed to as set forth on any Load<br>
+                            Auto Relocation Management, LLC dba Auto Relocation Management Limited Liability Company<br>
+                            Auto Relocation Management, LLC dba Auto Relocation Management<br>
+                            20733
+                        </p>
+
+                        <p>Confirmation(s) that is issued and that supplements and amends this Agreement to the extent its terms conflict with those in this Agreement. This Agreement or the Load Confirmation also governs all assessorial services which may be required or performed. CARRIER shall not bill for any accessorial or other charge not approved in this Agreement or in any Load Confirmation(s). Rates may be amended orally but must be confirmed in writing within five working days of the modification in order to remain binding between the PARTIES. As a condition precedent to payment, CARRIER must submit proof of delivery with its invoices, and the invoices must reflect that CARRIER delivered the freight to its final destination.</p>
+                        <p>
+                            a. BROKER agrees to arrange for the transportation of a shipper’s freight with CARRIER pursuant to the terms of this Agreement, and to comply with all federal, state, and local laws and regulations pertaining to the brokerage services covered by this Agreement.<br>
+                            b. The Parties agree that BROKER’S responsibilities under this Agreement are limited to arranging for the transportation of a shipper’s freight with CARRIER, and not actually performing the transportation services, possessing the freight, or controlling the means or methods of the transportation.
+                        </p>
+                        <p>
+                            4. Carrier Obligations - CARRIER warrants that at all times during this Agreement it will act as a “motor carrier,” as that term is defined under 49 U.S.C. § 13102 and any applicable federal or state regulations, statutes, decisional law or administrative law. CARRIER further warrants that at all times during this Agreement it will remain licensed and authorized by the Federal Motor Carrier Safety Administration to provide interstate transportation services or that it provides only intrastate service and complies with all applicable state registration requirements, and warrants that it will maintain insurance or otherwise demonstrate financial responsibility in accordance with all applicable federal and state regulations.  <br>
+                            CARRIER is solely responsible for the operation of the equipment, actions of the driver, any other persons associated with the operation of the equipment, transportation of freight, securement or any other aspect of actions of a motor carrier as that term is defined by law. CARRIER is solely responsible for the safety and operation of the equipment, and the actions of all drivers and other persons or entities responsible for the transportation of freight. Nothing in this Agreement abrogates the responsibility of the CARRIER to operate safely and in accordance with all law and good accepted best practices of a motor carrier.<br>
+                            CARRIER represents that it is in compliance with and shall maintain, during the terms of this Agreement, compliance with all applicable federal, state and local laws relating to the provision of its services.<br>
+                            CARRIER will notify BROKER immediately if its federal Operating Authority is revoked, suspended or rendered inactive for any reason; and/or if it is sold, or if there is a change in control of ownership, and/or any insurance required hereunder is threatened to be or is terminated, cancelled (whether by an insurer or surety provider by CARRIER, or by any person or entity), suspended, or revoked for any reason.<br>
+                            a. CARRIER agrees it will not have a U.S. DOT safety rating or evaluation of unsatisfactory or conditional. Any change in CARRIER’S safety rating requires immediate written notification to BROKER. CARRIER may not have an unsatisfactory or conditional rating under any rating system. If CARRIER’S rating becomes conditional or unsatisfactory, CARRIER is no longer authorized as a CARRIER under this Agreement.<br>
+                            b. Upon reasonable demand, CARRIER shall provide to BROKER copies of its DOT Operating Authority, Policy of Insurance, including all endorsements, Certificate of Insurance, surety, and financial responsibility
+                        <p>
+                        <p>
+                            4. Food Protocols<br>
+                            All equipment provided for the transportation of food or food grade products will comply with the requirements of The Sanitary Food Transportation Act, or, to the extent that CARRIER performs services hereunder within, or to or from Canada, the Food and Drug Acts and any/all other applicable statutes and regulations, including, but not limited to the Ontario Food Safety and Quality Act, 2001, or any other jurisdiction's equivalent, and none of the equipment so provided has been or will be used for the transportation of any waste of any kind, garbage, hazardous materials, poisons, pesticides, herbicides, or any other commodity that might adulterate or contaminate food, food products or cosmetics.<br>
+                            Where a seal is placed on a trailer by consignor, shipper, CARRIER or other party, CARRIER is responsible to maintain the seal intact until removed by an authorized employee of consignee upon delivery. CARRIER is liable for any and all claims, losses, or liabilities arising from or as a result of any unauthorized removal of seal, broken seal, missing seal, tampered seal, or mismatched seal number. CARRIER is solely responsible for ensuring that cargo is maintained according to any requirements stated on the bill of lading or load confirmation<br>
+                            CARRIER must ensure that all personnel transporting or handling freight subject to the Food Safety Modernization Act of 2011 and its implementing regulations (collectively the “Act”), receive training required by the Act. BROKER will transmit to CARRIER, on the Load Confirmation or separately by email, the shipper’s or consignee’s protocols and requirements for transporting food shipments subject to the Act. CARRIER must strictly comply with all such protocols and requirements. CARRIER’S failure to comply with such protocols and requirements will permit the consignor, consignee, or broker to declare any freight transported on a shipment on which noncompliance occurred to be rejected and a total loss.
+                        <p>
+                        <p>5. Shipper-Broker Relationship- The Parties agree that BROKER at all times will be acting as an independent contractor, and not an employee, agent, or principal of a shipper.</p>
+                        <p>
+                            6. Broker-Carrier Relationship- CARRIER agrees and acknowledges that as the motor carrier transporting a shipper’s freight pursuant to this Agreement, CARRIER is an independent contractor, and not an employee, agent or principal of BROKER. CARRIER further agrees and acknowledges that its employees and agents, including the driver or drivers transporting freight, are not the employees or agents of BROKER, and that BROKER does not control or have the right to control the CARRIER, its employees, agents, drivers, or any person or entity associated with the CARRIER.<br>
+                            CARRIER must give priority to compliance with all laws and regulations and must not interpret any provision of this Agreement or request or communication from any employee or agent of BROKER, shipper, consignor, or BROKER’s customer(s) to authorize or encourage, directly or by implication, CARRIER to deviate from any law or regulation applicable to CARRIER’s operations as a motor carrier. BROKER will not coerce CARRIER, and any directions or instructions given by BROKER to CARRIER for the transportation of the freight shall be for information and convenience only, and CARRIER retains full control of the details of transportation of freight assigned to it under this Agreement. BROKER will not impose fines on CARRIER unless BROKER is instructed to do so by the shipper.
+                        </p>
+                        <p>
+                            7. No Broker Liability- CARRIER agrees and acknowledges that BROKER will not be liable to a shipper for any act or omission of the CARRIER or any of its “employees” which transport a shipper’s freight, as the term “employee” is defined under 49 C.F.R. §390.5 or for any of Carrier’s Agents, Principals, Assigns or Subcontractors. CARRIER thus agrees and acknowledges to indemnify and hold harmless BROKER for any cargo loss or damage, or for delay in the delivery of a shipper’s freight, or for any actual or consequential damages resulting therefrom.<br>
+                            CARRIER shall defend, indemnify and hold BROKER and its shipper customer harmless from any claims, actions or damages, arising out of its performance under this Agreement, including cargo loss and damage, theft, delay, damage to property, and personal injury or death, and BROKER shall defend, indemnify, and hold CARRIER harmless from any claims, actions, or damages, including cargo loss and damage, theft, delay, property damage, bodily injury or death, arising out of its performance hereunder. Neither Party shall be liable to the other for any claims, actions or damages due to the negligence, culpable conduct or intentional act of the other Party, or the shipper. The obligation to defend shall include all costs of defense as they accrue.<br>
+                            Except for CARRIERS’S liability under Paragraph 10, unless otherwise agreed in writing, and regardless of whether the Parties’ insurance as referred to in this Agreement above is valid or provides coverage, the Parties’ indemnity obligations shall not exceed the monetary insurance limits referred to in the paragraph above.
+                        </p>
+                        <p>
+                            8. No Broker Control- The Parties agree that BROKER will not assert any control nor have any right to exercise control over a shipper’s freight, including, but not limited to, taking possession of a shipper’s freight, and BROKER shall not direct or control the routes taken by CARRIER in the transportation of a shipper’s freight.<br>
+                            9. Carrier Liability- CARRIER hereby assumes the liability of a motor carrier as provided in §14706 of Title 49 of the United States Code (the Carmack Amendment), and all claims for loss, damage and/or salvage will be handled and processed in accordance with 49 C.F.R. Part 370.<br>
+                            10. Bills of Lading-<br>
+                            a. For each shipment tendered to CARRIER, CARRIER will provide to the shipper a standard bill of lading that is in accordance with 49 C.F.R. §373, listing the consignor and consignee, the origins and destinations, the number of packages, the description of the freight, and the weight, volume or measurement of the freight. The Parties agree that BROKER will not be a party to the bill of lading.<br>
+                            b. CARRIER acknowledges that BROKER should not be listed on the bill of lading and that if BROKER is listed on the Bill of Lading as the carrier this will occur for the convenience of the shipper only and CARRIER at all times is the actual carrier of goods and BROKER’S role is limited to arranging for transportation. In the event BROKER’S name is listed on the bill of lading, shipping manifest or other similar document, as the carrier, CARRIER shall cross-out or otherwise remove BROKER’S name and enter CARRIER’S name as applicable.<br>
+                            c. CARRIER understands that re-brokering and double brokering may be prohibited by law and will not re-broker, assign or interline the shipments hereunder without the express written consent of BROKER prior to the shipment being tendered to any other CARRIER. If CARRIER breaches this provision, BROKER shall have the right of paying the monies it owes CARRIER directly to the delivering carrier, in lieu of payment to CARRIER, and BROKER shall thereby be released from any further obligation to pay CARRIER. Upon Broker’s payment to delivering carrier, CARRIER shall not be released from any liability to BROKER under this Agreement. IN ADDITION TO THE INDEMNITY OBLIGATION IN PARAGRAPH 7, CARRIER WILL BE LIABLE FOR CONSEQUENTIAL DAMAGES FOR VIOLATION OF THIS PARAGRAPH.<br>
+                            i. The Parties agree that the shipment of freight will move under the terms and conditions listed in the bill of lading, except where inconsistent with the terms of this Agreement.<br>
+                            ii. CARRIER agrees to list itself on the bill of lading as the party in possession and control of the freight.
+                        </p>
+
+                        <p>
+                            iii. The terms and conditions of the bill of lading shall not operate to alter or modify the terms of this Agreement between CARRIER and BROKER.<br>
+                            iv. CARRIER shall issue a bill of lading in compliance with 49 U.S.C. §80101 et seq., 49 C.F.R. §373.101 (and any amendments thereto), for the property it receives for transportation under this Agreement. Unless otherwise agreed in writing, CARRIER shall become responsible/liable for the freight when it takes/receives possession thereof, and the trailer(s) is loaded, regardless of whether a bill of lading has been issued, and/or delivered to CARRIER, and which responsibility/liability shall continue until delivery of the shipment to the consignee and the consignee signs the bill of lading or delivery receipt. Any terms of the bill of lading (including but not limited to payment terms, released rates or released value) inconsistent with the terms of this Agreement shall be ineffective. Failure to issue a bill of lading or sign a bill of lading acknowledging receipt of the cargo by CARRIER shall not affect the liability of CARRIER. Said Bills of Lading are intended by the Parties to be Bills of Lading, as that term is interpreted under the Carmack Amendment and applicable law and not merely as “delivery receipts”, “freight receipts” or any similar term.<br>
+                            11. Non-Solicitation of Shippers- CARRIER agrees that it will not directly or indirectly conduct business with any shipper whose freight was transported pursuant to this Agreement for a period of two (2) years beginning with the last day such service was performed for that shipper. The Parties agree that a breach of this provision shall entitle BROKER, as reasonable liquidated damages and not as a penalty, to the full amount of commissions and/or compensation under the terms set forth in this Agreement that would have been due to BROKER had it arranged for the movement of said freight.<br>
+                            12. Assignment/Modifications of Agreement- Neither CARRIER or BROKER may assign or transfer any rights under this Agreement, in whole or in part, without the prior written consent of the other party. Further, neither CARRIER nor BROKER may amend or modify the terms of this Agreement without the prior written consent of an expressly authorized official of the other party. For BROKER, only a company official with the title of Vice President or higher is authorized to agree to amendments to this Agreement. Any amendments or modifications to this Agreement not agreed to by both CARRIER and BROKER shall be null and void.<br>
+                            13. Insurance - CARRIER shall furnish BROKER with Certificate(s) of Insurance; financial responsibility or insurance policies providing thirty (30) days advance
+                        </p>
+
+                        <p>
+                            written notice of cancellation or termination; and unless otherwise agreed, subject to the following minimum limits:<br>
+                            A. general liability $1,000,000;<br>
+                            B. commercial auto or commercial motor vehicle insurance $1,000,000, ($5,000,000 if transporting hazardous materials including environmental damages due to release or discharge of hazardous substances; hazmat carriers must have endorsement CA9948, sudden and accidental pollution coverage, and this endorsement must be shown on the Certificate of Insurance provided to BROKER);<br>
+                            C. cargo damage/loss, $<input asp-for="CargoDamageLossAmount" class="cargo-damage-lossamount"  /> This coverage must be All Risk Broad Form Motor Truck Cargo Legal Liability Coverage. The coverage provided under the policy shall have no exclusions or restrictions of any type that would foreseeably preclude coverage relating to cargo claims including, but not limited to, exclusions of unattended or unattached trailers, unattended or unlocked vehicles, theft, or for any commodities transported under this Agreement, refrigeration breakdown or lack of refrigerator fuel. Furthermore, if the commodity being hauled is refrigerated, refrigeration breakdown coverage will be provided and the CARRIER will honor and abide by the servicing requirements set forth in the insurance policy or endorsement. Furthermore, if the commodity being hauled is on a flatbed or similar open conveyance, that there be no exclusion for wetness, rust, corrosion or moisture. Motor Truck Cargo ("Cargo") • 1 Car Hauler / $50,000 minimum • 2-3 Car Hauler / $100,000 minimum • 4 Car Hauler / $150,000 minimum • 5+ Car Hauler / $250,000 minimum<br>
+                            D. workers’ compensation with limits required by law.<br>
+                            Except for the higher coverage limits which may be specified above, the insurance policies and financial responsibility shall comply with minimum requirements of the Federal Motor Carrier Safety Administration and any other applicable regulatory state agency. Nothing in this Agreement shall be construed to avoid CARRIER’S liability due to any exclusion or deductible of any insurance policy or to limit CARRIER’S liability for contribution and/or indemnification and defense of the BROKER.<br>
+                            Coverage must be written with a CARRIER rated A- or better as rated by AM Best Company. When an intrastate policy is issued, BROKER must be named as an additional insured. The certificate must show the cargo insurance deductible, and list Auto Relocation Management as "Certificate Holder". Please note: Insurance policies with a binder, declarations certificate or invalid see below
+                        </p>
+
+                        <p>
+                            policy numbers (TBA or TBD) will not be processed. We do not accept insurance company statements or invoices.<br>
+                            14. Miscellaneous<br>
+                            a. Non-Exclusive Agreement: CARRIER and BROKER acknowledge and agree that this contract does not bind the respective Parties to exclusive services to each other. Either party may enter into similar agreements with other carriers, brokers, or freight forwarders.<br>
+                            b. Waiver of Provisions:<br>
+                            i. Failure of either Party to enforce a breach of waiver of any provision or term of this Agreement shall not be deemed to constitute a waiver of any subsequent failure or breach, and shall not affect or limit the right of either Party to thereafter enforce such a term or provision.
+                            ii. This Agreement is for specified services pursuant to 49 U.S.C.§14101(b). To the extent that terms and conditions herein are inconsistent with Part (b), Subtitle IV, of Title 49 U.S.C. (ICC Termination Act of 1995), the Parties expressly waive any or all rights and remedies they may have under the Act.<br>
+                            15. Severability- If any portion or provision of this Agreement is determined by a court of competent jurisdiction to be invalid or unenforceable, The Parties agree that said portion or provision of the Agreement shall be severable, and that the remaining provisions of the Agreement shall continue in full force and effect.<br>
+                            16. Notices- Any and all written or electronic notices required or permitted to be given under this Agreement shall be addressed as follows:
+                            (BROKER) (CARRIER)
+                        </p>
+
+
+                        <div class="mb-2"><input asp-for="BrokerNoticeAddress" class="broker-notice-address"  />&nbsp;<span>Attn:</span><input asp-for="CarrierNoticeAddress" class="carrier-notice-address"  /></div>
+
+                        <p>
+                            17. Force Majeure- In the event that fire, flood, other natural disaster, war, embargo, riot, or civil disobedience prevents the performance of either BROKER or CARRIER’S obligations under this agreement, that party shall not be liable to the other party for such failure to perform.<br>
+                            18. Choice of Law and Venue- All issues concerning the construction, interpretation, validity, and enforceability of this Agreement, and any other dispute arising out of
+                        </p>
+                        <p>
+                            this Agreement, whether in a court of law or in alternative dispute resolution, shall be governed by and construed and enforced in accordance with the laws of the State of Missouri<input asp-for="LawsOfStateOfMissouri" class="laws-sate-missouri"  />, including the applicable statutes of limitations under jefferson county, Mo<input asp-for="MOLaw" class="mo-law"  /> law, without giving effect to any choice of law provision applying the laws of another jurisdiction.<br>
+                            19. Indemnification: CARRIER will indemnify and hold harmless BROKER, its employees, officers, directors, agents, principals and assigns from any liability, settlements, judgments, verdicts, attorney fees or expense or any nature whatsoever arising out of any claims, demands or suits against BROKER which in any way relate to a claim of BROKER’s liability or culpability for the actions of CARRIER, including negligent or improper hiring or retention of the CARRIER, its employees (statutory or otherwise) agents, principals, officers, directors, assigns or anyone acting by or for CARRIER, for any aspect of the transportation of freight, public liability, personal injury, bodily injury, emotional or mental distress, wrongful death, loss of consortium, cargo liability or any claim or cause of action recognized by any state, municipality, county or any jurisdiction, Administrative Agency, or the Government of the United States. CARRIER agrees to have insurance to cover its indemnification obligations under this section, but CARRIER’s indemnification obligations are not capped by the amount of any available insurance.<br>
+                            20. Entire Agreement- This Agreement, including all appendices and addenda, constitutes the entire agreement intended by and between The Parties and supersedes all prior agreements, representations, warranties, and understandings, whether oral or in writing.<br>
+                            21. Modification of Agreement - This Agreement may not be amended, except by mutual written agreement, or the procedures set forth above.
+                            IN WITNESS WHEREOF, The Parties have caused this Agreement to be executed on the effective date listed above in their respective names
+                        </p>
+                        <br>
+                        <div class="form-check form-group">
+                            <label asp-for="CarrierAgreementTerms" class="form-label"></label>
+                            <sup><nop-required /> </sup>
+                            <input asp-for="CarrierAgreementTerms" class="form-check-input" value="true" type="radio" id="CarrierAgreementTerms"></input>
+                            <br />
+                            <span asp-validation-for="CarrierAgreementTerms"></span>
+                        </div>
+                        <br>
+                        <input type="hidden" asp-for="SignatureBase64String" value="" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Signature<sup>*</sup></h5>
+                                <canvas id="sig-canvas" class="w-100" height="160">
+                                   Please get a better browser.
+                                </canvas>
+                                <div class="d-flex align-items-center ">
+                                <input type="text" id="signature-text-input" class="form-control w-50" placeholder="Type here">
+                                <button type="button" class="btn btn-dark ms-2" id="sig-clearBtn">Clear Signature</button>
+                                 
+                                </div>
+                               
+                                <button type="button" style="display:none" class="btn btn-primary" id="sig-submitBtn">Submit Signature</button>
+                                <span asp-validation-for="SignatureBase64String"></span>
+                            </div>
+                        </div>
+                        <br><br>
+                        <h4>Step 3 - Submit, Email or Fax a copy of your W-9 and Certificate of Insurance</h4>
+                        <ul>
+                            <li>Hours of Operation: 7 Days a Week, 24/7.</li>
+                            <li>
+                                Contact Information:
+                                <ul>
+                                    <li>Phone: (877) 801-2044</li>
+                                    <li>Fax: (314) 387-9136</li>
+                                    <li>Email:  dispatch@mycarmove.com</li>
+                                </ul>
+                            </li>
+                            <li>Your application will be processed within 1 hour of receiving ALL of your completed information/paperwork. Applications received without all of the required information will not be processed</li>
+                            <li>We are unable to put any loads on hold.</li>
+                        </ul>
+                      
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="form-label">W-9</label>
+                                    <div id="drop-zone">
+                                        <p>Drop files here.</p>
+                                        <div id="clickHere">
+                                            or click here. <i class="fa fa-upload"></i>
+                                            <input type="file" name="w9File" id="file" multiple />
+                                        </div>
+                                        <div id='filename'></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="form-label">Certificate of Insurance</label>
+                                    <div id="drop-zone">
+                                        <p>Drop files here.</p>
+                                        <div id="clickHere">
+                                            or click here.<i class="fa fa-upload"></i>
+                                            <input type="file" name="certificateOfInsuranceFile" id="fileInsurance" multiple />
+                                        </div>
+                                        <div id="filenameInsurance"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                        <button class="carrier-sumit-btn" id="carrier-application-button">Submit</button>
+                        <br><br>
+                    </div>
+                </div>
+            </main>
+        </form>
+    </div>
+</div>
+<script>
+    allowNumberOnly('#PaymentFaxNumber,#AlternateFaxNumber,#ICCNumberMC,#DOTNumber');
+    commonPhoneNumber("#ContactNumber,#InsuranceAgentsPhone");
+</script>
+<script>
+    $("#ZipPostalCode").keyup(function () {
+        var zipCodeId = $(this).attr('id');
+        if (($("#" + zipCodeId).val().length) >= 4) {
+            var txtZipCode = $("#" + zipCodeId).val();
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET", 
+                url: "@(Url.Action("GetLocationInfoGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#City").val(response.city);
+                    $("#StateProvinceId").val(response.state);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            $("#City").val('');
+            $("#StateProvinceId").val(0);
+        }
+    });
+</script>

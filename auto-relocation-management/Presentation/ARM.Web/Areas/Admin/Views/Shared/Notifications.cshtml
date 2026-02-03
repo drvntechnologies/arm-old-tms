@@ -1,0 +1,105 @@
+﻿@using Newtonsoft.Json
+@using Nop.Services.Messages
+@{
+    //Get messages from TempData
+    var notes = TempData.ContainsKey(NopMessageDefaults.NotificationListKey)
+        ? JsonConvert.DeserializeObject<IList<NotifyData>>(TempData[NopMessageDefaults.NotificationListKey].ToString())
+        : null;
+    if (notes != null)
+    {
+        foreach (var note in notes)
+        {
+            // var cssStyle = "";
+            // switch (note.Type)
+            // {
+            //     case NotifyType.Success:
+            //         cssStyle = "alert-success";
+            //         break;
+            //     case NotifyType.Error:
+            //         cssStyle = "alert-danger";
+            //         break;
+            //     case NotifyType.Warning:
+            //         cssStyle = "alert-warning";
+            //         break;
+            // }
+            // <div class="alert @cssStyle alert-dismissable d-notification admin-nav-bar-notification">
+            //     <button type="button" class="close ml-3" data-dismiss="alert" aria-hidden="true">&times;</button>
+            //     @if (note.Encode)
+            //     {
+            //         <text>
+            //             @note.Message
+            //         </text>
+            //     }
+            //     else
+            //     {
+            //         <text>
+            //             @Html.Raw(note.Message)
+            //         </text>
+            //     }
+            // </div>
+
+            
+
+            <script asp-asp-location="Footer">
+                @if (note.Encode)
+                {
+                    switch (note.Type)
+                    {
+                            case NotifyType.Success:
+                                    <text>
+                                        toastr.success("@note.Message");
+                                    </text>
+                                    break;
+                            case NotifyType.Error:
+                                    <text>
+                                        toastr.error("@note.Message");
+                                    </text>
+                                    break;
+                            case NotifyType.Warning:
+                                    <text>
+                                        toastr.warning("@note.Message");
+                                    </text>
+                                    break;
+                    }
+                        
+                }
+                else
+                {
+                    switch (note.Type)
+                    {
+                            case NotifyType.Success:
+                                    <text>
+                                        toastr.success("@Html.Raw(note.Message)");
+                                    </text>
+                                    break;
+                            case NotifyType.Error:
+                                    <text>
+                                        toastr.error("@Html.Raw(note.Message)");
+                                    </text>
+                                    break;
+                            case NotifyType.Warning:
+                                    <text>
+                                        toastr.warning("@Html.Raw(note.Message)");
+                                    </text>
+                                    break;
+                    }
+                }
+                
+
+            </script>
+        }
+    }
+}
+
+<script asp-location="Footer">
+    // $(function(){
+    //     setTimeout(function() {
+    //         const $barNotification = $(".admin-nav-bar-notification");
+    //         if($barNotification.length > 0){
+    //             $barNotification.each(function (_, html){
+    //                 $(html).find('button.close').click();
+    //             });
+    //         }
+    //     },3000);
+    // });
+</script>

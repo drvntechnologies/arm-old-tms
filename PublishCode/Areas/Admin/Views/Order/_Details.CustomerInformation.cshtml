@@ -1,0 +1,214 @@
+﻿@using Nop.Core.Domain.Payments
+
+@model OrderModel
+
+<div class="card d-card detail-info-card">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="fas fa-user"></i>
+			@T("Admin.Order.CustomerInfo")
+		</div>
+	</div>
+	<div class="card-body">
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.Company))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Address.Fields.Company")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.Company
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.CompanyRep))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Order.CustomerInformation.Fields.CustomerId")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.CompanyRep
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.ReferredBy) && 
+			!Model.ReferredBy.Equals("0") && 
+			!Model.ReferredBy.Equals("-1"))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.ReferredBy")
+				</div>
+				<div class="input-name">
+					@Model.ReferredBy (@Model.ReferralAmount)
+				</div>
+			</div>
+		}
+		@* @if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.FirstName))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.FirstName")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.FirstName
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.LastName))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.LastName")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.LastName
+				</div>
+			</div>
+		} *@
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.PhoneNumber))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PhoneNumber")
+				</div>
+				<div class="input-name">
+					@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.CustomerInformation.PhoneNumber)
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.Email))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Address.Fields.Email")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.Email
+				</div>
+			</div>
+		}
+		@if (Model.CustomerInformation.FollowUpDate.HasValue && !Model.IsNewOrder)
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Order.CustomerInformation.Fields.FollowUpDate")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.FollowUpDate.ToDateFormat()
+				</div>
+			</div>
+		}
+		else if(!string.IsNullOrWhiteSpace(Model.CustomerFollowUpDateValue))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Order.CustomerInformation.Fields.FollowUpDate")
+				</div>
+				<div class="input-name">
+					@Html.Raw(Model.CustomerFollowUpDateValue)
+				</div>
+			</div>
+		}
+		@if (Model.FollowUpDate.HasValue && !Model.IsNewOrder)
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.FollowUpDate")
+				</div>
+				<div class="input-name">
+					@Model.FollowUpDate.ToDateFormat()
+				</div>
+			</div>
+		}
+		else if (!string.IsNullOrWhiteSpace(Model.FollowUpDateValue))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.FollowUpDate")
+				</div>
+				<div class="input-name">
+					@Html.Raw(Model.FollowUpDateValue)
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.CustomerInformation.ReferenceNumber))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.ReferenceNumber")
+				</div>
+				<div class="input-name">
+					@Model.CustomerInformation.ReferenceNumber
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.PaymentMethod))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PaymentMethod")
+				</div>
+				<div class="input-name">
+					@Model.PaymentMethod
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.PaymentTerms))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PaymentTerms")
+				</div>
+				<div class="input-name">
+					@Model.PaymentTerms.Replace('_',' ')
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.PaymentOption))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PaymentOption")
+				</div>
+				<div class="input-name">
+					@Model.PaymentOption
+				</div>
+			</div>
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.PaymentStatus))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PaymentStatus")
+				</div>
+				<div class="input-name">
+					@Model.PaymentStatus
+				</div>
+			</div>
+		}
+		@* @if (Model.CODPaymentStatusId > 0 && Model.HasCODOrder && Model.IsChildOrder)
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.COD.PaymentStatusId")
+				</div>
+				<div class="input-name">
+					@Model.PaymentStatus
+				</div>
+			</div>
+		} *@
+		@if (!string.IsNullOrWhiteSpace(Model.PrimarySalesRepName))
+		{
+			<div class="custom-form-group">
+				<div class="label-name">
+					@T("Admin.Orders.Fields.PrimarySalesRep")
+				</div>
+				<div class="input-name">
+					@Model.PrimarySalesRepName
+				</div>
+			</div>
+		}
+	</div>
+</div>

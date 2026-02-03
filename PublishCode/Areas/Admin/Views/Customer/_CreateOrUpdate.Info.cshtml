@@ -1,0 +1,128 @@
+﻿@model CustomerModel
+
+@using Newtonsoft.Json
+@using Nop.Core.Domain.Customers;
+
+<div class="card card-default mb-0 d-card">
+    <div class="card-header with-border">
+        <h3 class="card-title">
+            <i class="fa fa-info" aria-hidden="true"></i>
+            @T("Admin.Customer.CustomersInfo")
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="FirstName" asp-required="true" />
+                    </div>
+                    <div class="col-xl-4">
+                        <nop-editor asp-for="FirstName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+                        <span asp-validation-for="FirstName"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="LastName" />
+                    </div>
+                    <div class="col-xl-4">
+                        <nop-editor asp-for="LastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+                        <span asp-validation-for="LastName"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="Email" asp-required="true" />
+                    </div>
+                    <div class="col-xl-4">
+                        <nop-editor asp-for="Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="Phone" />
+                    </div>
+                    <div class="col-xl-4">
+                        <nop-editor asp-for="Phone" />
+                        <span asp-validation-for="Phone"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="supervisorValue" />
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="input-group">
+                            <nop-select class="form-select" asp-for="supervisorValue" asp-items="Model.Availablesupervisor" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-xl-3">
+                        <nop-label asp-for="SelectedCustomerRoleIds" asp-required="true" />
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="input-group-append input-group-required">
+                            <div class="input-group">
+                                <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailableCustomerRoles" asp-multiple="true" />
+                            </div>
+                        </div>
+                        <script>
+                            $(document).ready(function () {
+                                var customerRoleIdsInput = $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)').data("kendoMultiSelect");
+                                customerRoleIdsInput.setOptions({
+                                    customerRoleIdsInput: false,
+                                    filter: "contains"
+                                });
+
+                                @if (Model.AvailableCustomerRoles.Count == 0)
+                                {
+                                    <text>
+                                        customerRoleIdsInput.setOptions({
+                                            enable: false,
+                                            placeholder: '@T("Admin.Customers.Customers.Fields.CustomerRoles.NoRoles")'
+                                        });
+                                        customerRoleIdsInput._placeholder();
+                                        customerRoleIdsInput._enable();
+                                    </text>
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-12">
+                <div class="form-group row">
+                    <div class="col-2 col-sm-2 col-xl-3">
+                        <nop-label asp-for="Active" />
+                    </div>
+                    <div class="col-3 col-xl-4">
+                        <nop-editor asp-for="Active" />
+                        <span asp-validation-for="Active"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nop-alert asp-alert-id="statesAlert" asp-alert-message="@T("Admin.Common.Alert.States.Failed")" />
+
+<script>
+    commonPhoneNumber("#Phone");
+    removeSpecialCharactersAndNumber("#FirstName, #LastName");
+    enforceLowerCase("#Email");
+</script>

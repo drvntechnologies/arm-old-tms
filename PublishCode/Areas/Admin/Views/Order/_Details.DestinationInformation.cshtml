@@ -1,0 +1,136 @@
+﻿@model OrderModel
+
+@if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.ZipPostalCode))
+{
+    <script>
+        let destinationZipCode = "@Model.ShippingAddress.ZipPostalCode";
+        if (destinationZipCode.length == 5) {
+            var postData = { zipCode: destinationZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    destinationLat = response.latitude ?? 0;
+                    destinationLng = response.longitude ?? 0;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+        }
+    </script>
+}
+
+@if (string.IsNullOrWhiteSpace(Model.ShippingAddress.ContactName) &&
+    string.IsNullOrWhiteSpace(Model.ShippingAddress.PhoneNumber) &&
+    string.IsNullOrWhiteSpace(Model.ShippingAddress.Email) &&
+    string.IsNullOrWhiteSpace(Model.ShippingAddress.SecondaryContactName) &&
+    string.IsNullOrWhiteSpace(Model.ShippingAddress.PhoneNumber2) &&
+    string.IsNullOrWhiteSpace(Model.ShippingAddress.AddressHtml) &&
+    string.IsNullOrWhiteSpace(Model.DeliverDate) &&
+    !Model.ActualDeliveryDate.HasValue)
+{
+    return;
+}
+
+<div class="card detail-info-card deliveryInfo d-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-map-marker"></i>
+            @T("Admin.Order.DeliveryInfo")
+        </div>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.ContactName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Contact")
+                </div>
+                <div class="input-name">
+                    @Model.ShippingAddress.ContactName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.PhoneNumber))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Phones")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.ShippingAddress.PhoneNumber)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.Email))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Email")
+                </div>
+                <div class="input-name">
+                    @Model.ShippingAddress.Email
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.SecondaryContactName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.SecondaryContact")
+                </div>
+                <div class="input-name">
+                    @Model.ShippingAddress.SecondaryContactName
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.PhoneNumber2))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.SecondaryPhoneNumber")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.ShippingAddress.PhoneNumber2)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.AddressHtml))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Location")
+                </div>
+                <div class="input-name">
+                    @Model.ShippingAddress.AddressHtml
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.DeliverDate))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.EstimatedDeliveryDate")
+                </div>
+                <div class="input-name">
+                    @Model.DeliverDate
+                </div>
+            </div>
+        }
+        @if (Model.ActualDeliveryDate.HasValue)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.ActualDeliveryDate")
+                </div>
+                <div class="input-name">
+                    @Model.ActualDeliveryDate.ToDateFormat()
+                </div>
+            </div>
+        }
+    </div>
+</div>

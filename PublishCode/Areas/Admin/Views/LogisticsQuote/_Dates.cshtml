@@ -1,0 +1,23 @@
+﻿@model LogisticsQuoteModel
+
+@if (!Model.EstimatedShippingDate.HasValue)
+{
+	return;
+}
+
+<div class="card card-primary card-outline">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="far fa-newspaper"></i>
+			@T("Admin.EstimatedShippingDate")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="estimate-shipping-date">
+				<label asp-for="EstimatedShippingDate"></label> : 
+				@Model.EstimatedShippingDate.ToDateFormat()
+			</div>
+		</div>
+	</div>
+</div>

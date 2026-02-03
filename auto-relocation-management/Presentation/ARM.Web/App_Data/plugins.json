@@ -1,0 +1,30 @@
+﻿{
+  "InstalledPluginNames": [
+    "Obsolete field, using only for compatibility"
+  ],
+  "InstalledPlugins": [
+    {
+      "SystemName": "Logistics.API",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "Logistics.QuickBook",
+      "Version": "1.31.5"
+    },
+    {
+      "SystemName": "Logistics.SuperDispatch",
+      "Version": "1.18.1"
+    },
+    {
+      "SystemName": "Logistics.CentralDispatch",
+      "Version": "1.10"
+    },
+    {
+      "SystemName": "Logistics.Payments.Square",
+      "Version": "2.13"
+    }
+  ],
+  "PluginNamesToUninstall": [],
+  "PluginNamesToDelete": [],
+  "PluginNamesToInstall": []
+}

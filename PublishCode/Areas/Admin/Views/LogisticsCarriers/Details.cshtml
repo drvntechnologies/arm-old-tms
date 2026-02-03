@@ -1,0 +1,170 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.LogisticsCarrier").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Carriers");
+
+    ViewData["IsCarrierDetailPage"] = true;
+}
+
+<form asp-controller="LogisticsCarriers" asp-action="List" method="post" id="carrier-detail-form">
+    <div class="content-header clearfix">
+    <h1 class="float-left">
+        <span>@T("Admin.LogisticsCarrier") - @Model.CompanyLegalName </span>
+        <small>
+            <i class="fas fa-arrow-circle-left"></i>
+            <a asp-action="List">@T("Admin.LogisticsCarriers.BackToList")</a>
+        </small>
+    </h1>
+        <div class="float-right">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.LogisticsCarriers.Edit")
+            </a>
+        </div>
+    
+</div>
+    <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+    <section class="content detail-pg-common-design">
+    <div class="container-fluid">
+        <div class="row">
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_DetailsInfo", Model)
+                </div>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_carrier_details_quickbook_information", additionalData = Model.Id })
+
+                <div class="col-md-12">
+                    <div class="card d-card">
+                        <div class="card-header with-border clearfix d-flex align-items-center justify-content-between flex-wrap">
+                            <div class="card-title w-auto">
+                                <i class="fa fa-phone"></i>
+                                @T("Admin.CarrierContact.Details")
+                            </div>
+                            <div class="ml-auto">
+                                <button type="button" id="create-contact" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i>
+                                    @T("Admin.Carrier.Contact.AddContact")
+                                </button>
+                            </div>
+                        </div>
+                        @await Html.PartialAsync("_CreateOrUpdate_ContactDetails", Model)
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-6">
+                            <div class="card detail-info-card d-card">
+                                @await Html.PartialAsync("_Details_OperationalInfo", Model)
+                                @await Html.PartialAsync("_Details_ELDProvider", Model)
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-xl-6">
+                            @await Html.PartialAsync("_Details_BankDetail", Model)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card d-card">
+                        <div class="card-header with-border clearfix d-flex align-items-center justify-content-between flex-wrap">
+                            <div class="card-title w-auto">
+                                <i class="fas fa-id-card"></i>
+                                @T("Admin.Carrier.TINDetails")
+                            </div>
+                            <div class="ml-auto">
+                                <button type="button" id="create-tin" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i>
+                                    @T("Admin.Carrier.TIN.AddTIN")
+                                </button>
+                            </div>
+                        </div>
+                        @await Html.PartialAsync("_CreateOrUpdate_TINDetails", Model)
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card d-card">
+                        <div class="card-header with-border clearfix d-flex align-items-center justify-content-between flex-wrap">
+                            <div class="card-title w-auto">
+                                <i class="fas fa-shield-alt"></i>
+                                @T("Admin.CarrierInsurance.Insurance.Details")
+                            </div>
+                            <div class="ml-auto">
+                                <button type="button" id="create-insurance" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i>
+                                    @T("Admin.Carrier.Insurance.AddInsurance")
+                                </button>
+                            </div>
+                        </div>
+                        @await Html.PartialAsync("_CreateOrUpdate_Insurance", Model)
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_FilesDetails", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_InternalNotes", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_DriversInfo", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_DispatcherInfo", Model)
+                </div>
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details_OrderInfo", Model)
+                </div>
+        </div>
+    </div>
+</section>
+</form>
+
+<div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-id" name="delete-id" />
+                @T("Admin.Common.DeleteConfirmation")
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#delete-confirmation-popup").click(function(e){
+
+        let url = $("#delete-id").attr("data-url");
+        let tableId = $("#delete-id").attr("data-tableId");
+
+        var postData = {
+            id: $("#delete-id").val()
+        };
+        addAntiForgeryToken(postData);
+
+        $.post(url, postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $('#'+tableId).DataTable().draw(false);
+            }
+        });
+    });
+</script>

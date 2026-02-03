@@ -1,0 +1,90 @@
+﻿@model QuoteDetailsModel
+
+@if (Model.Vehicles == null ||
+     Model.Vehicles.Count <= 0)
+{
+    return;
+}
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-truck"></i>
+            @T("Admin.Portal.Quote.VehicleInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="form-group row">
+            <div class="col-md-12">
+                <div class="vehicle-information d-table-responsive">
+                    <table class="table table-hover table-borderless d-table table-striped m-0">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.Year")
+                                </th>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.Make")
+                                </th>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.Model")
+                                </th>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.VINNumber")
+                                </th>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.Type")
+                                </th>
+                                <th>
+                                    @T("Admin.Portal.Quote.Vehicle.Running")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var vehicle in Model.Vehicles)
+                            {
+                                <tr>
+                                    <td>
+                                        @vehicle.Year
+                                    </td>
+                                    <td>
+                                        @vehicle.Make
+                                    </td>
+                                    <td>
+                                        @vehicle.Model
+                                    </td>
+                                    <td>
+                                        @vehicle.Vin
+                                    </td>
+                                    <td>
+                                        @vehicle.VehicleType
+
+                                        @if (!string.IsNullOrWhiteSpace(vehicle.OtherVehicleType))
+                                        {
+                                            <text>
+                                                (@vehicle.OtherVehicleType)
+                                            </text>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (vehicle.IsRunning)
+                                        {
+                                            @T("Admin.Common.Yes")
+                                        }
+                                        else
+                                        {
+                                            @T("Admin.Common.No")
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

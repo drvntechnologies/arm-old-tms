@@ -1,0 +1,323 @@
+﻿@model OrderModel
+
+<div class="card detail-info-card d-flex">
+	<div class="card-header with-border clearfix d-flex align-items-center flex-wrap">
+		<div class="card-title w-auto">
+			<i class="far fa-sticky-note"></i>
+			@T("Admin.ChildOrders")
+		</div>
+		@if (!Model.IsChildOrder)
+		{
+			<div class="add-child-order-btn ml-auto">
+
+				@if (!Model.IsOrderDelivered && Model.AllowReOrderingForSubOrder)
+				{
+					<button type="button" id="save-Order-Btn" class="btn btn-primary" style="display:none;" data-target="#Sub-Order-Display-Order-Confirmation-Popup" data-toggle="modal">@T("Admin.Orders.ChildOrders.Update.Ordering.Button")</button>
+				}
+
+				<a asp-action="ChildOrderCreate" asp-route-id="@Model.LeadId" class="btn btn-primary ">
+					<i class="fas fa-plus-square"></i>
+					@T("Admin.Orders.ChildOrders")
+				</a>
+			</div>
+		}
+	</div>
+	<div class="card-body">
+
+		<div class="card card-default d-datatable m-0">
+			<div class="card-body">
+				@await Html.PartialAsync("Table", new DataTablesModel
+				{
+					Name = "childOrders-grid",
+					UrlRead = new DataUrl("ChildOrderList", "Order", new RouteValueDictionary { [nameof(Model.OrderSearchModel.LeadId)] = Model.LeadId}),
+					Length = Model.OrderSearchModel.PageSize,
+					LengthMenu = Model.OrderSearchModel.AvailablePageSizes,
+					ColumnCollection = new List<ColumnProperty>
+					{
+						new ColumnProperty(nameof(OrderModel.Id))
+						{
+							Title = "",
+							Width = "3",
+							Encode = false,
+							Visible = !Model.IsOrderDelivered && Model.AllowReOrderingForSubOrder,
+							Render = new RenderCustom("renderColumnMove")
+						},
+						new ColumnProperty(nameof(OrderModel.OrderDetail))
+						{
+							Title = T("Admin.Orders.Fields.OrderDetail").Text,
+							Width = "30",
+							Encode = false
+						},
+						new ColumnProperty(nameof(OrderModel.Status))
+						{
+							Title = T("Admin.Orders.Fields.Status").Text,
+							Width = "30",
+							Encode = false,
+							Render = new RenderCustom("renderColumnLogisticsStatus"),
+							ClassName =  NopColumnClassDefaults.CenterAll
+						},
+						new ColumnProperty(nameof(OrderModel.CustomerDetails))
+						{
+							Title = T("Admin.Orders.Fields.CustomerDetails").Text,
+							Width = "100",
+							Encode = false,
+						},
+						new ColumnProperty(nameof(OrderModel.ShipperDetail))
+						{
+							Title = T("Admin.Orders.Fields.ShipperDetail").Text,
+							Width = "100",
+							Encode = false
+						},
+						new ColumnProperty(nameof(OrderModel.OriginAndDestinationAddress))
+						{
+							Title = T("Admin.Orders.Fields.OriginAndDestinationAddress").Text,
+							Width = "100",
+							Encode = false
+						},
+						new ColumnProperty(nameof(OrderModel.CustomerFollowUpDateValue))
+                        {
+                            Title = T("Admin.Order.List.Fields.CustomerFollowUpDateValue").Text,
+                            Width = "100",
+                            Encode = false,
+                        },
+                        new ColumnProperty(nameof(OrderModel.FollowUpDateValue))
+                        {
+                            Title = T("Admin.Orders.Fields.FollowUpDate").Text,
+                            Width = "100",
+                            Encode = false,
+                        },
+						new ColumnProperty(nameof(OrderModel.LeadId))
+						{
+							Title = "Actions",
+							Width = "30",
+							ClassName = NopColumnClassDefaults.Button,
+							Render = new RenderCustom("renderColumnActions")
+						}
+					}
+				})
+
+				<script>
+
+					function renderColumnActions(data, type, row, meta) {
+						return `
+							<div class="action-group">
+								<button type=button class="btn btn-default edit-order" data-id="${row.LeadId}" title="Edit">
+									<i class="fas fa-pencil-alt" title="Edit"></i>
+								</button>
+								<button type=button class="btn btn-default delete-order" data-id="${row.LeadId}" title="Delete" data-toggle="modal" data-target="#delete-order-confirmation">
+									<i class="fas fa-trash-alt" title="Delete"></i>
+								</button>
+							</div>
+						`;
+					}
+
+					$(document).on('click', '.edit-order', function () {
+						var leadId = $(this).data('id');
+						window.location.href = '/Admin/Order/Edit/' + leadId;
+					});
+
+					$(document).on('click', '.delete-order', function () {
+						const id = $(this).data('id');
+						$("#delete-id").val(id);
+					});
+
+					$("#delete-confirmation-popup").click(function(){
+						var postData = {
+							id: $("#delete-id").val()
+						};
+						addAntiForgeryToken(postData);
+
+						$.post("@Url.Action("DeleteOrder")", postData, function(data){
+							$("#delete-id").val("");
+							$("#delete-order-confirmation").find('button.close').click();
+
+							if (data) {
+								display_nop_error(data);
+							}
+							else{
+								//refresh grid
+								toastr.success('Order has been deleted successfully');
+								$("#childOrders-grid").DataTable().draw(false);
+							}
+						});
+					});
+
+					const idSet = new Set();
+					let initialOrder = [];
+
+					function renderColumnMove(data, type, row, meta){
+						
+						if (!idSet.has(data)) {
+							const id = Number(data);
+							idSet.add(id);
+							initialOrder.push(id);
+						}
+						
+						return `<input type="hidden" class="display-order" value="${data}" />
+									<i class="fas fa-grip-vertical drag-handle"></i>`
+					}
+
+					function renderColumnLogisticsStatus(data, type, row, meta) {
+						let color;
+						let OpenStatusColor = "white";
+
+						var dateString = row.FirstAvailablePickupDateValue;
+
+						if (dateString != null && dateString != undefined && dateString.trim() != ""){
+							var dateParts = dateString.split('/');
+
+							if (dateParts.length === 3){
+								var dateObject = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+
+								var currentDate = new Date();
+								currentDate.setHours(0, 0, 0, 0);
+
+								if (dateObject < currentDate) {
+									OpenStatusColor = "red";
+								}
+							}
+						}
+
+						switch (row.Status) {
+						case "@LogisticsStatusDefaults.Order.Open":
+							color = OpenStatusColor;
+							break;
+						case "@LogisticsStatusDefaults.Order.Covered":
+							color = 'NeonYellow';
+							break;
+						case "@LogisticsStatusDefaults.Order.Dispatched":
+							color = 'PapayaOrange';
+							break;
+						case "@LogisticsStatusDefaults.Order.InTransit":
+							color = 'blue';
+							break;
+						case "@LogisticsStatusDefaults.Order.Delivered":
+							color = 'green';
+							break;
+						}
+						return '<span class="grid-report-item text-nowrap ' + color + '">' + data + '</span >';
+					}
+				</script>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="delete-order-confirmation" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+				<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="delete-id" name="delete-id" />
+				@T("Admin.Common.DeleteConfirmation")
+			</div>
+			<div class="modal-footer">
+				<span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+				<button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@if (!Model.IsOrderDelivered && Model.AllowReOrderingForSubOrder)
+{
+	<div id="Sub-Order-Display-Order-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="sub-order-display-order-confirmation-popup-title" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="sub-order-display-order-confirmation-popup-title">@T("Admin.Common.AreYouSure")</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" id="sign-close">x</span></button>
+				</div>
+				<div class="form-horizontal">
+					<div class="modal-body">
+						@T("Admin.Orders.Update.SubOrders.Ordering.Confirm.Message")
+					</div>
+					<div class="modal-footer">
+						<span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+						<button id="sub-order-display-order-confirm-btn" class="btn btn-primary" type="button">@T("Admin.Common.Yes")</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script asp-location="Footer">
+
+		$(function () {
+			function arraysEqual(a, b) {
+				if (!Array.isArray(a) || !Array.isArray(b)) return false;
+				if (a.length !== b.length) return false;
+				for (let i = 0; i < a.length; i++) {
+					if (a[i] !== b[i]) return false;
+				}
+				return true;
+			}
+
+			$("#childOrders-grid tbody").sortable({
+				handle: ".drag-handle",
+				helper: function (e, tr) {
+					var $originals = tr.children();
+					var $helper = tr.clone();
+					$helper.children().each(function (index) {
+						$(this).width($originals.eq(index).width());
+					});
+					return $helper;
+				},
+				update: function (event, ui) {
+					const currentOrder = Array.from(
+						new Set($("#childOrders-grid tbody tr").map(function () {
+							return Number($(this).find(".display-order").val());
+						}).get())
+					);
+
+					if (!arraysEqual(initialOrder, currentOrder)) {
+						$("#save-Order-Btn").fadeIn();
+					} else {
+						$("#save-Order-Btn").fadeOut();
+					}
+				}
+			});
+
+			$("#sub-order-display-order-confirm-btn").on('click', function(e){
+				e.preventDefault();
+
+				const sortedData = [];
+				$("#childOrders-grid tbody tr").each(function (index, row) {
+					sortedData.push({
+						subOrderId: $(this).find(".display-order").val(),
+						displayOrder: index + 1
+					});
+				});
+
+				var postData = {
+					sortedData: sortedData,
+					parentOrderId: "@Model.Id",
+				}
+
+				addAntiForgeryToken(postData);
+
+				$.ajax({
+					type: "POST",
+					url: '@Url.Action("UpdateDisplayOrderOfSubOrder")',
+					data: postData,
+					success: function (data) {
+						if (data && data.Success){
+							location.reload();
+						}
+						else {
+							display_nop_error(data);
+						}
+
+						$("#Sub-Order-Display-Order-Confirmation-Popup .close").click();
+					},
+					error: function () {
+						toastr.error("@T("Admin.Orders.Update.SubOrders.Ordering.Fail")");
+					}
+				});
+			});
+		});
+	</script>
+}

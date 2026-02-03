@@ -1,0 +1,273 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model LogisticsVendorMasterSearchModel
+@{
+    // Page title
+    ViewBag.PageTitle = T("Admin.VendorMaster").Text;
+    // Active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("VendorMaster");
+    const string hideSearchBlockAttributeName = "LogisticsVendorsListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+<form asp-controller="LogisticsVendorMaster" asp-action="List" method="post" id="vendors-listform">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.VendorMaster")
+        </h1>
+        <div class="float-right">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+        </div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search d-card-search d-card">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="CompanyName" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="CompanyName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="City" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="City" html-attributes="@(new { placeholder = "Enter City" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="StateProvinceId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="ZipPostalCode" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="ZipPostalCode" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="CountryId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="RegionTypeId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="RegionTypeId" asp-items="Model.AvailableRegionTypes" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-vendors" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>   
+                                        <button type="button" id="vendor-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Clear")
+                                        </button>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#vendor-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default d-datatable d-card m-0">
+                        <div class="card-body">
+                            @await Html.PartialAsync("Table", new DataTablesModel
+                            {
+                                Ordering = true,
+                                Order = "0,'desc'",
+                                Name = "vendors-grid",
+                                Targets = "2,3,4,5",
+                                Orderable = false,
+                                PrimaryKeyColumn = nameof(VendorMasterModel.Id),
+                                UrlRead = new DataUrl("VendorMasterList", "LogisticsVendorMaster", null),
+                                SearchButtonId = "search-vendors",
+                                Length = Model.PageSize,
+                                LengthMenu = Model.AvailablePageSizes,
+                                Filters = new List<FilterParameter>
+                                {
+                                    new FilterParameter(nameof(Model.CompanyName)),
+                                    new FilterParameter(nameof(Model.City)),
+                                    new FilterParameter(nameof(Model.StateProvinceId)),
+                                    new FilterParameter(nameof(Model.ZipPostalCode)),
+                                    new FilterParameter(nameof(Model.CountryId)),
+                                    new FilterParameter(nameof(Model.RegionTypeId))
+                                },
+                                ColumnCollection = new List<ColumnProperty>
+                                {
+                                    new ColumnProperty(nameof(LogisticsCarriersModel.Id))
+                                    {
+                                        Title = "",
+                                        Visible = false
+                                    },
+                                    new ColumnProperty(nameof(VendorMasterModel.CompanyName))
+                                    {
+                                        Title =  $"<span class='d-th'>{T("VendorMaster.Fields.CompanyName").Text}</span>",
+                                        Width = "100",
+                                        Render = new RenderLink(new DataUrl("Details", nameof(VendorMasterModel.Id)))
+                                    },
+                                    new ColumnProperty(nameof(VendorMasterModel.ListCity))
+                                    {
+                                        Title = T("Address.Fields.City").Text,
+                                        Width = "100"
+                                    },
+                                    new ColumnProperty(nameof(VendorMasterModel.ListStateProvinceName))
+                                    {
+                                        Title = T("Address.Fields.StateProvince").Text,
+                                        Width = "100"
+                                    },
+                                    new ColumnProperty(nameof(VendorMasterModel.ListZipPostalCode))
+                                    {
+                                        Title = T("Address.Fields.ZipPostalCode").Text,
+                                        Width = "100"
+                                    },
+                                    new ColumnProperty(nameof(VendorMasterModel.Id))
+                                    {
+                                        Title = T("Admin.Common.Action").Text,
+                                        Width = "100",
+                                        ClassName = NopColumnClassDefaults.Button,
+                                        Render = new RenderCustom("renderColumnEditDelete")
+                                    }
+                                }
+                            })
+                        </div>
+                       
+                        <div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" id="delete-id" name="delete-id" />
+                                        @T("Admin.Common.DeleteConfirmation")
+                                    </div>
+                                    <div class="modal-footer">
+                                        <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                                        <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+   
+</form>
+
+
+<script type="text/javascript" asp-location="Footer">
+    restrictToCityNameFormat("#City");
+    allowUniversalZip("#ZipPostalCode");
+
+    function renderColumnEditDelete(data, type, row, meta) {
+        return '<a class="btn btn-default" href="Edit/' + data + '"><i class="fas fa-pencil-alt" title="Edit"></i>Edit</a><a data-deleteId="' + data + '" class="btn btn-default delete-vendor-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+    }
+
+    function getStateFromCountry(selectedItem, $stateKendoDropDownList, preSelectedValue = "0"){
+        if(!selectedItem || !$stateKendoDropDownList) return false;
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+            data: {
+                "countryId": selectedItem,
+                "addSelectStateItem": "false"
+            },
+            success: function (data, textStatus, jqXHR) {
+                var dataSource = $stateKendoDropDownList.dataSource;
+                dataSource.data([]);
+                $.each(data,
+                    function (id, option) {
+                        dataSource.add({
+                            text: option.name,
+                            value: option.id
+                        });
+                    });
+                $stateKendoDropDownList.value(preSelectedValue);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
+        });
+    };
+
+    $("#vendors-grid").on("click", ".delete-vendor-link", function (e) {
+        const id = $(this).attr("data-deleteId");
+        $("#delete-id").val(id);
+    });
+
+    $("#delete-confirmation-popup").click(function(){
+        var postData = {
+            id: $("#delete-id").val()
+        };
+        addAntiForgeryToken(postData);
+
+        $.post("@Url.Action("DeleteGrid")", postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $("#vendors-grid").DataTable().draw(false);
+            }
+        });
+    });
+
+    $("#@Html.IdFor(model => model.CountryId)").change(function () {
+        let selectedItem = $(this).data("kendoDropDownList").value();
+        let ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+</script>

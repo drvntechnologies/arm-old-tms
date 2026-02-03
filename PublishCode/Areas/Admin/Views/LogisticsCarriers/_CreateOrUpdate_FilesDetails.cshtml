@@ -1,0 +1,251 @@
+﻿@using Nop.Core.Domain.LogisticsCarriers
+
+@model LogisticsCarriersModel
+
+@{
+    var url = Url.Action("DownloadFile", "Download", new { area = "Admin" });
+    var fileView = Url.Action("LogisticsCarriersFileView", "LogisticsCarriers", new { area = "Admin" });
+
+    var formId = "carrier-detail-form";
+    if (ViewData["FormId"] != null && !string.IsNullOrEmpty(ViewData["FormId"].ToString()))
+    {
+        formId = ViewData["FormId"].ToString();
+    }
+}
+
+<div class="card-body">
+@if (Model.Id > 0)
+{
+    @if (Model.Id > 0)
+        {
+            <div class="card-body clearfix d-flex align-items-center">
+                <div class="ml-auto">
+                    <div class="d-flex mb-2 justify-content-end flex-wrap gap-10">
+                        <span class="btn btn-primary btn-file btn-file-quale">
+                            <i class="fa fa-upload"></i>
+                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" class="upload-icon">
+                                <circle class="circle" cx="50" cy="50" r="45"></circle>
+                                <polygon class="arrow" points="50,20 40,35 45,35 45,60 55,60 55,35 60,35"></polygon>
+                                <rect class="arrow" x="45" y="60" width="10" height="20"></rect>
+                            </svg>
+                            @T("Admin.LogisticsCarrier.Fields.CertificateOfInsuranceDocumentId")
+                            <input type="file" id="CertificateOfInsuranceDocumentId" name="CertificateOfInsurance">
+                        </span>
+                        <span class="btn btn-primary btn-file btn-file-quale">
+                            <i class="fa fa-upload"></i>
+                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" class="upload-icon">
+                                <circle class="circle" cx="50" cy="50" r="45"></circle>
+                                <polygon class="arrow" points="50,20 40,35 45,35 45,60 55,60 55,35 60,35"></polygon>
+                                <rect class="arrow" x="45" y="60" width="10" height="20"></rect>
+                            </svg>
+                            @T("Admin.LogisticsCarrier.Fields.W9DocumentId")
+                            <input type="file" id="W9DocumentId" name="W9">
+                        </span>
+                        <span class="btn btn-primary btn-file btn-file-quale">
+                            <i class="fa fa-upload"></i>
+                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" class="upload-icon">
+                                <circle class="circle" cx="50" cy="50" r="45"></circle>
+                                <polygon class="arrow" points="50,20 40,35 45,35 45,60 55,60 55,35 60,35"></polygon>
+                                <rect class="arrow" x="45" y="60" width="10" height="20"></rect>
+                            </svg>
+                            @T("Admin.LogisticsCarrier.Fields.OtherDocumentId")
+                            <input type="file" id="OtherDocumentId" name="Other">
+                        </span>
+                    </div>
+                    <button type="submit" id="btnRefreshLogisticsCarriersFiles" style="display: none"></button>
+                    <script>
+                        $(document).ready(function () {
+                            $('#btnRefreshLogisticsCarriersFiles').click(function () {
+                                updateTable('#carriers-files-grid');
+                                //return false to don't reload a page
+                                return false;
+                            });
+                        });
+
+                        function renderFileDownload(data, type, row, meta) {
+                            return '<a href="@url?downloadGuid=' + data + '" target="_blank" class="btn btn-default"><i class="fas fa-download"></i></a>'
+                        }
+
+                        function renderFileView(data, type, row, meta) {
+                            if (row.Extension != "@LogisticsCarrierFileExtension.Xlsx" && row.Extension != "@LogisticsCarrierFileExtension.Xls" && row.Extension != "@LogisticsCarrierFileExtension.Docx" && row.Extension != "@LogisticsCarrierFileExtension.Doc") {
+                                return '<a class="btn btn-default" onclick="return filePoup(' + data + ')"> <i class="far fa-eye"></i></a>'
+                            } else {
+                                return '<a class="btn btn-default" onclick="return filePoup(' + data + ')"></a>'
+                            }
+
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        function filePoup(id) {
+                            var url = "@fileView" + "?id=" + id;
+                            let height = 600;
+                            let width = 700;
+                            var left = (screen.width - width) / 2;
+                            var top = (screen.height - height) / 2;
+                            window.open(url, "center window", 'resizable = yes, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+                        }
+                    </script>
+                </div>
+            </div>
+        }
+    <div class="card d-datatable m-0">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "carriers-files-grid",
+                    UrlRead = new DataUrl("LogisticsCarrierFilesList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsCarriersFilesSearchModel.CarrierId)] = Model.Id }),
+                    //UrlDelete = new DataUrl("LogisticsCarrierFilesDelete", "LogisticsCarriers", null),
+                    Length = Model.LogisticsCarriersFilesSearchModel.PageSize,
+                    LengthMenu = Model.LogisticsCarriersFilesSearchModel.AvailablePageSizes,
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(LogisticsCarriersFilesModel.Category))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.Category").Text,
+                        },
+                        new ColumnProperty(nameof(LogisticsCarriersFilesModel.FileName))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.FileName").Text,
+                        },
+                        new ColumnProperty(nameof(LogisticsCarriersFilesModel.Id))
+                        {
+                            Title = T("Admin.Common.View").Text,
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderCustom("renderFileView")
+                        },
+                        new ColumnProperty(nameof(LogisticsCarriersFilesModel.DownloadGuid))
+                        {
+                            Title = T("Admin.LogisticsCarriers.View.FileName.Download").Text,
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderCustom("renderFileDownload")
+                        },
+                        new ColumnProperty(nameof(LogisticsCarriersFilesModel.Id))
+                        {
+                            Title = T("Admin.Common.Delete").Text,
+                            Render = new RenderCustom("renderColumnFileDelete"),
+                            ClassName =  NopColumnClassDefaults.Button
+                        }
+                    }
+                })
+            </div>
+        </div>
+}
+else
+{
+    <div class="card-default m-0">        
+            @T("Admin.Carriers.Carrier.CarriersFiles.SaveBeforeEdit")        
+    </div>
+}
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="carrierFile-delete-confirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="carrierFile-delete-confirmation-title" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="cancel-confirmation-popup-title">@T("Admin.Common.AreYouSure")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        @T("Admin.Common.DeleteConfirmation")
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                        <button type="submit" asp-action="List" class="btn btn-danger float-right">@T("Admin.Common.Delete")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script asp-location="Footer">
+        function renderColumnFileDelete(data, type, row, meta) {
+            return '<a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt"></i>Delete</a>';
+        }
+
+        $("#carriers-files-grid").on("click", ".delete-link", function (e) {
+            const id = $(this).attr("data-deleteId");
+            $("#delete-id").val(id);
+            $("#delete-id").attr("data-url", "@Url.Action("LogisticsCarrierFilesDeleteGrid")")
+                            .attr("data-tableId", "carriers-files-grid");
+        });
+
+        function uploadFile(fileInputId) {
+
+            var val = $("#" + fileInputId).val();
+
+            switch (val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
+                case 'jpeg': case 'jpg': case 'png': case 'pdf': case 'docx': case 'doc': case 'xlsx': case 'xls':
+                    break;
+
+                default:
+                    $("#" + fileInputId).val('');
+                    // error message here
+                    toastr.error("Only image, PDF, DOC, and Excel files are permitted.");
+
+                    return false;
+                    break;
+            }
+
+            var formData = new FormData();
+            var file = $(`#${fileInputId}`)[0].files[0];
+
+            if (!file) {
+                toastr.error("No file selected.");
+                return false;
+            }
+
+            formData.append('files', file);
+            formData.append("categoryName", $("#" + fileInputId).attr("Name"));
+            formData.append("carrierId", "@Model.Id");
+
+            var antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '@Url.Action("UploadFile", "LogisticsCarriers")',
+                type: 'POST',
+                data: formData,
+                headers: {
+                    "RequestVerificationToken": antiForgeryToken
+                },
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $("#" + fileInputId).siblings("i").hide();
+                    $("#" + fileInputId).siblings(".upload-icon").show();
+                },
+                success: function (response) {
+                    if (response) {
+                        if (response.Status == true) {
+                            toastr.success(`File has been uploaded successfully: ${response.FileName}`);
+                        }
+                        else if (response.Message) {
+                            toastr.error(response.Message);
+                        }
+                        else if (response.error) {
+                            toastr.error(response.error);
+                        }
+                    }
+                },
+                complete: function () {
+                    updateTable('#carriers-files-grid');
+                    $('#' + fileInputId).val('');
+                    $("#" + fileInputId).siblings(".upload-icon").hide();
+                    $("#" + fileInputId).siblings("i").show();
+                },
+                error: function (xhr, status, error) {
+                    toastr.error(`Error uploading ${file.name}: ${xhr.responseText}`);
+                }
+            });
+        }
+
+        $(function () {
+            $('#CertificateOfInsuranceDocumentId, #W9DocumentId, #OtherDocumentId').on('change', function () {
+                var fileId = $(this).attr("id");
+                uploadFile(fileId);
+            });
+        });
+    </script>
+}

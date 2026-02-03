@@ -1,0 +1,742 @@
+﻿@model OrderModel
+
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.LogisticsQuotes
+@using Nop.Services
+
+@{
+	var isRequired = !Model.IsChildOrder;
+}
+
+<div class="card-body customer-information">
+	<div class="row">
+		<div class="@(Model.IsChildOrder ? "col-md-12" : "col-md-6")">
+			<div class="card h-100">
+				<div class="card-body">
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.CompanyId" asp-required="isRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="CustomerInformation.CompanyId" asp-items="Model.CustomerInformation.AvailableCompanies" class="form-select" />
+							<span asp-validation-for="CustomerInformation.CompanyId"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.CustomerId" asp-required="isRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="CustomerInformation.CustomerId" asp-items="Model.CustomerInformation.AvailableCompaniesRep" class="form-select" />
+							<span asp-validation-for="CustomerInformation.CustomerId"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="ReferredBy" asp-required="Model.ReferredByRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="ReferredBy" asp-items="Model.AvailableReferredBies" />
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.Email" asp-required="isRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="CustomerInformation.Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+							<span asp-validation-for="CustomerInformation.Email"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.PhoneNumber" asp-required="isRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="CustomerInformation.PhoneNumber" />
+							<span asp-validation-for="CustomerInformation.PhoneNumber"></span>
+						</div>
+					</div>
+
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.ReferenceNumber" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="CustomerInformation.ReferenceNumber" html-attributes="@(new { placeholder = "Enter Reference Number" })" />
+							<span asp-validation-for="CustomerInformation.ReferenceNumber"></span>
+						</div>
+					</div>
+
+					@if (Model.HasPermissionToUpdateARMSalesRep)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="PrimarySalesRep" asp-required="isRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="PrimarySalesRep" asp-items="Model.AvailablePrimarySalesRep" />
+								<span asp-validation-for="PrimarySalesRep"></span>
+							</div>
+						</div>
+					}
+
+					@if (Model.IsChildOrder)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="PaymentOption" asp-required="Model.PaymentOptionRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="PaymentOption" asp-items="Model.AvailablePaymentOptions" class="form-select" />
+								<span asp-validation-for="PaymentOption"></span>
+							</div>
+						</div>
+					}
+
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6" style="@(Model.IsChildOrder ? "display: none;" : "")">
+			<div class="card h-100">
+				<div class="card-body">
+					<div class="custom-form-group" style="@(Model.IsChildOrder ? "display: none;" : "")">
+						<div class="label-name">
+							<div class="label-wrapper">
+								<label class="col-form-label" for="Price">
+									@T("Admin.Order.Customer.Cost")
+								</label>
+								@if (Model.PriceRequired)
+								{
+									<nop-required />
+								}
+							</div>
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="Price" />
+							<span asp-validation-for="Price"></span>
+						</div>
+					</div>
+
+					@if (Model.IsChildOrder)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="BillableCODPrice" 
+									id="CODPrice_label" 
+									style="@(Model.HasCODOrder ? "" : "display: none;")">
+										@T("Admin.Orders.Fields.COD.Price")
+									</label>
+									<label class="col-form-label" for="BillableCODPrice" 
+									id="BillablePrice_label"
+									style="@(!Model.HasCODOrder ? "" : "display: none;")">
+										@T("Admin.Orders.Fields.Billable.Price")
+									</label>
+								</div>
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="BillableCODPrice" />
+								<span asp-validation-for="BillableCODPrice"></span>
+							</div>
+						</div>
+					}
+
+					@if (!Model.IsChildOrder)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<nop-label asp-for="PaymentOption" asp-required="Model.PaymentOptionRequired" />
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="PaymentOption" asp-items="Model.AvailablePaymentOptions" class="form-select" />
+								<span asp-validation-for="PaymentOption"></span>
+							</div>
+						</div>
+					}
+					
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PaymentMethod" asp-required="Model.PaymentMethodRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="PaymentMethod" asp-items="Model.AvailablePaymentMethods" class="form-select" />
+							<span asp-validation-for="PaymentMethod"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PaymentTerms" asp-required="Model.PaymentTermsRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="PaymentTerms" asp-items="Model.AvailablePaymentTerms" class="form-select" />
+							<span asp-validation-for="PaymentTerms"></span>
+						</div>
+					</div>
+
+					@if (Model.HasPermissionToUpdatePaymentStatus)
+					{
+						<div class="custom-form-group">
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="PaymentStatusId">
+										@T("Admin.Orders.Fields.PaymentStatus")
+									</label>
+								</div>
+							</div>
+							<div class="input-name">
+								<nop-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatus" class="form-select" />
+								<span asp-validation-for="PaymentStatusId"></span>
+							</div>
+						</div>
+						
+						@if (Model.IsChildOrder)
+						{
+							<div class="custom-form-group" style="@(Model.HasCODOrder ? "" : "display: none;")">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="CODPaymentStatusId">
+											@T("Admin.Orders.Fields.COD.PaymentStatusId")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<nop-select asp-for="CODPaymentStatusId" asp-items="Model.AvailablePaymentStatus" class="form-select" />
+									<span asp-validation-for="CODPaymentStatusId"></span>
+								</div>
+							</div>
+						}
+					}
+
+					<div class="custom-form-group">
+						<div class="label-name">
+						</div>
+						<div class="input-name">
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div id="referral-add-new-record" class="modal fade" tabindex="-1" aria-labelledby="referral-add-new-record-title" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="referral-add-new-record-title">@T("Admin.Common.AddRecord.Referral")</h4>
+				<button type="button" class="close" id="close-referral-add-new-record" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			</div>
+			<div class="modal-body d-form">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group row">
+							<div class="col-md-12">
+								<label class="col-form-label" for="ReferrerName">@T("Admin.Configuration.Settings.Referral.Fields.Name")</label>
+								<nop-required />
+							</div>
+							<div class="col-md-12">
+								<input type="text" id="ReferrerName" name="ReferrerName" class="form-control" />
+								<div>
+									<span style="color:red;" id="ReferrerName-validation"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="addReferrer" class="btn btn-primary">@T("Admin.Common.Save")</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="Payment-Option-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="payment-option-confirmation-popup-title" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="payment-option-confirmation-popup-title">@T("Admin.Common.AreYouSure")</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+			</div>
+			<div class="form-horizontal">
+				<div class="modal-body">
+					@T("Admin.Order.Delivered.Status.Confirmation.Text")
+				</div>
+				<div class="modal-footer">
+					<span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+					<span id="confirm-payment-option" class="btn btn-primary" data-dismiss="modal" aria-label="Close">@T("Admin.Common.Yes")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script asp-location="Footer">
+	commonPhoneNumber("#CustomerInformation_PhoneNumber");
+	enforceLowerCase("#CustomerInformation_Email");
+	DeliveryPastDate("#FollowUpDate, #CustomerInformation_FollowUpDate");
+
+	const arrayManager = createArrayManager();
+	let currentPaymentOption = $("#PaymentOption").val();
+	let referredByPreviousValue = $("#ReferredBy").val();
+
+	$("#Payment-Option-Confirmation-Popup .close").click(function () {
+		$("#Payment-Option-Confirmation-Popup").modal("hide");
+	});
+
+	$("#Payment-Option-Confirmation-Popup").on("hidden.bs.modal", function (e) {
+		$("#Payment-Option-Confirmation-Popup .modal-body").html('');
+		$("#@Html.IdFor(model => model.PaymentOption)").data("kendoDropDownList").value(currentPaymentOption);
+	});
+
+	function updatePaymentOption(){
+
+		const val = $("#@Html.IdFor(model => model.PaymentOption)").data("kendoDropDownList").value();
+		currentPaymentOption = val;
+
+		const $isCarrierAssign = $("input[name='IsCarrierAssign']:checked");
+		let hasCarrierAssign = false;
+		if ($isCarrierAssign.length > 0){
+			hasCarrierAssign = toBoolean($isCarrierAssign.val());
+		}
+
+		const $paymentMethod = $("#@Html.IdFor(model => model.PaymentMethod)");
+		const $paymentTerms = $("#@Html.IdFor(model => model.PaymentTerms)");
+		const $balancePaymentOption = $("#@Html.IdFor(model => model.BalancePaymentOption)");
+		const $termsBegin = $("#@Html.IdFor(model => model.TermsBegin)");
+		const $carrierPayTerms = $("#@Html.IdFor(model => model.CarrierPayTerms)");
+		const $carrierCategory = $("#@Html.IdFor(model => model.CarrierCategory)");
+
+		if (val.toLowerCase() === "@LogisticsDefaults.PaymentOption.COD.ToLower()"){
+
+			addKendoDropdownValue($paymentMethod, "@LogisticsDefaults.PaymentMethod.CreditCard");
+			addKendoDropdownValue($paymentTerms, "@LogisticsDefaults.PaymentTerms.OnDelivery");
+
+			if (hasCarrierAssign){
+				addKendoDropdownValue($balancePaymentOption, "@LogisticsDefaults.BalancePaymentOption.CashOnDelivery");
+				addKendoDropdownValue($termsBegin, "@LogisticsDefaults.TermsBegin.Delivery");
+				addKendoDropdownValue($carrierPayTerms, "@LogisticsDefaults.CarrierPayTerms.CashOnDelivery");
+				addKendoDropdownValue($carrierCategory, "@LogisticsDefaults.CarrierCategory.USCarrier");
+			}
+
+		} else if (val.toLowerCase() === "@LogisticsDefaults.PaymentOption.Billable.ToLower()"){
+
+			addKendoDropdownValue($paymentMethod, "@LogisticsDefaults.PaymentMethod.BillableCorporateAccount");
+			addKendoDropdownValue($paymentTerms, "@LogisticsDefaults.PaymentTerms.ThirtyDays");
+
+			if (hasCarrierAssign){
+				addKendoDropdownValue($balancePaymentOption, "@LogisticsDefaults.BalancePaymentOption.QuickPay");
+				addKendoDropdownValue($termsBegin, "@LogisticsDefaults.TermsBegin.ReceivingASignedBillOfLading");
+				addKendoDropdownValue($carrierPayTerms, "@LogisticsDefaults.CarrierPayTerms.QuickPayFifteenDay");
+				addKendoDropdownValue($carrierCategory, "@LogisticsDefaults.CarrierCategory.USCarrier");
+			}
+
+		} else {
+
+			addKendoDropdownValue($paymentMethod, "0");
+			addKendoDropdownValue($paymentTerms, "0");
+
+			if (hasCarrierAssign){
+				addKendoDropdownValue($balancePaymentOption, "0");
+				addKendoDropdownValue($termsBegin, "0");
+				addKendoDropdownValue($carrierPayTerms, "0");
+				addKendoDropdownValue($carrierCategory, "0");
+			}
+		}
+	}
+
+	$("#confirm-payment-option").on("click", function (e) {
+		$("#Payment-Option-Confirmation-Popup").modal("hide");
+		updatePaymentOption();
+		updateBillableAndCODValue();
+	});
+	
+	function updateBillableAndCODValue(){
+		const paymentOption = $("#PaymentOption");
+		if (paymentOption.length <= 0){
+			return;
+		}
+
+		const paymentOptionValue = paymentOption.data("kendoDropDownList").value();
+		if(typeof paymentOptionValue !== "string" || paymentOptionValue.trim().length <= 0){
+			return;
+		}
+
+		if (paymentOptionValue.trim().toLowerCase() === "@LogisticsDefaults.PaymentOption.COD.ToLower()") {
+			$("#CODPrice_label").show();
+			$("#BillablePrice_label").hide();
+
+			$("#CODPaymentStatusId").closest("div.custom-form-group").show();
+		}
+		else {
+			$("#BillablePrice_label").show();
+			$("#CODPrice_label").hide();
+
+			$("#CODPaymentStatusId").closest("div.custom-form-group").hide();
+		}
+	}
+
+	function createArrayManager() {
+
+		let dataArray = @Html.Raw(Json.Serialize(Model.AvailableAccessorialTypes));
+
+		let backupArray = [];
+
+		return {
+			addItem(item) {
+				if (!this.recordExists("Value", item.Value)) {
+					dataArray.push(item);
+					this.sortArray();
+
+					availableAccessorialTypes = dataArray;
+					this.updateDropDown();
+				}
+			},
+			removeItem(conditionKey, conditionValue) {
+				let removedItems = dataArray.filter(obj => obj[conditionKey] === conditionValue);
+				if (removedItems.length > 0) {
+					backupArray.push(...removedItems);
+					dataArray = dataArray.filter(obj => obj[conditionKey] !== conditionValue);
+
+					availableAccessorialTypes = dataArray;
+					this.updateDropDown();
+				}
+			},
+			restoreItem(conditionKey, conditionValue) {
+				let restoredItems = backupArray.filter(obj => obj[conditionKey] === conditionValue);
+				if (restoredItems.length > 0) {
+					dataArray.push(...restoredItems);
+					backupArray = backupArray.filter(obj => obj[conditionKey] !== conditionValue);
+					this.sortArray();
+
+					availableAccessorialTypes = dataArray;
+					this.updateDropDown();
+				}
+			},
+			sortArray() {
+				dataArray.sort((a, b) => (a.Text || "").localeCompare(b.Text || ""));
+			},
+			recordExists(conditionKey, conditionValue) {
+				return dataArray.some(obj => obj[conditionKey] === conditionValue);
+			},
+			getData() {
+				return [...dataArray];
+			},
+			updateDropDown() {
+				var formattedData = availableAccessorialTypes.map(function (item) {
+					return {
+						text: item.Text,
+						value: item.Value
+					};
+				});
+
+				$('select[data-type="AccessorialTypeId"]').each(function () {
+					if ($(this).data("kendoDropDownList").value() == "@((int)AccessorialType.Referral)"){
+						$(this).closest('tr').find('.accessorial-delete').click();
+					}
+					else{
+						let dropdown = $(this).data("kendoDropDownList");
+
+						if (dropdown) {
+							dropdown.setDataSource(new kendo.data.DataSource({ data: formattedData }));
+							dropdown.refresh();
+						}
+					}
+				});
+			}
+		};
+	};
+
+	$(function () {
+		@if (!isRequired)
+		{
+			<text>
+				$(`#CustomerInformation_CompanyId`).data("kendoDropDownList").enable(false);
+				$(`#CustomerInformation_CustomerId`).data("kendoDropDownList").enable(false);
+				$(`#CustomerInformation_Email`).prop("disabled", true);
+				$(`#CustomerInformation_PhoneNumber`).prop("disabled", true);
+				$(`#CustomerInformation_ReferenceNumber`).prop("disabled", true);
+				$(`#ReferredBy`).data("kendoDropDownList").enable(false);
+
+				if ($("#PrimarySalesRep").length > 0){
+					$(`#PrimarySalesRep`).data("kendoDropDownList").enable(false);
+				}
+			</text>
+		}
+
+		$("#ReferredBy").data("kendoDropDownList").ul.find("li:first").addClass("k-add-new-option");
+		
+		if ($("#CustomerInformation_CustomerId").val() == "0" || $("#CustomerInformation_CompanyId").val() == "0") {
+			$("#CustomerInformation_AddCustomer").removeAttr("disabled");
+		}
+		else {
+			$("#CustomerInformation_AddCustomer").attr("disabled", "disabled");
+		}
+
+		$("#CustomerInformation_CustomerId").change(function () {
+			const customerId = $(this).val();
+
+			if (customerId == "0") {
+				$("#CustomerInformation_AddCustomer").removeAttr("disabled");
+			}
+			else {
+				$("#CustomerInformation_AddCustomer").attr("disabled", "disabled");
+			}
+
+			var pickupSameAsShipper = $('#@Html.IdFor(model => model.PickupSameAsShipper)').is(':checked');
+			var deliverySameAsShipper = $('#@Html.IdFor(model => model.DeliverySameAsShipper)').is(':checked');
+
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetCustomerInfoById", "Customer"))",
+				data: {
+					customerId: customerId,
+				},
+				success: function (data, textStatus, jqXHR) {
+					if (data.result) {
+						$('#@Html.IdFor(model => model.CustomerInformation.Email)').val(data.email);
+						$('#@Html.IdFor(model => model.CustomerInformation.PhoneNumber)').val(data.phone);
+					}
+					else {
+						$('#@Html.IdFor(model => model.CustomerInformation.Email)').val('');
+						$('#@Html.IdFor(model => model.CustomerInformation.PhoneNumber)').val('');
+					}
+
+					if (pickupSameAsShipper) {
+						if (data.result){
+							$("#@Html.IdFor(m => m.PickupAddress.ContactName)").val(data.firstName + " " + data.lastName);
+							$("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val(data.phone);
+							$("#@Html.IdFor(m => m.PickupAddress.Email)").val(data.email);
+						}
+						else{
+							$("#@Html.IdFor(m => m.PickupAddress.ContactName)").val("");
+							$("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val("");
+							$("#@Html.IdFor(m => m.PickupAddress.Email)").val("");
+						}
+					}
+
+					if (deliverySameAsShipper) {
+						$("#@Html.IdFor(m => m.ShippingAddress.ContactName)").val($("#@Html.IdFor(m => m.PickupAddress.ContactName)").val());
+						$("#@Html.IdFor(m => m.ShippingAddress.PhoneNumber)").val($("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val());
+						$("#@Html.IdFor(m => m.ShippingAddress.Email)").val($("#@Html.IdFor(m => m.PickupAddress.Email)").val());
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+				}
+			});
+		});
+
+		$("#CustomerInformation_CompanyId").change(function () {
+			const companyId = $(this).val();
+
+			$("#CustomerInformation_AddCustomer").removeAttr("disabled");
+			var ddlCustomers = $("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").data("kendoDropDownList");
+
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetCompanyDetailsById", "Company"))",
+				data: {
+					id: companyId,
+				},
+				success: function (data, textStatus, jqXHR) {
+					if (data) {
+						percentageMargin = data.PercentagePriceMargin;
+						$("#PercentagePriceMargin").val(data.PercentagePriceMargin);
+
+						@if(!Model.IsNewOrder)
+						{
+							<text>
+								calculateEstimatedCustomerPrice();
+							</text>
+						}
+
+						$('#@Html.IdFor(model => model.CustomerInformation.Company)').val(data.Name);
+
+						if(data.AccountType != null && (data.AccountType.toLowerCase() === "@LogisticsDefaults.PaymentOption.Billable.ToLower()" || 
+						data.AccountType.toLowerCase() === "@LogisticsDefaults.PaymentOption.COD.ToLower()")){
+							$('#@Html.IdFor(model => model.PaymentOption)').data("kendoDropDownList").value(data.AccountType);
+						}
+						else{
+							$('#@Html.IdFor(model => model.PaymentOption)').data("kendoDropDownList").value("0");
+						}
+
+						$("#@Html.IdFor(model => model.PaymentOption)").trigger('change');
+
+						var dataSource = ddlCustomers.dataSource;
+						dataSource.data([]);
+						$.each(data.CustomerList, function (id, option) {
+							dataSource.add({
+								text: option.Text,
+								value: option.Value
+							});
+						});
+						
+						if ($('#@Html.IdFor(model => model.PrimarySalesRep)').length > 0) {
+							if (data.PrimarySalesRep != null && data.PrimarySalesRep > '0'){
+								$('#@Html.IdFor(model => model.PrimarySalesRep)').data("kendoDropDownList").value(data.PrimarySalesRep);
+							} else {
+								$('#@Html.IdFor(model => model.PrimarySalesRep)').data("kendoDropDownList").value("0");
+							}
+						}
+
+						$("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").data("kendoDropDownList").value(0);
+						$("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").trigger('change');
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+				}
+			});
+		});
+	});
+
+	$("#ReferredBy").change(function(){
+		let value = $(this).val();
+		if(value === "-1")
+		{
+			$("#referral-add-new-record").modal("show");
+		}
+		else{
+			referredByPreviousValue = value;
+		}
+	});
+
+	$("#close-referral-add-new-record").click(function () {
+		$("#ReferrerName").val("");
+		$("#ReferrerName-validation").text("");
+		$("#ReferredBy").val(referredByPreviousValue);
+		$("#ReferredBy").data("kendoDropDownList").value(referredByPreviousValue);
+		$("#referral-add-new-record").modal("hide").attr('area-hidden', '');
+	});
+
+	$("#addReferrer").click(function(e){
+		e.preventDefault();
+
+		$("#ReferrerName-validation").text("");
+		let name = $("#ReferrerName").val();
+		if (name === null || name === undefined || name.trim() === "") {
+			$("#ReferrerName-validation").text("@T("Admin.Referral.Fields.Name.Required")");
+			return false;
+		}
+
+		var postData = {
+			Name : name,
+			// Active : $("#ReferrerActive").prop('checked')
+			Active : true
+		}
+
+		addAntiForgeryToken(postData);
+
+		$.post("@Url.Action("AddRecord", "Referral")",postData, function (data, textStatus, jqXHR) {
+			if (data){
+				if(data.Status){
+					$("#ReferrerName").val("");
+
+					toastr.success("@T("Admin.Configuration.Settings.Referral.Add.Success")");
+
+					$("#referral-add-new-record").modal("hide").attr('area-hidden', '');
+
+					var formattedData = data.Records.map(function (item) {
+						return {
+							text: item.Text,
+							value: item.Value
+						};
+					});
+
+					var dropDown = $("#ReferredBy").data("kendoDropDownList");
+
+					dropDown.setDataSource(new kendo.data.DataSource({
+						data: formattedData
+					}));
+
+					// dropDown.select(0);
+					dropDown.ul.find("li:first").addClass("k-add-new-option");
+
+					if (data.referralName != "0"){
+						referredByPreviousValue = data.referralName;
+					}
+						
+					$("#ReferredBy").val(referredByPreviousValue);
+					$("#ReferredBy").data("kendoDropDownList").value(referredByPreviousValue);
+					$("#ReferredBy").trigger('change');
+				}
+				else if (data.Message){
+					$("#ReferrerName-validation").text(data.Message);
+				}
+				else {
+					display_nop_error(data);
+				}
+			}
+			else{
+				$("#ReferrerName").val("");
+				$("#ReferrerName-validation").text("");
+				// $("#ReferrerActive").prop("checked", false);
+				$("#ReferredBy").val(referredByPreviousValue);
+				$("#ReferredBy").data("kendoDropDownList").value(referredByPreviousValue);
+				$("#referral-add-new-record").modal("hide").attr('area-hidden', '');
+				$("#ReferredBy").trigger('change');
+			}
+		});
+	});
+
+	$("#ReferrerName").bind('keyup focusout',function(){
+		let value = $(this).val();
+
+		if (value === null || value === undefined || value.trim() === "") {
+			$("#ReferrerName-validation").text("@T("Admin.Referral.Fields.Name.Required")");
+		}
+		else{
+			$("#ReferrerName-validation").text("");
+		}
+	});
+
+	$("#@Html.IdFor(model => model.PaymentOption)").change(function(e){
+
+		var val = $(this).val() ?? "";
+
+		if (typeof val !== "string"){
+			return;
+		}
+
+		if (!(@(Model.IsChildOrder.ToString().ToLower())) && !(@(Model.IsNewOrder.ToString().ToLower()))){
+			updatePaymentOption();
+			return;
+		}
+
+		if (val === "0" || val === currentPaymentOption) {
+			return;
+		}
+
+		if (@Model.Id === 0 && !(@Model.IsChildOrder.ToString().ToLower())){
+			updatePaymentOption();
+			return;
+		}
+
+		if (currentPaymentOption === "0" && val !== "0"){
+			updatePaymentOption();
+			return;
+		}
+
+		$("#Payment-Option-Confirmation-Popup .modal-body").html(`Are you sure you want to switch "<strong>${currentPaymentOption}</strong>"" to "<strong>${val}</strong>"?`);
+
+		$("#Payment-Option-Confirmation-Popup").modal("show");
+	});
+
+	$("#ReferredBy").change(function(){
+		let referral = $(this).val();
+		$(".referral-name").text("").closest("label").hide();
+
+		if (referral == "0" || referral == ""){
+			$(".referral-name").text("").closest("label").hide();
+			arrayManager.removeItem("Value", "@((int)AccessorialType.Referral)");
+		}
+		else {
+			$(".referral-name").text(referral).closest("label").show();
+			arrayManager.restoreItem();
+		}
+	});
+
+</script>

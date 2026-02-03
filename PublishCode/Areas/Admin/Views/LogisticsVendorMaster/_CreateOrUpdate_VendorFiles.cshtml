@@ -1,0 +1,252 @@
+﻿@using Nop.Core.Domain.LogisticsCarriers
+@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+
+@{
+    var url = Url.Action("DownloadFile", "Download", new { area = "Admin" });
+    var fileView = Url.Action("Files", "LogisticsVendorMaster", new { area = "Admin" }); // Updated action method name
+
+    var formId = "vendor-master-form";
+    if (ViewData["FormId"] != null && !string.IsNullOrEmpty(ViewData["FormId"].ToString()))
+    {
+        formId = ViewData["FormId"].ToString();
+    }
+}
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        <div class="card-header with-border clearfix d-flex align-items-center">
+            <div class="ml-auto">
+                <div class="d-flex mb-2 justify-content-end flex-wrap gap-10">
+                    <span class="btn btn-primary btn-file btn-file-quale">
+                        <i class="fa fa-upload"></i>
+                        <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" class="upload-icon">
+                            <circle class="circle" cx="50" cy="50" r="45"></circle>
+                            <polygon class="arrow" points="50,20 40,35 45,35 45,60 55,60 55,35 60,35"></polygon>
+                            <rect class="arrow" x="45" y="60" width="10" height="20"></rect>
+                        </svg>
+                        @T("Admin.LogisticsVendor.Fields.W9DocumentId")
+                        <input type="file" id="W9DocumentId" name="W9">
+                    </span>
+                    <span class="btn btn-primary btn-file btn-file-quale">
+                        <i class="fa fa-upload"></i>
+                        <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" class="upload-icon">
+                            <circle class="circle" cx="50" cy="50" r="45"></circle>
+                            <polygon class="arrow" points="50,20 40,35 45,35 45,60 55,60 55,35 60,35"></polygon>
+                            <rect class="arrow" x="45" y="60" width="10" height="20"></rect>
+                        </svg>
+                        @T("Admin.LogisticsVendor.Fields.OtherDocumentId")
+                        <input type="file" id="OtherDocumentId" name="Other">
+                    </span>
+                </div>
+                <button type="submit" id="btnRefreshVendorMasterFiles" style="display: none"></button>
+                <script>
+                    $(document).ready(function () {
+                        $('#btnRefreshVendorMasterFiles').click(function () {
+                            updateTable('#vendor-master-files-grid');
+                            return false;
+                        });
+                    });
+
+                    function renderFileDownload(data, type, row, meta) {
+                        return '<a href="@url?downloadGuid=' + data + '" target="_blank" class="btn btn-default"><i class="fas fa-download"></i></a>'
+                    }
+
+                    function renderFileView(data, type, row, meta) {
+                        if (row.Extension != "@LogisticsCarrierFileExtension.Xlsx" && row.Extension != "@LogisticsCarrierFileExtension.Xls" && row.Extension != "@LogisticsCarrierFileExtension.Docx" && row.Extension != "@LogisticsCarrierFileExtension.Doc") {
+                            return '<a class="btn btn-default" onclick="return filePoup(' + data + ')"> <i class="far fa-eye"></i></a>'
+                        } else {
+                            return '<a class="btn btn-default" onclick="return filePoup(' + data + ')"></a>'
+                        }
+                    }
+                </script>
+                <script type="text/javascript">
+                    function filePoup(id) {
+                        var url = "@fileView" + "?id=" + id;
+                        let height = 600;
+                        let width = 700;
+                        var left = (screen.width - width) / 2;
+                        var top = (screen.height - height) / 2;
+                        window.open(url, "center window", 'resizable = yes, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+                    }
+                </script>
+            </div>
+        </div>
+
+        <div class="card d-datatable m-0">
+            <div class="card-body">
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "vendor-master-files-grid",
+                    UrlRead = new DataUrl("LogisticsVendorMasterFilesList", "LogisticsVendorMaster", new RouteValueDictionary { [nameof(Model.LogisticsVendorMasterFileSearchModel.VendorId)] = Model.Id }), // Updated action method name
+                    Length = Model.LogisticsVendorMasterFileSearchModel.PageSize,
+                    LengthMenu = Model.LogisticsVendorMasterFileSearchModel.AvailablePageSizes,
+                    ColumnCollection = new List<ColumnProperty>
+                     {
+                         new ColumnProperty(nameof(LogisticsVendorMasterFilesModel.Category))
+                        {
+                            Title = T("Admin.LogisticsVendor.View.Category").Text
+                        },
+                        new ColumnProperty(nameof(LogisticsVendorMasterFilesModel.FileName))
+                        {
+                            Title = T("Admin.LogisticsVendor.View.FileName").Text
+                        },
+                        new ColumnProperty(nameof(LogisticsVendorMasterFilesModel.Id))
+                        {
+                            Title = T("Admin.Common.View").Text,
+                            ClassName = NopColumnClassDefaults.Button,
+                            Width = "100",
+                            Render = new RenderCustom("renderFileView")
+                        },
+                        new ColumnProperty(nameof(LogisticsVendorMasterFilesModel.DownloadGuid))
+                        {
+                            Title = T("Admin.LogisticsVendor.View.FileName.Download").Text,
+                            ClassName = NopColumnClassDefaults.Button,
+                            Width = "100",
+                            Render = new RenderCustom("renderFileDownload")
+                        },
+                        new ColumnProperty(nameof(LogisticsVendorMasterFilesModel.Id))
+                        {
+                            Title = T("Admin.Common.Delete").Text,
+                            Width = "100",
+                            Render = new RenderCustom("renderColumnFileDelete"),
+                            ClassName = NopColumnClassDefaults.Button
+                        }
+                  }
+            })
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.VendorMaster.VendorMasterFiles.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="delete-id" name="delete-id" />
+                    @T("Admin.Common.DeleteConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                    <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script asp-location="Footer">
+        function renderColumnFileDelete(data, type, row, meta) {
+            return '<a data-deleteId="' + data + '" class="btn btn-default delete-vendor-master-file-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt"></i>Delete</a>';
+        }
+
+        $("#vendor-master-files-grid").on("click", ".delete-vendor-master-file-link", function (e) {
+            const id = $(this).attr("data-deleteId");
+            $("#delete-id").val(id);
+        });
+
+        $("#delete-confirmation-popup").click(function(){
+            var postData = {
+                id: $("#delete-id").val()
+            };
+            addAntiForgeryToken(postData);
+
+            $.post("@Url.Action("LogisticsVendorMasterFilesDeleteGrid")", postData, function(data){
+                $("#delete-id").val("");
+                $("#delete-confirmation").find('button.close').click();
+
+                if (data) {
+                    display_nop_error(data);
+                }
+                else{
+                    //refresh grid
+                    $("#vendor-master-files-grid").DataTable().draw(false);
+                }
+            });
+        });
+
+        function uploadFile(fileInputId) {
+            var val = $("#" + fileInputId).val();
+
+            switch (val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
+                case 'jpeg': case 'jpg': case 'png': case 'pdf': case 'docx': case 'doc': case 'xlsx': case 'xls':
+                    break;
+
+                default:
+                    $("#" + fileInputId).val('');
+                    toastr.error("Only image, PDF, DOC, and Excel files are permitted.");
+                    return false;
+            }
+
+            var formData = new FormData();
+            var file = $("#" + fileInputId)[0].files[0];
+
+            if (!file) {
+                toastr.error("No file selected.");
+                return false;
+            }
+
+            formData.append('files', file);
+            formData.append("categoryName", $("#" + fileInputId).attr("Name"));
+            formData.append("vendorId", "@Model.Id");
+
+            var antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '@Url.Action("UploadVendorMasterFile", "LogisticsVendorMaster")', // Updated action method name
+                type: 'POST',
+                data: formData,
+                headers: {
+                    "RequestVerificationToken": antiForgeryToken
+                },
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $("#" + fileInputId).siblings("i").hide();
+                    $("#" + fileInputId).siblings(".upload-icon").show();
+                },
+                success: function (response) {
+                    if (response) {
+                        if (response.Status == true) {
+                            toastr.success(`File has been uploaded successfully: ${response.FileName}`);
+                        } else if (response.Message) {
+                            toastr.error(response.Message);
+                        } else if (response.error) {
+                            toastr.error(response.error);
+                        }
+                    }
+                },
+                complete: function () {
+                    updateTable('#vendor-master-files-grid');
+                    $("#" + fileInputId).val('');
+                    $("#" + fileInputId).siblings(".upload-icon").hide();
+                    $("#" + fileInputId).siblings("i").show();
+                },
+                error: function (xhr, status, error) {
+                    toastr.error(`Error uploading ${file.name}: ${xhr.responseText}`);
+                }
+            });
+        }
+
+        $(function () {
+            $('#W9DocumentId, #OtherDocumentId').on('change', function () {
+                var fileId = $(this).attr("id");
+                uploadFile(fileId);
+            });
+        });
+    </script>
+}

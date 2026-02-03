@@ -1,0 +1,102 @@
+@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsVehicleInfoModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+@{
+    var addId = "VehicleInfos" + (Model.Counter - 1);
+    var newId = "VehicleInfos" + (Model.Counter - 1) + "_VehicleVINNumber";
+}
+<div id="vehicle_@(Model.Counter-1)" class="VehicleInfoList @(Model.Counter>1?"border-top pt-3":"")">
+    <div class="row">
+        <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+        <input asp-for="LeadId" type="hidden" />
+        <div class="col-md-6">
+
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <label class="col-form-label counter" for="Shipper">@T("Admin.Orders.Fields.VehicleCount", Model.Counter)</label>
+                        </div>
+                        <div class="input-name">
+                            <button class="btn btn-danger" id="removeVehicleInfoBtn" type="button" onclick="RemoveVehicle(@Model.Counter)">@T("Admin.Orders.Fields.Vehicle.Remove")</button>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleVINNumber" asp-required="@Model.VehicleVINNumberRequired" />
+                        </div>
+                        <div class="input-name">
+                            <input type="text" class="form-control" asp-for="VehicleVINNumber" onkeyup="VinApiRequest('@addId','@newId')" />
+                            <span asp-validation-for="VehicleVINNumber"></span>
+                        </div>
+                    </div>
+
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleYear" asp-required="@Model.VehicleYearRequired" />
+                        </div>
+                        <div class="input-name">
+                            @*  <nop-editor asp-for="VehicleYear"  />*@
+                            <input type="text" class="form-control" asp-for="VehicleYear" />
+                            <span asp-validation-for="VehicleYear"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Make" asp-required="@Model.MakeRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Make" />
+                            <span asp-validation-for="Make"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleModel" asp-required="@Model.VehicleModelRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="VehicleModel" />
+                            <span asp-validation-for="VehicleModel"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleType" asp-required="@Model.VehicleTypeRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="VehicleType" asp-items="Model.AvailableVehicleType" class="form-select form-control" />
+                            <span asp-validation-for="VehicleType"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="VehicleImage" asp-required="Model.VehicleImageRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="VehicleImage" />
+                            <span asp-validation-for="VehicleImage"></span>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    allowNumberOnly('#VehicleYear');
+</script>

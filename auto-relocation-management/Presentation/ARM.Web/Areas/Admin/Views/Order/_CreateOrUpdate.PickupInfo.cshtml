@@ -1,0 +1,441 @@
+﻿@model OrderModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+@{
+	var isOriginInformationRequired = !Model.IsChildOrder && !Model.IsNewOrder;
+}
+
+<div class="card-body carrier-information">
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card h-100">
+				<div class="card-body">
+					@if (!Model.IsChildOrder)
+					{
+						<div class="custom-form-group custom-checkbox-ui">						
+							<div class="label-name">
+								<nop-label asp-for="PickupSameAsShipper" />
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="PickupSameAsShipper" />
+								<span asp-validation-for="PickupSameAsShipper"></span>
+							</div>
+						</div>
+						<script>
+							$('#@Html.IdFor(model => model.PickupSameAsShipper)').is(':checked');
+						</script>
+					}
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.AddressType" asp-required="Model.PickupAddressTypeRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="PickupAddress.AddressType" asp-items="Model.PickupAddress.AvailableAddressType" class="form-select" />
+							<span asp-validation-for="PickupAddress.AddressType"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.Address1" asp-required="Model.PickupAddress1Required" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.Address1" html-attributes="@(new { placeholder = "Enter Address 1" })" />
+							<span asp-validation-for="PickupAddress.Address1"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.Address2" asp-required="Model.PickupAddress2Required" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.Address2" html-attributes="@(new { placeholder = "Enter Address 2" })" />
+							<span asp-validation-for="PickupAddress.Address2"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.City" asp-required="Model.PickupCityRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.City" html-attributes="@(new { placeholder = "Enter City" })" />
+							<span asp-validation-for="PickupAddress.City"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.StateProvinceId" asp-required="false" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="PickupAddress.StateProvinceId" asp-items="Model.PickupAddress.AvailableStates" class="form-select" />
+							<span asp-validation-for="PickupAddress.StateProvinceId"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.ZipPostalCode" asp-required="false" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.ZipPostalCode" />
+							<span asp-validation-for="PickupAddress.ZipPostalCode"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.Region" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.Region" html-attributes="@(new { placeholder = "Enter Region / Province" })"/>
+							<span asp-validation-for="PickupAddress.Region"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.CountryId" asp-required="Model.PickupCountryIdRequired" />
+						</div>
+						<div class="input-name">
+							<nop-select asp-for="PickupAddress.CountryId" asp-items="Model.PickupAddress.AvailableCountries" class="form-select" />
+							<span asp-validation-for="PickupAddress.CountryId"></span>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="card h-100">
+				<div class="card-body">
+					@if (Model.IsChildOrder)
+					{
+						<div class="custom-form-group custom-checkbox-ui">						
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="same-as-shipper">
+										@T("Admin.Orders.Fields.SameAsShipper")
+									</label>
+								</div>
+							</div>
+							<div class="input-name">
+								<input class="check-box" id="same-as-shipper" name="PickupSameAsShipper" type="checkbox" value="true" @(Model.PickupSameAsShipper ? "checked" : "") autocomplete="off">
+							</div>
+						</div>
+					}
+
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.PrimaryContact" asp-required="@(isOriginInformationRequired || Model.PickupContactNameRequired)" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.ContactName" html-attributes="@(new { placeholder = "Enter Primary Contact" })" />
+							<span asp-validation-for="PickupAddress.ContactName"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.SecondaryContactName" asp-required="Model.PickupSecondaryContactNameRequired" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.SecondaryContactName" html-attributes="@(new { placeholder = "Enter Secondary Contact" })" />
+							<span asp-validation-for="PickupAddress.SecondaryContactName"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.PrimaryPhoneNumber" asp-required="@(isOriginInformationRequired || Model.PickupPhoneNumberRequired)" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.PhoneNumber" />
+							<span asp-validation-for="PickupAddress.PhoneNumber"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.SecondaryPhoneNumber" asp-required="Model.PickupPhoneNumber2Required" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.PhoneNumber2" />
+							<span asp-validation-for="PickupAddress.PhoneNumber2"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.PrimaryEmail" asp-required="@(isOriginInformationRequired || Model.PickupEmailRequired)" />
+						</div>
+						<div class="input-name">
+						<nop-editor asp-for="PickupAddress.Email" html-attributes="@(new { placeholder = "Enter Primary Email" })" />
+						<span asp-validation-for="PickupAddress.Email"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="FirstAvailablePickupDate" asp-required="Model.FirstAvailablePickupDateRequired" />
+						</div>
+						<div class="input-name">
+							<!-- Single date range picker -->
+							<div class="custom-dateInput-view">
+								<input type="text" id="DateRangePickerfororder" class="form-control" placeholder="Select Load Spread" />
+								<label for="DateRangePickerfororder" class="custom-dateIcon-box"><i class='far fa-calendar-alt'></i></label>
+							</div>
+							<span asp-validation-for="FirstAvailablePickupDate"></span>
+
+							<!-- Hidden inputs for storing the selected dates -->
+							<input type="hidden" name="FirstAvailablePickupDate" class="startdate" id="FirstAvailablePickupDate" value="@(Model.FirstAvailablePickupDate != DateTime.MinValue && Model.FirstAvailablePickupDate.HasValue ? Model.FirstAvailablePickupDate.Value : null)" />
+							<input type="hidden" name="FirstAvailablePickupEndDate" class="enddate" id="FirstAvailablePickupEndDate" value="@(Model.FirstAvailablePickupEndDate != DateTime.MinValue && Model.FirstAvailablePickupEndDate.HasValue ? Model.FirstAvailablePickupEndDate.Value : null)" />
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="ActualPickupDate" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="ActualPickupDate" />
+							<span asp-validation-for="ActualPickupDate"></span>
+						</div>
+					</div>
+					<div class="custom-form-group">
+						<div class="label-name">
+							<nop-label asp-for="CustomerInformation.FollowUpDate" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="CustomerInformation.FollowUpDate" />
+							<span asp-validation-for="CustomerInformation.FollowUpDate"></span>
+						</div>
+					</div>
+					<div class="custom-form-group" style="display:none;">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.Latitude" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.Latitude" html-attributes="@(new { placeholder = "Enter Address" })" />
+							<span asp-validation-for="PickupAddress.Latitude"></span>
+						</div>
+					</div>
+					<div class="custom-form-group" style="display:none;">
+						<div class="label-name">
+							<nop-label asp-for="PickupAddress.Longitude" />
+						</div>
+						<div class="input-name">
+							<nop-editor asp-for="PickupAddress.Longitude" html-attributes="@(new { placeholder = "Enter Address2" })" />
+							<span asp-validation-for="PickupAddress.Longitude"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			
+		</div>
+
+	</div>
+</div>
+
+<script>
+	$("#ActualPickupDate").attr("placeholder", "Select Actual PU date");
+	$("#CustomerInformation_FollowUpDate").attr("placeholder", "Select CSR FU Date");
+
+	commonPhoneNumber("#PickupAddress_PhoneNumber,#PickupAddress_PhoneNumber2,#PickupAddress_MobileNumber");
+	removeSpecialCharactersAndNumber("#PickupAddress_ContactName, #PickupAddress_SecondaryContactName", true);
+	restrictToCityNameFormat("#PickupAddress_City");
+	enforceLowerCase("#PickupAddress_Email");
+	allowUniversalZip("#PickupAddress_ZipPostalCode");
+
+	function validateOriginUsCountryStateAndZip() {
+		const selectedCountryId = $("#@Html.IdFor(model => model.PickupAddress.CountryId)").val();
+
+		if (selectedCountryId == "@Model.USCountryId"){
+			$("#@Html.IdFor(model => model.PickupAddress.StateProvinceId)").closest('div.custom-form-group').find('.required').show();
+			$("#@Html.IdFor(model => model.PickupAddress.ZipPostalCode)").closest('div.custom-form-group').find('.required').show();
+		}
+		else {
+			$("#@Html.IdFor(model => model.PickupAddress.StateProvinceId)").closest('div.custom-form-group').find('.required').hide();
+			$("#@Html.IdFor(model => model.PickupAddress.ZipPostalCode)").closest('div.custom-form-group').find('.required').hide();
+		}
+	}
+
+	$(function () {
+		// validateOriginUsCountryStateAndZip();
+
+		prepareDateRangePicker('#DateRangePickerfororder', '#FirstAvailablePickupDate', '#FirstAvailablePickupEndDate', 3, '#DateRangePickerfororder1', "@Url.Action("GetDistance", "LogisticsCommon")");
+
+		$("#@Html.IdFor(model => model.PickupAddress.CountryId)").change(function () {
+			var selectedItem = $(this).data("kendoDropDownList").value();
+			var ddlStates = $("#@Html.IdFor(model => model.PickupAddress.StateProvinceId)").data("kendoDropDownList");
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+				data: {
+					"countryId": selectedItem,
+					"addSelectStateItem": "false"
+				},
+				success: function (data, textStatus, jqXHR) {
+					var dataSource = ddlStates.dataSource;
+					dataSource.data([]);
+					$.each(data,
+						function (id, option) {
+							dataSource.add({
+								text: option.name,
+								value: option.id
+							});
+						});
+					$("#PickupAddress_StateProvinceId").data("kendoDropDownList").value(0);
+					// validateOriginUsCountryStateAndZip();
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					$("#statesAlert").click();
+				}
+			});
+		});
+
+		$("#@Html.IdFor(m=>m.PickupSameAsShipper)").change(function () {
+
+			if ($(this).prop("checked")) {
+				let $customer = $("#CustomerInformation_CustomerId");
+				let customerId = 0;
+				
+				if ($customer){
+					customerId = +$customer.val();
+				}
+				else{
+					customerId = +"@Model.CustomerInformation.CustomerId";
+				}
+
+				if (customerId <= 0){
+					$("#@Html.IdFor(m => m.PickupAddress.Email)").val($("#@Html.IdFor(m => m.CustomerInformation.Email)").val());
+					return false;
+				}
+
+				var deliverySameAsShipper = $('#@Html.IdFor(model => model.DeliverySameAsShipper)').is(':checked');
+
+				$.ajax({
+					cache: false,
+					type: "GET",
+					url: "@(Url.Action("GetCustomerInfoById", "Customer"))",
+					data: {
+						customerId: customerId,
+					},
+					success: function (data, textStatus, jqXHR) {
+						if (data){
+							$("#@Html.IdFor(m => m.PickupAddress.ContactName)").val(data.firstName + " " + data.lastName);
+							$("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val(data.phone);
+							$("#@Html.IdFor(m => m.PickupAddress.Email)").val(data.email);
+						}
+
+						if (deliverySameAsShipper) {
+							$("#@Html.IdFor(m => m.ShippingAddress.ContactName)").val($("#@Html.IdFor(m => m.PickupAddress.ContactName)").val());
+							$("#@Html.IdFor(m => m.ShippingAddress.PhoneNumber)").val($("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val());
+							$("#@Html.IdFor(m => m.ShippingAddress.Email)").val($("#@Html.IdFor(m => m.PickupAddress.Email)").val());
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+					}
+				});
+				
+			}
+			else {
+				$("#@Html.IdFor(m=>m.PickupAddress.ContactName)").val("");
+				$("#@Html.IdFor(m=>m.PickupAddress.PhoneNumber)").val("");
+				$("#@Html.IdFor(m=>m.PickupAddress.Email)").val("");
+			}
+		});
+
+		let zipCode = $("#PickupAddress_ZipPostalCode").val();
+		if (zipCode.length >= 5) {
+			var postData = { zipCode: zipCode };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					originLat = response.latitude ?? 0;
+					originLng = response.longitude ?? 0;
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+				}
+			});
+		}
+	});
+
+	let previousZipCode = {};
+
+	const originLocationDebounceFunc = debounce(originLocationFetchZipCodes, 500);
+
+	function originLocationFetchZipCodes(field) {
+		var zipCodeId = field.attr('id');
+		var value = field.val();
+
+		let previousPostalCode = previousZipCode[zipCodeId];
+
+		if (previousPostalCode == value){
+			return false;
+		}
+
+		previousZipCode[zipCodeId] = value;
+
+		if (value.length === 5) {
+			$("#"+ zipCodeId).prop('readonly', true);
+			var postData = { zipCode: value };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					$("#"+ zipCodeId).prop('readonly', false);
+
+					if (response.country != $("#PickupAddress_CountryId").val()){
+
+						$("#PickupAddress_Latitude").val(0);
+						$("#PickupAddress_Longitude").val(0);
+						originLat = 0;
+						originLng = 0;
+
+						return;
+					}
+
+					$("#PickupAddress_City").val(response.city);
+					$("#PickupAddress_StateProvinceId").data("kendoDropDownList").value(response.state);
+					$("#PickupAddress_Latitude").val(response.latitude);
+					$("#PickupAddress_Longitude").val(response.longitude);
+					originLat = response.latitude ?? 0;
+					originLng = response.longitude ?? 0;
+
+					setDeliverySpreadDate("@Url.Action("GetDistance", "LogisticsCommon")", "#DateRangePickerfororder1", "#DateRangePickerfororder", true);
+					calculateEstimatePrice();
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					$("#"+ zipCodeId).prop('readonly', false);
+				}
+			});
+		}
+		else {
+			$("#PickupAddress_Latitude").val(0);
+			$("#PickupAddress_Longitude").val(0);
+			originLat = 0;
+			originLng = 0;
+			setDeliverySpreadDate("@Url.Action("GetDistance", "LogisticsCommon")", "#DateRangePickerfororder1", "#DateRangePickerfororder", true);
+			$("#"+ zipCodeId).prop('readonly', false);
+		}
+	}
+
+	$("#PickupAddress_ZipPostalCode").keyup(function () {
+		originLocationDebounceFunc($(this));
+	});
+
+	$("#same-as-shipper").change(function () {
+		if ($(this).prop('checked')){
+			$("#PickupAddress_ContactName").val("@Model.ShipperFullName");
+			$("#PickupAddress_PhoneNumber").val("@Model.ShipperPhoneNumber");
+			$("#PickupAddress_Email").val("@Model.ShipperEmail");
+		}
+		else {
+			$("#PickupAddress_ContactName").val('');
+			$("#PickupAddress_PhoneNumber").val('');
+			$("#PickupAddress_Email").val('');
+		}
+	});
+	
+</script>

@@ -1,0 +1,1679 @@
+@inject IWebHelper webHelper
+@inject IDateTimeHelper dateTimeHelper
+@inject IPermissionService permissionService
+@inject ICustomerService customerService
+@inject IEventPublisher eventPublisher
+@inject ILanguageService languageService
+@inject LocalizationSettings localizationSettings
+@inject StoreInformationSettings storeInformationSettings
+@inject ICompanyService companyService
+@inject CommonSettings commonSettings
+@inject ISettingService settingService
+
+@using System.Globalization
+@using Nop.Core
+@using Nop.Core.Domain
+@using Nop.Core.Domain.Customers
+@using Nop.Core.Domain.Localization
+@using Nop.Core.Events;
+@using static Nop.Services.Common.NopLinksDefaults
+@using Nop.Services.Configuration
+@using Nop.Services.Localization
+@using Nop.Services.Customers
+@using Nop.Services.Companies
+@using Nop.Services.Helpers
+@using Nop.Services.Security
+@using Nop.Web.Components;
+@using Nop.Web.Extensions;
+@using Nop.Web.Framework.UI
+@using Nop.Web.Framework;
+
+@{
+	var returnUrl = webHelper.GetRawUrl(Context.Request);
+
+	//page title
+	string adminPageTitle = !string.IsNullOrWhiteSpace(ViewBag.PageTitle) ? ViewBag.PageTitle : "";
+	//adminPageTitle += T("Admin.PageTitle").Text;
+
+	//has "Manage Maintenance" permission?
+	var canManageMaintenance = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageMaintenance);
+
+	//avatar
+	var currentCustomer = await workContext.GetCurrentCustomerAsync();
+
+	var customerRoles = await customerService.GetCustomerRolesAsync(currentCustomer);
+
+	var isPermissionAllow = true;
+	if (customerRoles.Count == 1)
+	{
+		var role = customerRoles.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.SystemName) && r.SystemName.Equals(NopCustomerDefaults.RegisteredRoleName, StringComparison.InvariantCultureIgnoreCase));
+
+		if (role != null)
+		{
+			isPermissionAllow = false;
+		}
+	}
+
+	//event
+	await eventPublisher.PublishAsync(new PageRenderingEvent(NopHtml));
+
+	var darkmode = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), "admin-theme-darkmode");
+	//info: we specify "Admin" area for actions and widgets here for cases when we use this layout in a plugin that is running in a different area than "admin"
+
+	var showQBLastWebhookEventTimeInFooter = await settingService.GetSettingByKeyAsync<bool>("QuickBookSettings.ShowLastWebhookReceivedTimeInFooter");
+
+	DateTime? time = showQBLastWebhookEventTimeInFooter ?
+			await settingService.GetSettingByKeyAsync<DateTime?>("QuickBookSettings.LastWebhookReceivedTime")
+			: null;
+
+	DateTime? userTime = time.HasValue ? await dateTimeHelper.ConvertToUserTimeAsync(time.Value) : null;
+
+	var showWebhookTime = showQBLastWebhookEventTimeInFooter && userTime.HasValue;
+}
+
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@Html.GetUIDirection(localizationSettings.IgnoreRtlPropertyForAdminArea)">
+<head>
+	<title>@adminPageTitle</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	@NopHtml.GenerateHeadCustom()
+
+	@* CSS & Script resources *@
+	@{
+		await Html.RenderPartialAsync("_AdminScripts");
+	}
+
+	@*Insert favicon and app icons head code*@
+	@await Component.InvokeAsync(typeof(FaviconViewComponent))
+</head>
+<body class="hold-transition sidebar-mini layout-fixed control-sidebar-slide-open @(darkmode ? "darkmode" : "")">
+	<div class="throbber">
+		<div class="curtain">
+		</div>
+		<div class="curtain-content">
+			<div>
+				<h1 class="throbber-header">@T("Common.Wait")</h1>
+				<p>
+					<img src="@Url.Content("~/css/admin/images/throbber-synchronizing.gif")" alt="" />
+				</p>
+			</div>
+		</div>
+	</div>
+	<div id="ajaxBusy">
+		<span>&nbsp;</span>
+	</div>
+	<div class="wrapper custom-wrapper">
+		@if (IsSectionDefined("header"))
+		{
+			@RenderSection("header")
+		}
+		else
+		{
+			@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderBefore })
+			<nav class="main-header navbar navbar-expand-md navbar-dark bg-dark">
+				<ul class="navbar-nav pl-2 pl-md-0">
+					<li class="nav-item">
+						<a class="nav-link" id="nopSideBarPusher" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
+					</li>
+					@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderToggleAfter })
+				</ul>
+				<a href="@Url.Content("~/Admin")" class="brand-link navbar-dark">
+					<img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs">
+				</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></span>
+				</button>
+				@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderNavbarBefore })
+				<div class="collapse navbar-collapse" id="navbarText">
+					<ul class="navbar-nav ml-auto pl-2">
+
+						<li class="nav-item">
+							@await Component.InvokeAsync("AdminLanguageSelector")
+						</li>
+
+						<li class="nav-item">
+							@await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.HeaderMiddle })
+						</li>
+						@* <li class="nav-item">
+                    <a asp-controller="Home" asp-action="Index" asp-area="" class="nav-link">@T("Admin.Header.PublicStore")</a>
+                    </li> *@
+
+						<li class="nav-item">
+							@await Component.InvokeAsync(typeof(AdminLanguageSelectorViewComponent))
+						</li>
+						@if (await customerService.IsRegisteredAsync(currentCustomer))
+						{
+							var company = await companyService.GetCompanyByIdAsync(currentCustomer.CompanyId);
+							<li class="nav-item">
+								<a href="#" class="nav-link disabled">@(company?.Name ?? await customerService.GetCustomerFullNameAsync(currentCustomer))</a>
+							</li>
+							<li class="nav-item">
+								<a asp-controller="Customer" asp-action="Logout" asp-area="" class="nav-link">@T("Admin.Header.Logout")</a>
+							</li>
+						}
+						<li class="nav-item">
+							@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderMiddle })
+						</li>
+
+						@if (canManageMaintenance)
+						{
+							<li class="nav-item dropdown">
+								<a class="nav-link" href="#" data-toggle="dropdown">
+									<i class="fas fa-cogs"></i>
+								</a>
+								<ul class="maintenance-menu dropdown-menu dropdown-menu-right" role="menu">
+									<li class="dropdown-item">
+										<form asp-controller="Common" asp-action="ClearCache" asp-area="@AreaNames.Admin">
+											<input name="returnurl" type="hidden" value="@returnUrl">
+											<div class="input-group-append">
+												<button type="submit" style="width:210px;background-color: Transparent;">
+													<span>@T("Admin.Header.ClearCache")</span>
+												</button>
+											</div>
+										</form>
+									</li>
+									<li class="dropdown-item">
+										<form asp-controller="Common" asp-action="RestartApplication" asp-area="@AreaNames.Admin">
+											<input name="returnurl" type="hidden" value="@returnUrl">
+											<button id="restart-application" type="submit" style="width:210px;background-color: Transparent;">
+												<span>@T("Admin.Header.RestartApplication")</span>
+											</button>
+											<script>
+												$(document).ready(function () {
+													$("#restart-application").click(function (e) {
+														showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(T("Admin.Header.RestartApplication.Progress").Text))');
+													});
+												});
+											</script>
+										</form>
+									</li>
+								</ul>
+							</li>
+						}
+					</ul>
+				</div>
+				@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderNavbarAfter })
+			</nav>
+
+			@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.HeaderAfter })
+		}
+		@if (IsSectionDefined("headermenu"))
+		{
+			@RenderSection("headermenu")
+		}
+		else
+		{
+			<aside class="main-sidebar sidebar-dark-primary elevation-4">
+				<!-- Brand Logo -->
+				@if (isPermissionAllow)
+				{
+					<a href="@Url.Content("~/Admin")" class="brand-link logo-switch">
+						<img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xl logo-xl" />
+						<img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs" />
+					</a>
+				}
+				else
+				{
+					<a href="javascript:void(0)" class="brand-link logo-switch">
+						<img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xl logo-xl" />
+						<img src="/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" class="brand-image-xs logo-xs" />
+					</a>
+				}
+
+				<div class="sidebar">
+					@* <div class="sidebar-form">
+						<div id="search-box"> *@
+					@* <i class="fa fa-search" aria-hidden="true"></i> *@
+					@* <input type="text" class="form-control admin-search-box typeahead" placeholder="@T("Admin.Menu.Search")">
+						</div>
+					</div> *@
+					<nav class="mt-2">
+						@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.SearchBoxBefore })
+						<script>
+							$(document).ready(function () {
+								Admin.Search.init();
+							});
+						</script>
+						@await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.MenuBefore })
+						@await Html.PartialAsync("Menu")
+
+					</nav>
+				</div>
+			</aside>
+		}
+		<div class="content-wrapper content-wrapper-new" style="position: relative;">
+			<div class="custom-page">
+				@await Html.PartialAsync("Notifications")
+
+				@if (isPermissionAllow)
+				{
+					<div id="logistic-calculator">
+						<div id="move-logistic-calculator">
+							@* <i class="fas fa-arrows-alt-v"></i> *@
+							<i class="fas fa-grip-vertical"></i>
+						</div>
+						<span class="open-right-nav" onclick="openNav('mySidenav')"><i class="fas fa-route"></i></span> @* <img src="/Themes/DefaultClean/Content/images/left-and-right-arrows.png" /> *@
+					</div>
+					<div id="mySidenav" class="sidenav logistic-calculator-modal">
+						<div class="logistic-calculator-wrapper">
+							<a href="javascript:void(0)" class="closebtn" onclick="closeNav('mySidenav')">&times;</a>
+							<div class="panel-door-content">
+								@await Component.InvokeAsync(typeof(QuoteCalculatorViewComponent))
+							</div>
+						</div>
+					</div>
+
+					@if (commonSettings.ShowMCPIntegration)
+					{
+						<div id="logistic-tracker">
+							<div id="move-logistic-tracker">
+								@* <i class="fas fa-arrows-alt-v"></i> *@
+								<i class="fas fa-grip-vertical"></i>
+							</div>
+							<span class="open-right-nav open-myTracknav"><i class="fas fa-truck"></i></span> @* <img src="/Themes/DefaultClean/Content/images/left-and-right-arrows.png" /> *@
+							<div id="myTracknav" class="sidenav logistic-calculator-modal">
+								<div class="move-logistic-wrapper">
+									<strong class="text-center">MCP Detail</strong>
+									<a href="javascript:void(0)" class="closebtn close-myTracknav">&times;</a>
+									<div class="panel-door-content mt-3">
+										<div class="row">
+											<div class="form-group col-md-8">
+												<div class="combined-input">
+													<select id="mcp-record-type" class="form-control">
+														<option value="DOT">DOT</option>
+														<option value="MC">MC</option>
+													</select>
+
+													<input class="form-control text-box single-line" id="DotNumber" name="DotNumber" type="text" placeholder="Enter DOT or MC Number" autocomplete="off">
+												</div>
+											</div>
+											<div class="col-md-4 d-flex align-items-start mb-1">
+												<button type="button" class="btn btn-primary py-2 w-100" id="submitDotNumber">Submit</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				}
+				<nop-antiforgery-token />
+				@RenderBody()
+			</div>
+		</div>
+		@if (!storeInformationSettings.HidePoweredByNopCommerce || showWebhookTime)
+		{
+			<div class="main-footer">
+				<div class="container-fluid">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-md-2 col-xs-12 text-md-left text-center">
+							</div>
+							<div class="col-md-6 col-xs-12 text-center">
+								@if (showWebhookTime)
+								{
+									<span>Last QBO webhook received: @userTime.ToDateFormat("MM/dd/yyyy HH:mm tt")</span>
+								}
+							</div>
+							@if (!storeInformationSettings.HidePoweredByNopCommerce)
+							{
+								<div class="col-md-4 col-xs-12 text-md-right text-center">
+									Powered by <a href="@(OfficialSite.Main + Utm.OnAdminFooter)" target="_blank">nopCommerce</a>
+								</div>
+							}
+							@*
+
+							@if (!storeInformationSettings.HidePoweredByNopCommerce)
+							{
+								<div class="col-md-4 col-xs-12 text-md-left text-center">
+									@*Would you like to remove the "Powered by nopCommerce" link in the bottom of the footer?
+									Please find more info at https://www.nopcommerce.com/nopcommerce-copyright-removal-key * @
+									Powered by <a href="@(OfficialSite.Main + Utm.OnAdminFooter)" target="_blank">nopCommerce</a>
+								</div>
+							}
+							else
+							{
+								<div class="col-md-4 col-xs-12"></div>
+							}
+							<div class="col-md-4 col-xs-12 text-center">
+								@((await dateTimeHelper.ConvertToUserTimeAsync(DateTime.Now)).ToString("f", CultureInfo.CurrentCulture))
+							</div>
+							<div class="col-md-4 col-xs-12 text-md-right text-center">
+								<b>nopCommerce version @NopVersion.FULL_VERSION</b>
+							</div> *@
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	@if (isPermissionAllow && commonSettings.ShowMCPIntegration)
+	{
+		<div id="MCP-info-popup" class="modal fade mcp-modal-popup" tabindex="-1" role="dialog" aria-labelledby="#MCP-info-popup-title" style="display: none;">
+			<div class="modal-dialog modal-custom-lg">
+				<div class="modal-content">
+					<div class="modal-header header-responsive">
+						<h6 class="modal-title" id="MCP-info-popup-title"><strong>MCP Detail</strong></h6>
+
+						<div class="center-row-wrapper">
+							<div class="row center-row">
+								<div class="form-group col-md-8">
+									<div class="combined-input">
+										<select id="mcp-record-type-value" class="form-control no-kendo">
+										</select>
+
+										<input class="form-control text-box single-line" id="DotNumberValue" name="DotNumberValue" type="text" placeholder="Enter DOT or MC Number" autocomplete="off">
+									</div>
+								</div>
+								<div class="col-md-4 d-flex align-items-start">
+									<button type="button" class="btn btn-secondary py-2 w-100" id="submitDotNumberValue">Submit</button>
+								</div>
+							</div>
+						</div>
+
+						<button type="button" class="close" onclick="closeMCPModal();"><span aria-hidden="true">x</span></button>
+					</div>
+					<div class="modal-sub-header">
+						<span id="companyName"></span>
+						<div class="modal-sub-header-right">
+							<span id="certified"></span>
+							<div class="carrier-pack-area" id="mcp-view-more-carrier-info">
+							</div>
+						</div>
+					</div>
+					<div class="form-horizontal">
+						<div class="modal-body" id="modal-body-content">
+							<!-- Dynamic content will be inserted here -->
+						</div>
+						<div class="modal-footer">
+							<div class="d-flex w-100 justify-content-end">
+								<button type="button" class="btn btn-dark" onclick="closeMCPModal();">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="risk-modals-container"></div>
+
+		<div id="incident-reports-popup" class="modal fade incident-reports-modal-popup" tabindex="-1" role="dialog" aria-labelledby="#incident-reports-title" style="display: none;">
+			<div class="modal-dialog modal-custom-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title" id="incident-reports-title"><strong>Carrier Incident Reports</strong></h6>
+
+						<button type="button" class="close" onclick="closeIncidentReportsModal();">
+							<span aria-hidden="true">x</span>
+						</button>
+					</div>
+					<div class="form-horizontal">
+						<div class="modal-body" id="">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<input id="incident-report-selector" class="form-control" />
+								</div>
+							</div>
+
+							<div id="incident-reports-modal-body-content"></div>
+							<!-- Dynamic content will be inserted here -->
+						</div>
+						<div class="modal-footer">
+							<div class="d-flex w-100 justify-content-end">
+								<button type="button" class="btn btn-dark" onclick="closeIncidentReportsModal();">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="MCP-VIN-Modal" tabindex="-1">
+			<div class="modal-dialog modal-custom-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title"><strong>VIN Verification Details</strong></h6>
+						<button type="button" class="close" onclick="closeMCPVINModal();">
+							<span aria-hidden="true">x</span>
+						</button>
+					</div>
+
+					<div class="form-horizontal">
+						<div class="modal-body">
+							<div id="MCP-VIN-Container" class="scroll-bar"></div>
+						</div>
+
+						<div class="modal-footer">
+							<div class="d-flex w-100 justify-content-end">
+								<button type="button" class="btn btn-dark" onclick="closeMCPVINModal();">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="MCPVINVerificationRequestWindow" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content p-3">
+					<div class="modal-header">
+						<h6 class="modal-title"><strong>VIN Verification Request</strong></h6>
+						<button type="button" class="close" onclick="closeMCPVINRequestModal();">
+							<span aria-hidden="true">x</span>
+						</button>
+					</div>
+
+					<div class="form-horizontal">
+						<div class="modal-body">
+							<div class="mb-12">
+								<label class="form-label" for="mcp-deliveryOption">Delivery Option</label>
+								<div>
+									<input id="mcp-deliveryOption" class="form-control" />
+								</div>
+							</div>
+							<div class="mb-12">
+								<label for="mcp-deliveryValue" class="form-label">Email or Phone</label>
+								<input id="mcp-deliveryValue" placeholder="Enter Email or Phone" type="text" class="form-control" />
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="d-flex w-100 justify-content-end">
+								<button type="button" class="btn btn-primary" id="mcp-submit-VINRequest">Submit</button>
+								<button type="button" class="btn btn-dark" onclick="closeMCPVINRequestModal();">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	<script>
+		$("#mcp-deliveryOption").kendoDropDownList({
+			dataSource: [
+				{ text: "Email", value: "1" },
+				{ text: "Phone", value: "2" }
+			],
+			dataTextField: "text",
+			dataValueField: "value",
+			change: function () {
+					const val = this.value();
+					const input = $("#mcp-deliveryValue");
+					input.val("");
+					if (val === "phone") {
+						input.attr("type", "tel");
+					} else {
+						input.attr("type", "email");
+					}
+					$("#mcp-validationMsg").hide();
+			}
+		});
+
+		function validate() {
+			const option = $("#mcp-deliveryOption").data("kendoDropDownList").value();
+			const value = $("#mcp-deliveryValue").val()?.trim() || "";
+
+			if (!option) {
+				toastr.error("Please select delivery option.");
+				return false;
+			}
+
+			if (!value) {
+				toastr.error("Please enter an email or a phone.");
+				return false;
+			}
+
+			return true;
+		}
+
+		$("#mcp-submit-VINRequest").click(function () {
+			if (!validate()) return;
+
+			const payload = {
+				option: $("#mcp-deliveryOption").data("kendoDropDownList").value(),
+				value: $("#mcp-deliveryValue").val()?.trim(),
+				dotNumber: mcpDotNumber
+			};
+
+			addAntiForgeryToken(payload);
+
+			$.ajax({
+				cache: false,
+				url: "@(Url.Action("MCPVINVerificationRequest", "Carrier"))",
+				method: "Get",
+				data: payload,
+				success: function (response) {
+
+					if (!response){
+						toastr.error("Response is null while fetch incident reports for carrier.");
+						return;
+					}
+
+					if (!response.Status){
+
+						if (response.Message){
+							toastr.error(response.Message);
+						}
+						else {
+							toastr.error('An error occurred while processing your request.');
+						}
+
+						return;
+					}
+
+					toastr.success(response.Message);
+					closeMCPVINRequestModal();
+				},
+				error: function (xhr, status, error) {
+					const response = xhr.responseJSON;
+					const message = response && response.Message && typeof (response.Message) === 'string'
+						? response.Message
+						: 'An error occurred while processing your request.';
+
+					toastr.error(message);
+				}
+			});
+		});
+
+		let incidentReportsForCarrier = null;
+		let mcpDotNumber = null;
+
+		$("#mcp-record-type-value").kendoDropDownList({
+			dataTextField: "Text",
+			dataValueField: "Value",
+			dataSource: [
+				{ Text: "DOT", Value: "DOT" },
+				{ Text: "MC", Value: "MC" }
+			]
+		});
+
+		function closeMCPModal() {
+			$('#MCP-info-popup').modal('hide');
+			$('#DotNumber').val('');
+			$('#DotNumberValue').val('');
+			$("#mcp-record-type-value").data("kendoDropDownList").value("DOT");
+
+			incidentReportsForCarrier = null;
+		}
+
+		function closeIncidentReportsModal() {
+			$('#incident-reports-popup').modal('hide');
+
+			incidentReportsForCarrier = null;
+		}
+
+		function closeMCPVINModal() {
+			$('#MCP-VIN-Modal').modal('hide');
+		}
+
+		function closeMCPVINRequestModal() {
+			$('#MCPVINVerificationRequestWindow').modal('hide');
+		}
+
+		const refreshMCPDetails = function(dotNumberField, mcpRecordTypeField, dotNumber, mcpRecordType, isPopupOpen) {
+			if (!dotNumber) {
+				toastr.error("Please enter a DOT number.");
+				return;
+			}
+
+			if (!mcpRecordType) {
+				toastr.error("Please select a DOT or MC number.");
+				return;
+			}
+
+			const postData = {
+				dotNumber: dotNumber,
+				recordType: mcpRecordType
+			};
+
+			addAntiForgeryToken(postData);
+
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("PreviewCarrier", "Carrier"))",
+				data: postData,
+				success: function (response) {
+					if (response.Status) {
+						const modalBody = $('#modal-body-content');
+						modalBody.html(generatePopupContent(response.Data));
+
+						if (!isPopupOpen){
+							$("#myTracknav").removeClass("open");
+							$('#MCP-info-popup').modal('show');
+						}
+
+						dotNumberField.val('');
+						mcpRecordTypeField.data("kendoDropDownList").value("DOT");
+					} else {
+						toastr.error(response.Message || 'An error occurred while fetching data.');
+					}
+				},
+				error: function (xhr, status, error) {
+					toastr.error('An error occurred while processing your request.');
+				}
+			});
+		}
+
+		const submitMCPPreviewForm = function (dotOrMCNumber, recordType, isPopupOpen){
+			const $dotNumber = $('#' + dotOrMCNumber);
+			const $mcpRecordType = $('#' + recordType);
+			let dotNumber = $dotNumber.val();
+			let mcpRecordType = $mcpRecordType.val();
+
+			refreshMCPDetails($dotNumber, $mcpRecordType, dotNumber, mcpRecordType, isPopupOpen);
+		}
+
+		$('#submitDotNumber').on('click', function () {
+			submitMCPPreviewForm('DotNumber', 'mcp-record-type', false);
+		});
+
+		$('#submitDotNumberValue').on('click', function () {
+			submitMCPPreviewForm('DotNumberValue', 'mcp-record-type-value', true);
+		});
+
+		function localTimeConvert(utcTime){
+			if (!utcTime || utcTime === "null") return "";
+
+			return moment.utc(utcTime)
+				   .local()
+				   .format("MM/DD/YYYY hh:mm:ss A");
+		}
+
+		function normalizeDate(value) {
+			if (!value || value === "null") return "";
+
+			value = value.split("T")[0];
+
+			value = value.replace(/[\/]/g, "-");
+
+			const parts = value.split("-");
+
+			if (parts.length !== 3) return "";
+
+			const [y, m, d] = parts;
+
+			if (y.length !== 4 ||
+				isNaN(y) ||
+				isNaN(m) ||
+				isNaN(d) ||
+				m < 1 || m > 12 ||
+				d < 1 || d > 31
+			) {
+				return "";
+			}
+
+			// Return format MM/dd/yyyy
+			return `${m.padStart(2, "0")}/${d.padStart(2, "0")}/${y}`;
+		}
+
+		function getDOTStatusByDotValue(obj, targetValue) {
+			if (!obj || !obj.AssureAdvantage) return "";
+			for (const item of obj.AssureAdvantage) {
+				const dot = item.CarrierDetails?.DotNumber;
+				if (dot && dot.Value === `${targetValue}`) {
+					return dot.Status;
+				}
+			}
+
+			return "";
+		}
+
+		function getCertDataFromAssureAdvantageByDotValue(obj, targetValue) {
+			if (!obj || !obj.AssureAdvantage) return [];
+			for (const item of obj.AssureAdvantage) {
+				const dot = item.CarrierDetails?.DotNumber;
+				if (dot && dot.Value === `${targetValue}`) {
+					return item.CarrierDetails.CertData?.Certificate ?? [];
+				}
+			}
+
+			return [];
+		}
+
+		function getMCPOperationDetailsForCarrier(obj, targetValue) {
+			if (!obj || !obj.AssureAdvantage) return {drivers: 0, trucks: 0, trailers: 0};
+			for (const item of obj.AssureAdvantage) {
+				const dot = item.CarrierDetails?.DotNumber;
+				if (dot && dot.Value === `${targetValue}`) {
+
+					const carrierDetails = item.CarrierDetails;
+					const equipment = carrierDetails.Equipment;
+
+					const drivers = carrierDetails.Drivers?.DriversTotal ?? 0;
+					const trucks = equipment?.TrucksTotal ?? 0;
+					const trailers = equipment?.TrailersOwned ?? 0;
+
+					return {drivers: drivers, trucks: trucks, trailers: trailers};
+				}
+			}
+
+			return {drivers: 0, trucks: 0, trailers: 0};
+		}
+
+		function getActiveSinceDate(obj, targetValue) {
+
+			if (!obj || !obj.AssureAdvantage) return "N/A";
+			for (const item of obj.AssureAdvantage) {
+				const dot = item.CarrierDetails?.DotNumber;
+				if (dot && dot.Value === `${targetValue}` && dot.Status?.toLocaleLowerCase() === "active") {
+
+					let date = normalizeDate(item.CarrierDetails.Operation?.DotAddDate);
+
+					if (date === "" || date === null || date === undefined){
+						date = "N/A";
+					}
+					return date;
+				}
+			}
+
+			return "N/A";
+		}
+
+		function renderRiskItem(label, statusValue, risks) {
+			const isUnacceptable = statusValue === "Unacceptable";
+			const iconClass = isUnacceptable ? "notDone" : "Done";
+			const icon = isUnacceptable ? "&#10005;" : "&#10003;";
+			const hasRisks = risks && risks.length > 0;
+
+			const modalId = `modal-${label.replace(/\s/g, "")}`;
+			let statusClassName = "";
+			if (statusValue){
+				statusClassName = `status-${statusValue.toLocaleLowerCase()}`;
+			}
+
+			return `
+				<li class="vehicle-verify-itembox">
+					<div class="verify-status">
+						<span class="${iconClass}">${icon}</span>
+					</div>
+
+					<strong>${label}</strong>
+					<p class="d-inline-block mb-0 ${statusClassName}">${statusValue || ""}</p>
+
+					${
+						hasRisks
+							? `<button class="btn far fa-eye risk-details" data-bs-toggle="modal" data-bs-target="#${modalId}">
+							   </button>`
+							: ""
+					}
+				</li>
+			`;
+		}
+
+		function renderRiskModal(label, risksDetails) {
+
+			const riskStatus = risksDetails.OverallRating?.toLocaleUpperCase() || "";
+			const risks = risksDetails.Infractions;
+
+			let status = "@MCPDefaults.MCPRating.Unacceptable";
+
+			if (riskStatus === "@MCPDefaults.MCPRating.Acceptable".toLocaleUpperCase()) {
+				status = "@MCPDefaults.MCPRating.Acceptable";
+			} else if (riskStatus === "@MCPDefaults.MCPRating.Moderate".toLocaleUpperCase()) {
+				status = "@MCPDefaults.MCPRating.Moderate";
+			} else if (riskStatus === "@MCPDefaults.MCPRating.UnacceptableReview".toLocaleUpperCase()) {
+				status = "@MCPDefaults.MCPRating.ReviewRequired";
+			}
+
+			if (!risks || risks.length === 0) return "";
+
+			const modalId = `modal-${label.replace(/\s/g, "")}`;
+
+			const rows = risks.map(r => `
+				<tr>
+					<td>${r.Points || ""}</td>
+					<td>${r.RiskLevel || ""}</td>
+					<td>${r.RuleText || ""}</td>
+					<td>${r.RuleOutput || ""}</td>
+				</tr>
+			`).join("");
+
+			return `
+				<div class="modal fade" id="${modalId}" tabindex="-1">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+
+							<div class="modal-header">
+								<h5 class="modal-title">${label} - ${status}</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+							</div>
+
+							<div class="modal-body">
+								<div class="scroll-bar table-responsive">
+									<table class="table table-bordered table-sm">
+										<thead>
+											<tr>
+												<th>Points</th>
+												<th>Risk Level</th>
+												<th>Rule Text</th>
+												<th>Rule Output</th>
+											</tr>
+										</thead>
+										<tbody>${rows}</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function generatePopupContent(dataArray) {
+			if (!dataArray ||
+				!dataArray.PreviewCarrier ||
+				!Array.isArray(dataArray.PreviewCarrier) ||
+				dataArray.PreviewCarrier.length === 0)
+			{
+				return "<p>No data available</p>";
+			}
+
+			const data = dataArray.PreviewCarrier[0];
+			const risk = data.RiskAssessment || {};
+			const riskAssessmentDetails = data.RiskAssessmentDetails || {};
+			const incidentReports = data.IncidentReports?.TotalIncidentReports || 0;
+			const emails = data.Emails || [];
+			mcpDotNumber = data.DotNumber;
+
+			const IsBlocked = data.IsBlocked ? "Yes" : "No";
+			const IsMonitored = data.IsMonitored ? "Yes" : "No";
+
+			const carrierData = dataArray.CarrierData || {};
+			const packetStatus = data.Status || "N/A";
+
+			const isStatusComplete = data.Status === 'Complete';
+			const isIntelliviteSentSuccess = data.Status && data.Status !== "Not Invited" ? true : false;
+			const isIntelliviteSent = isIntelliviteSentSuccess ? "Yes" : "No";
+			const overallRating = data.RiskAssessmentDetails?.OverallRating?.toLocaleUpperCase() || "";
+			let isBtnVisible = false;
+
+			const certData = getCertDataFromAssureAdvantageByDotValue(carrierData, data.DotNumber);
+			const insuranceCertificates = certData && certData.length > 0 ? certData : [];
+
+			const opertaionalDetails = getMCPOperationDetailsForCarrier(carrierData, data.DotNumber);
+
+			const totalTrucks = opertaionalDetails.trucks;
+			const totalTrailer = opertaionalDetails.trailers;
+			const totalDriver = opertaionalDetails.drivers;
+
+			if ((overallRating === "@MCPDefaults.MCPRating.Acceptable".toLocaleUpperCase() ||
+				overallRating === "@MCPDefaults.MCPRating.Moderate".toLocaleUpperCase()) &&
+				!data.IsBlocked &&
+				!isIntelliviteSentSuccess)
+			{
+				isBtnVisible = true;
+			}
+
+			$("#companyName").text(data.CompanyName);
+
+			const $trueSignSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check h-4 w-4"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>`;
+
+			const $crossSignSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x h-4 w-4"><circle cx="12" cy="12" r="10"></circle><path d="M15 9 L9 15 M9 9 L15 15"></path></svg>`;
+
+			const $certified = insuranceCertificates.length > 0
+				? `${$trueSignSVG} MyCarrierPortal Certified`
+				: `${$crossSignSVG} MyCarrierPortal Not Certified`;
+
+			const requestInsuranceCertUrl = data.DocketNumber
+			? `https://mycarrierpackets.com/CarrierInformation/DOTNumber/${data.DotNumber}/DocketNumber/${data.DocketNumber}?requestInsurance=true`
+			: `https://mycarrierpackets.com/CarrierInformation/DOTNumber/${data.DotNumber}?requestInsurance=true`;
+
+			$("#certified").html($certified);
+			$("#mcp-view-more-carrier-info").html(`<button class="btn btn-primary" onclick="window.open('https://mycarrierpackets.com/CarrierInformation/DOTNumber/${data.DotNumber}/DocketNumber/${data.DocketNumber}', '_blank')">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M19 11a2 2 0 0 1 1.995 1.85L21 13v6a2 2 0 0 1-1.85 1.995L19 21h-4a2 2 0 0 1-1.995-1.85L13 19v-6a2 2 0 0 1 1.85-1.995L15 11zM9 15a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2zM9 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm10 0a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></g></svg>
+						View More Info on MCP
+						</button>`);
+
+			$("#risk-modals-container").html(`
+				${renderRiskModal("Authority", riskAssessmentDetails.Authority)}
+				${renderRiskModal("Insurance", riskAssessmentDetails.Insurance)}
+				${renderRiskModal("Operation", riskAssessmentDetails.Operation)}
+				${renderRiskModal("Other", riskAssessmentDetails.Other)}
+				${renderRiskModal("Safety", riskAssessmentDetails.Safety)}
+			`);
+
+			return `<div class="row">
+					<div class="col-lg-4">
+						<ul class="vehicle-verify-list">
+							${renderRiskItem("Authority", risk.Authority, riskAssessmentDetails.Authority.Infractions)}
+							${renderRiskItem("Insurance", risk.Insurance, riskAssessmentDetails.Insurance.Infractions)}
+							${renderRiskItem("Operation", risk.Operation, riskAssessmentDetails.Operation.Infractions)}
+							${renderRiskItem("Other", risk.Other, riskAssessmentDetails.Other.Infractions)}
+							${renderRiskItem("Safety", risk.Safety, riskAssessmentDetails.Safety.Infractions)}
+						</ul>
+						${
+							incidentReports > 0
+							?
+								`<button class="btn btn-danger incident-reports" type="button" onclick="requestIncidentReports(event, '${data.DotNumber}', ${incidentReports})">
+									${incidentReports} incident reports exists </button>`
+							:
+								`<button class="btn btn-success incident-reports" type="button">
+								 No incident reports found </button>`
+						}
+						<button class="btn btn-success incident-reports" type="button" onclick="requestCarrierVINVerification(event, '${data.DotNumber}')">Carrier VIN Verification Detail </button>
+						<button class="btn btn-success incident-reports" type="button"  data-bs-toggle="modal" data-bs-target="#MCPVINVerificationRequestWindow">VIN Verification Request </button>
+					</div>
+					<div class="col-lg-8">
+					<div class="transport-charge-lists">
+						<div class="insurance-section">
+							<div class="insurance-box">
+								<div class="transport-charge-itembox">
+									<div class="transport-cate-box">
+										<div class="transport-cate-status">
+											${insuranceCertificates.length > 0 ? $trueSignSVG : $crossSignSVG}
+										</div>
+										<div class="transport-cate-info">
+											<strong>Insurance Summary</strong>
+										</div>
+									</div>
+								</div>
+								${insuranceCertificates.length > 0 ?
+									'<div class="insurance-detail scroll-bar">' +
+									insuranceCertificates.map(certificate => `
+										<div class="transport-charge-itembox insurance-cert">
+											<div class="transport-cate-box"></div>
+											<div class="transport-cate-box">
+												<div class="transport-cate-info">
+													<strong>Certificate Id: </strong> ${certificate.CertificateID}
+													${certificate.BlobName && certificate.BlobName.length > 0 ?
+														`<button type="button" title="download" class="btn-mcp-download-cert" onclick="mcpDownloadCert(event, '${certificate.BlobName}')">
+														<i class="fas fa-file-export"></i>
+														</button>`
+													: ""}
+
+												</div>
+											</div>
+										</div>
+									${certificate.Coverage && certificate.Coverage.length > 0
+										?
+										certificate.Coverage.map(coverage => `
+										<div class="transport-charge-itembox">
+											<div class="transport-cate-box">
+												<div class="transport-cate-info">
+													<strong>${coverage.Type}</strong>
+													<p class="transport-cate-exp-date">Exp: ${normalizeDate(coverage.ExpirationDate) || 'N/A'}</p>
+												</div>
+											</div>
+											<p>$${coverage.CoverageLimit || 'N/A'}</p>
+										</div>
+									`).join('')
+								: ''}
+									`).join('')
+									+ '</div>'
+								: '<div>No data found</div>'
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row my-2 mx-0 px-0 w-100 mcp-status">
+					<div class="col-lg-3">
+						<div class="transpoter-aboutbox">
+							<label>Packet Status</label>
+							<p>${packetStatus || ''}</p>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="transpoter-aboutbox">
+							<label>Monitored</label>
+							<p>${data.IsMonitored ? $trueSignSVG : $crossSignSVG } ${IsMonitored}</p>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="transpoter-aboutbox">
+							<label>Blocked</label>
+							<p>${data.IsBlocked ? $trueSignSVG : $crossSignSVG } ${IsBlocked}</p>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="transpoter-aboutbox">
+							<label>Intellivite Sent</label>
+							<p>${isIntelliviteSentSuccess ? $trueSignSVG : $crossSignSVG } ${isIntelliviteSent}</p>
+						</div>
+					</div>
+				</div>
+				<div class="row my-2 mx-0 px-0 w-100">
+					<div class="col-lg-6">
+						<div class="transpoter-aboutbox">
+							<label>Dot Number</label>
+							<p>${data.DotNumber || ''}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>MC Number</label>
+							<p>${data.DocketNumber || ''}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Active Since</label>
+							<p>${getActiveSinceDate(carrierData, data.DotNumber)}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Company Email</label>
+							<p>${emails.find(email => email.EmailType === 3)?.Email || 'N/A'}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Total Trucks</label>
+							<p>${totalTrucks}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Total Trailers</label>
+							<p>${totalTrailer}</p>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="transpoter-aboutbox">
+							<label>Dot Status</label>
+							<p>${getDOTStatusByDotValue(carrierData, data.DotNumber) || ''}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Phone Number</label>
+							<p>${data.Phone || ''}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Representative</label>
+							<p>${emails.find(email => email.EmailType === 1)?.Description || 'N/A'}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Mail Address</label>
+							<p>${data.Street || ''}, ${data.City || ''}, ${data.State || ''}, ${data.ZipCode || ''}</p>
+						</div>
+						<div class="transpoter-aboutbox">
+							<label>Total Drivers</label>
+							<p>${totalDriver}</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="carrier-pack-area">
+					${!isIntelliviteSentSuccess && isBtnVisible
+					?
+						`<div class="carrier-pack-inputbox">
+							<input type="text" id="emailInput" class="form-control" placeholder="Enter Carrier Email (Required)" />
+						</div>
+						<button type="button" class="btn btn-primary" onclick="requestCarrierPacket('${data.DotNumber}', '${data.DocketNumber}', document.getElementById('emailInput').value)"> &#10011; Request Carrier Packet
+						</button>`
+					: ""
+					}
+				</div>`;
+		}
+
+		function mcpDownloadCert(e, blobName){
+			e.preventDefault();
+
+			if (typeof(blobName) !== 'string' || blobName.trim().length <= 0){
+				toastr.error("Invalid request. File name not found from request.");
+				return;
+			}
+
+			$.ajax({
+				type: "GET",
+				url: "@(Url.Action("MCPDownloadCert", "Carrier"))",
+				data: {
+					blobName: blobName,
+				},
+				xhrFields: {
+					responseType: 'blob'
+				},
+				success: function (data, status, xhr) {
+					let filename = "InsuranceCert.pdf";
+
+					const url = window.URL.createObjectURL(data);
+					const a = document.createElement('a');
+					a.href = url;
+					a.rel = "noopener noreferrer";
+					a.target = "_blank";
+					a.download = filename;
+					a.click();
+				},
+				error: function (xhr, status, error) {
+					const response = xhr.responseJSON;
+					const message = response && response.Message && typeof (response.Message) === 'string'
+						? response.Message
+						: 'An error occurred while processing your request.';
+
+					toastr.error(message);
+				}
+			});
+		}
+
+		function requestCarrierPacket(dotNumber, docketNumber, email) {
+
+			if (typeof email !== "string" || email.trim().length <= 0) {
+				toastr.error("Carrier email is required.");
+				return;
+			}
+
+			email = email.trim();
+
+			var emailRegex = /^(?!\.)[a-zA-Z0-9._%+-]{1,64}@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+			if (!emailRegex.test(email)) {
+				toastr.error("Please enter a valid carrier email address.");
+				return;
+			}
+
+			$.ajax({
+				type: "GET",
+				url: "@(Url.Action("MCPEmailPacketInvitation", "Carrier"))",
+				data: {
+					dotNumber: dotNumber,
+					docketNumber: docketNumber,
+					email: email
+				},
+				success: function (response) {
+
+					if (!response){
+						toastr.error("Response is null for sending email to carrier.");
+						return;
+					}
+
+					if (!response.Message){
+						toastr.error('An error occurred while processing your request.');
+						return;
+					}
+
+					if (response.Status){
+						toastr.success(response.Message);
+						refreshMCPDetails($('#DotNumberValue'), $('#mcp-record-type-value'), dotNumber, "DOT", true);
+					}
+					else {
+						toastr.error(response.Message);
+					}
+				},
+				error: function (xhr, status, error) {
+					const response = xhr.responseJSON;
+					const message = response && response.Message && typeof (response.Message) === 'string'
+						? response.Message
+						: 'An error occurred while processing your request.';
+
+					toastr.error(message);
+				}
+			});
+		}
+
+		function requestIncidentReports(e, dotNumber, incidentReports){
+			e.preventDefault();
+
+			if (!dotNumber) {
+				toastr.error("The dot number is required.");
+				return;
+			}
+
+			if (incidentReports <= 0) {
+				toastr.success("No incident reports found.");
+				return;
+			}
+
+			incidentReportsForCarrier = null;
+
+			$.ajax({
+				type: "GET",
+				url: "@(Url.Action("MCPCarrierIncidentReports", "Carrier"))",
+				data: {
+					dotNumber: dotNumber,
+				},
+				success: function (response) {
+
+					if (!response){
+						toastr.error("Response is null while fetch incident reports for carrier.");
+						return;
+					}
+
+					if (!response.Status || !response.Data){
+
+						if (response.Message){
+							toastr.error(response.Message);
+						}
+						else {
+							toastr.error('An error occurred while processing your request.');
+						}
+
+						return;
+					}
+
+					generateIncidentReportsPopupContent(response.Data);
+					$("#incident-reports-popup").modal("show");
+				},
+				error: function (xhr, status, error) {
+					const response = xhr.responseJSON;
+					const message = response && response.Message && typeof (response.Message) === 'string'
+						? response.Message
+						: 'An error occurred while processing your request.';
+
+					toastr.error(message);
+				}
+			});
+		}
+
+		function generateIncidentReportsPopupContent(data){
+			incidentReportsForCarrier = data;
+
+			if (!data){
+				return "<p>No data available</p>";
+			}
+
+			let reports = data.IncidentReports || [];
+
+			if (!$("#incident-report-selector").data("kendoDropDownList")) {
+
+				$("#incident-report-selector").kendoDropDownList({
+					dataSource: reports.map((r, i) => ({
+						id: i,
+						text: `${normalizeDate(r.CreatedDate)} - ${r.CreatedBy}`
+					})),
+					dataTextField: "text",
+					dataValueField: "id",
+					value: 0,
+					change: function () {
+						let index = this.value();
+						let selectedReport = data.IncidentReports[index];
+						renderIncidentContent(selectedReport);
+					}
+				});
+
+			}
+
+			let first = reports[0];
+			renderIncidentContent(first);
+		}
+
+		function renderIncidentContent(report) {
+
+			if (!report){
+				return "";
+			}
+
+			let html = `
+				<div class="row">
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+
+								<h6 class="fw-bold mb-3">Incident Details</h6>
+
+									 <div class="row mb-2">
+									<div class="col-5 fw-semibold">Incident Date</div>
+									<div class="col-7">${report.IncidentDate || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Origin City</div>
+									<div class="col-7">${report.OriginCity || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Origin State</div>
+									<div class="col-7">${report.OriginStateProvinceName || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Origin Country</div>
+									<div class="col-7">${report.OriginCountryName || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Destination City</div>
+									<div class="col-7">${report.DestinationCity || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Destination State</div>
+									<div class="col-7">${report.DestinationStateProvinceName || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Destination Country</div>
+									<div class="col-7">${report.DestinationCountryName || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Reported By Company</div>
+									<div class="col-7">${report.ReportedByCompany || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Carrier Emails</div>
+									<div class="col-7">${report.CarrierEmails || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Created</div>
+									<div class="col-7">${normalizeDate(report.CreatedDate) || ""} by ${report.CreatedBy || ""}</div>
+								</div>
+
+								<div class="row mb-2">
+									<div class="col-5 fw-semibold">Modified</div>
+									<div class="col-7">${normalizeDate(report.ModifiedDate) || ""} by ${report.ModifiedBy || ""}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+								<h6 class="fw-bold text-danger">
+									<i class="k-icon k-i-warning"></i> Incident(s)
+								</h6>
+
+								<ul class="list-group">
+									${report.IncidentTypes.map(t =>
+										`<li class="list-group-item list-group-item-danger">${t || ""}</li>`
+									).join('')}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-body">
+					<h6 class="fw-bold">Comments</h6>
+					${report.Comments.map(c => `
+						<div class="border rounded incident-reports-comment p-3 mb-3">
+							<div class="fw-bold mb-1">
+								${c.CommenterType || ""}: ${c.CommentBy || ""} (${localTimeConvert(c.CommentDate)})
+							</div>
+							<div>${c.Comment || ""}</div>
+						</div>
+					`).join('')}
+					</div>
+				</div>
+			`;
+
+			const modalBody = $('#incident-reports-modal-body-content');
+			modalBody.html(html);
+		}
+
+		function requestCarrierVINVerification(e, dotNumber){
+			e.preventDefault();
+
+			if (!dotNumber) {
+				toastr.error("The dot number is required.");
+				return;
+			}
+
+			$.ajax({
+				type: "GET",
+				url: "@(Url.Action("MCPCarrierVINVerification", "Carrier"))",
+				data: {
+					dotNumber: dotNumber,
+				},
+				success: function (response) {
+
+					if (!response){
+						toastr.error("Response is null while fetch carrier VIN verification details.");
+						return;
+					}
+
+					if (!response.Status || !response.Data){
+
+						if (response.Message){
+							toastr.error(response.Message);
+						}
+						else {
+							toastr.error('An error occurred while processing your request.');
+						}
+
+						return;
+					}
+
+					if (!response.Data.VINVerifications || response.Data.VINVerifications.length <= 0) {
+						toastr.error("No records available for carrier VIN verification detail(s).");
+						return;
+					}
+
+					$("#MCP-VIN-Container").html(showMCPVinModal(response.Data));
+					$("#MCP-VIN-Modal").modal("show");
+				},
+				error: function (xhr, status, error) {
+					const response = xhr.responseJSON;
+					const message = response && response.Message && typeof (response.Message) === 'string'
+						? response.Message
+						: 'An error occurred while processing your request.';
+
+					toastr.error(message);
+				}
+			});
+		}
+
+		function showMCPVinModal(data) {
+			if (!data || !data.VINVerifications || data.VINVerifications.length <= 0){
+				return "";
+			}
+
+
+			let html = "";
+
+			data.VINVerifications.forEach((v, index) => {
+
+				html += `
+				<div class="accordion mb-2" id="acc${index}">
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button mcp-vin-details collapsed" data-bs-toggle="collapse" data-bs-target="#col${index}">
+								<div class="acc-left">
+									<strong>VIN:</strong> ${v.VIN || ""}
+								</div>
+								<div>
+									<span class="badge bg-${v.VINVerificationStatus.StatusID == 2 ? "success" : "danger"} ms-2">
+										${v.VINVerificationStatus.Description || ""}
+									</span>
+								</div>
+							</button>
+						</h2>
+
+						<div id="col${index}" class="accordion-collapse collapse">
+							<div class="accordion-body">
+
+								<div class="d-flex-gap-5">
+									${v.OtherCarrier ? `
+										<div class="p-2 mb-3 rounded border bg-light auto-flex">
+											<h6 class="mb-1">Belongs To Another Carrier</h6>
+											<div><strong>${v.OtherCarrier.CompanyName}</strong></div>
+											<div>${v.OtherCarrier.Street}, ${v.OtherCarrier.City}, ${v.OtherCarrier.StateProvince}</div>
+											<div>Docket: ${v.OtherCarrier.DocketNumber}</div>
+											<div>DOT: ${v.OtherCarrier.DOTNumber}</div>
+											<div>Phone: ${v.OtherCarrier.Phone}</div>
+										</div>
+									` : ""}
+
+									${v.Requests?.length > 0 ? `
+										<div>
+											<img src="/api/carrier/MCPImages?blobName=${v.Requests[0].ImageBlobName}"
+											alt="vin-verification-image.jpg" class="img-fluid rounded mb-3" style="max-height: 200px">
+										</div>
+									` : ""}
+								</div>
+
+								<div class="table-responsive">
+									<table class="table table-bordered table-sm">
+										<thead>
+											<tr>
+												<th>Requested By</th>
+												<th>Phone</th>
+												<th>Uploaded By</th>
+												<th>IP</th>
+												<th>Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											${v.Requests.map(r => `
+												<tr>
+													<td>${r.RequestedByUser || ""}</td>
+													<td>${r.RequestSentTo || ""}</td>
+													<td>${r.ImageUploadedByFirstName || ""} ${r.ImageUploadedByLastName || ""}</td>
+													<td>${r.ImageUploadedFromIPAddress || ""}</td>
+													<td>${localTimeConvert(r.ImageUploadedDateTime)}</td>
+												</tr>
+											`).join("")}
+										</tbody>
+									</table>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>`;
+			});
+
+			return html;
+		}
+
+	</script>
+
+	<script>
+		var AdminLTEOptions = {
+			boxWidgetOptions: {
+				boxWidgetIcons: {
+					collapse: 'fa-minus',
+					open: 'fa-plus'
+				}
+			}
+		};
+	</script>
+	@{
+		//scroll to a selected card (if specified)
+		var selectedCardName = Html.GetSelectedCardName();
+		if (!String.IsNullOrEmpty(selectedCardName))
+		{
+			<script>
+				location.hash = '#@(selectedCardName)';
+			</script>
+		}
+	}
+	<a id="backTop" class="btn btn-back-top bg-teal"></a>
+	<script>
+		$(document).ready(function () {
+			//enable "back top" arrow
+			$('#backTop').backTop();
+
+			//enable tooltips
+			$('[data-toggle="tooltip"]').tooltip({ placement: 'bottom' });
+
+			getVehicleJson("@Url.Action("GetVehicleJsonFile", "LogisticsCommon")").then(function (data) {
+				vehicles = data;
+			});
+		});
+
+		//change darkmode-lightmode
+		$('#DarkModeSwitch').change(function () {
+			var darkmode = $('#DarkModeSwitch').prop('checked');
+			saveUserPreferences(rootAppPath + 'admin/preferences/savepreference', 'admin-theme-darkmode', darkmode);
+
+			if (darkmode == 0) {
+				$("body").removeClass('darkmode');
+				$('#normal-logo').attr('src', '/css/admin/images/logo.png');
+				$('#normal-logo-mini').attr('src', '/css/admin/images/logo-mini.png');
+			}
+			else {
+				$("body").addClass('darkmode');
+				$('#normal-logo').attr('src', '/css/admin/images/logo-dark.png');
+				$('#normal-logo-mini').attr('src', '/css/admin/images/logo-mini.png');
+			}
+
+			window.location.reload(true);
+		});
+
+		$(".open-myTracknav").on("click", function () {
+			$("#myTracknav").addClass("open");
+			$("body").addClass("custom-modal-opened");
+		});
+
+		function resetMCPForm(){
+			$("#myTracknav").removeClass("open");
+			$("#DotNumber").val("");
+			$('#mcp-record-type').data("kendoDropDownList").value("DOT");
+			$("body").removeClass("custom-modal-opened");
+		}
+
+		$(".close-myTracknav").on("click", function () {
+			resetMCPForm();
+		});
+
+		$("#MCP-info-popup").on('hide.bs.modal', function () {
+			resetMCPForm();
+		});
+
+		$('#incident-reports-popup').on('hide.bs.modal', function () {
+			incidentReportsForCarrier = null;
+		});
+
+		function enterKeyPressForMCP(e, id){
+			const isEnterKey = e.key === "Enter" || e.which === 13 || e.keyCode === 13;
+
+			if (isEnterKey) {
+				e.preventDefault();
+				$('#'+ id).click();
+			}
+		}
+
+		$("#DotNumber").keydown(function(e){
+			enterKeyPressForMCP(e, 'submitDotNumber');
+		});
+
+		$("#DotNumberValue").keydown(function(e){
+			enterKeyPressForMCP(e, 'submitDotNumberValue');
+		});
+
+		dragElement($("#logistic-calculator"));
+		dragElement($("#logistic-tracker"));
+
+		function dragElement($elmnt) {
+			var pos2 = 0, pos4 = 0;
+			var $header = $("#move-" + $elmnt.attr("id"));
+
+			if ($header.length) {
+				$header.on("mousedown touchstart", dragStart);
+			} else {
+				$elmnt.on("mousedown touchstart", dragStart);
+			}
+
+			function dragStart(e) {
+				e.preventDefault();
+				var event = e.type === "touchstart" ? e.touches[0] : e;
+
+				pos4 = event.clientY;
+
+				$(document).on("mouseup touchend", closeDragElement);
+				$(document)[0].addEventListener("touchmove", elementDrag, { passive: false });
+				$(document).on("mousemove", elementDrag);
+			}
+
+			function elementDrag(e) {
+				e.preventDefault();
+				var event = e.type === "touchmove" ? e.touches[0] : e;
+
+				pos2 = pos4 - event.clientY;
+				pos4 = event.clientY;
+
+				let newTop = $elmnt[0].offsetTop - pos2;
+				let headerSiblingHeight = $header.siblings('span').outerHeight() || 0;
+				let maxTop = window.innerHeight - $elmnt.outerHeight() - headerSiblingHeight;
+
+				if (newTop >= 0 && newTop <= maxTop) {
+					$elmnt.css("top", newTop + "px");
+				}
+			}
+
+			function closeDragElement() {
+				$(document).off("mouseup touchend", closeDragElement);
+				$(document).off("mousemove", elementDrag);
+				$(document)[0].removeEventListener("touchmove", elementDrag);
+			}
+		}
+
+	</script>
+
+
+	@NopHtml.GenerateScripts(ResourceLocation.Footer)
+	@NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
+</body>
+</html>

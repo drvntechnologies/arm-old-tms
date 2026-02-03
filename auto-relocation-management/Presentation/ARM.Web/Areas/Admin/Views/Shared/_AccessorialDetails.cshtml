@@ -1,0 +1,175 @@
+﻿@model List<LogisticsAccessorialModel>
+
+@inject IPriceFormatter priceFormatter
+
+@if (Model == null)
+{
+	return;
+}
+
+@{
+	var showQuickBoolBillId = Convert.ToBoolean(ViewData["ShowQuickBoolBillId"] ?? false);
+	var isNewOrder = Convert.ToBoolean(ViewData["IsNewOrder"] ?? false);
+	var isOrder = Convert.ToBoolean(ViewData["IsOrder"] ?? false);
+
+	var totalCustomerPrice = decimal.Zero;
+	var totalCompanyPrice = decimal.Zero;
+
+	foreach (var accessorialModel in Model)
+	{
+		totalCustomerPrice += accessorialModel.AR;
+		totalCompanyPrice += accessorialModel.AP;
+	}
+
+	// var totalMargin = totalCustomerPrice - totalCompanyPrice;
+
+	var colSpan = 4;
+	var footerColSpan = 2;
+
+	if (isNewOrder)
+	{
+		colSpan++;
+		footerColSpan++;
+	}
+
+	if (showQuickBoolBillId)
+	{
+		colSpan++;
+	}
+}
+
+<div class="card detail-info-card">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="fas fa-network-wired"></i>
+			@if (isOrder)
+			{
+				@T("Admin.Order.Details.Info.Title")
+			}
+			else
+			{
+				@T("Admin.Accessorial.Details.Title")
+			}
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="form-group row">
+			<div class="col-md-12">
+				<div class="quote-information d-table-responsive">
+					<table class="table table-hover table-borderless hyperlink-table d-table table-striped m-0">
+						<colgroup>
+							@if (isNewOrder)
+							{
+								<col width="10%" />
+							}
+							<col width="15%" />
+							@* <col width="6%" /> *@
+							<col width="23%" />
+							<col width="14%" />
+							<col width="14%" />
+							@* <col width="8%" /> *@
+							@if (showQuickBoolBillId)
+							{
+								<col width="10%" />
+							}
+						</colgroup>
+						<thead>
+							<tr>
+								@if (isNewOrder)
+								{
+									<th>
+										@T("Admin.Orders.Fields.OrderNumber")
+									</th>
+								}
+								<th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.Accessorial.Type")
+								</th>
+								@* <th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.CompanyType")
+								</th> *@
+								<th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.Company")
+								</th>
+								<th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.AR")
+								</th>
+								<th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.SupplierCost")
+									<i class="fas fa-info-circle tooltip-icon">
+										<span class="custom-tooltip">@T("Admin.LogisticsAccessorial.Table.Heading.AP.Hint")</span>
+									</i>
+								</th>
+								@* <th>
+									@T("Admin.LogisticsAccessorial.Table.Heading.Profit.Margin")
+								</th> *@
+								@if (showQuickBoolBillId)
+								{
+									<th>
+										@T("Admin.Orders.QuickBooks.BillIds")
+									</th>
+								}
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Count > 0)
+							{
+								@foreach (var accessorialModel in Model)
+								{
+									<tr>
+										@if (isNewOrder)
+										{
+											<td>
+												@accessorialModel.OrderNumber
+											</td>
+										}
+										<td>
+											@accessorialModel.AccessorialName
+										</td>
+										@* <td>
+											@accessorialModel.EntityType
+										</td> *@
+										<td class="white-pre-line">
+											@accessorialModel.CompanyName
+										</td>
+										<td>
+											@accessorialModel.CustomerPrice
+										</td>
+										<td>
+											@accessorialModel.CompanyPrice
+										</td>
+										@* <td>
+											@accessorialModel.Margin
+										</td> *@
+										@if (showQuickBoolBillId)
+										{
+											<td>
+												@Html.Raw(accessorialModel.QuickBookBillDetails)
+											</td>
+										}
+									</tr>
+								}
+							}
+							else
+							{
+								<tr>
+									<td class="no-record" colspan="@colSpan">
+										@T("Admin.Common.Table.NoRecord")
+									</td>
+								</tr>
+							}
+
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="@footerColSpan" class="text-right"><strong><span class="font-weight-500">@T("Admin.LogisticsQuote.Table.InspectionItem.Footer.Total")</span></strong></td>
+								<td><strong><span id="total-AR">@await priceFormatter.FormatPriceAsync(totalCustomerPrice, true, false)</span></strong></td>
+								<td><strong><span id="total-AP">@await priceFormatter.FormatPriceAsync(totalCompanyPrice, true, false)</span></strong></td>
+								@* <td colspan="2"><strong><span id="total-profit">@await priceFormatter.FormatPriceAsync(totalMargin, true, false)</span></strong></td> *@
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

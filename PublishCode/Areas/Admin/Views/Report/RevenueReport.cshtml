@@ -1,0 +1,199 @@
+﻿@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Revenue.Reports").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Revenue report");
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Revenue.Reports")
+    </h1>
+    <div class="float-right report-filter-right">
+        <button id="export-excel" class="btn btn-green" type="button">
+            <i class="far fa-file-excel"></i>
+            @T("Admin.Common.ExportToExcel.All")
+        </button>
+    </div>
+</div>
+<section class="content revenue-report">
+    <div class="container-fluid">
+        <div class="form-horizontal-custom">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row opened" data-hideattribute="RevenueReportPage.HideSearchBlock">
+                            <div class="search-text">Search</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-up" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="search-body" style="">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="CompanyName">Company Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="form-control text-box single-line" id="CompanyName" name="CompanyName" placeholder="Enter Company Name" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="label-wrapper">
+                                                <label class="col-form-label" for="dateRange">
+                                                    Select Date Range
+                                                    <i class="fas fa-info-circle tooltip-icon">
+                                                        <span class="custom-tooltip">
+                                                            @T("Admin.RevenueReport.DateRange.Filter.Hint")
+                                                        </span>
+                                                    </i>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="custom-dateInput-view">
+                                                <input type="text" id="dateRange" class="form-control" placeholder="Select Date Range" />
+                                                <label for="dateRange" class="custom-dateIcon-box"><i class="far fa-calendar-alt"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-customer-report" class="btn btn-primary btn-search">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    <button type="button" id="customer-report-btncancel" class="btn btn-primary btn-cancel-search">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default card-search d-card-search d-card">
+                    <div class="card-body">
+                        <div class="customer-report-page" id="div_CustomerReport">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(function () {
+        initializeDatePicker();
+        refreshData();
+    });
+
+    $('#search-customer-report').click(function () {
+        refreshData();
+    });
+
+    $('#customer-report-btncancel').click(function () {
+        $("#CompanyName").val("");
+
+        const datePicker = document.querySelector("#dateRange")._flatpickr;
+        if (datePicker) {
+            datePicker.clear();
+        }
+
+        refreshData();
+    });
+
+    function initializeDatePicker() {
+        flatpickr("#dateRange", {
+            mode: "range",
+            dateFormat: "M d, Y",
+            allowInput: false,
+            maxDate: "today",
+        });
+    }
+
+    function OnTimeButtonClick(button, val) {
+        $(".btn-customer-status-group button").removeClass("active");
+        $(button).addClass("active");
+
+        const datePicker = document.querySelector("#dateRange")._flatpickr;
+        if (datePicker) {
+            datePicker.clear();
+        }
+
+        // Refresh data when button clicked
+        refreshData();
+    }
+
+    function refreshData() {
+        const dateRangeValue = $("#dateRange").val();
+        const dateRange = dateRangeValue.split(" to ");
+        const companyName = $("#CompanyName").val();
+        const startDate = dateRange.length === 2 ? dateRange[0] : dateRangeValue;
+        const endDate = dateRange.length === 2 ? dateRange[1] : dateRangeValue;
+
+        $.ajax({
+            url: "/Admin/Report/LoadRevenueReportView",
+            method: "GET",
+            data: {
+                startDate: startDate,
+                endDate: endDate,
+                companyName: companyName
+            },
+            success: function (data) {
+                $("#div_CustomerReport").html(data);
+            },
+            error: function (error) {
+                console.error("Error reloading revenue report view:", error);
+            }
+        });
+
+    }
+
+    $("#export-excel").on("click", function (e) {
+        e.preventDefault();
+        exportReport();
+    });
+
+    function exportReport() {
+        const dateRangeValue = $("#dateRange").val();
+        const dateRange = dateRangeValue.split(" to ");
+        const startDate = dateRange.length === 2 ? dateRange[0] : dateRangeValue;
+        const endDate = dateRange.length === 2 ? dateRange[1] : dateRangeValue;
+        const companyName = $("#CompanyName").val();
+        const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+        $.ajax({
+            url: `/Admin/Report/ExportRevenueReport`,
+            method: "POST",
+            data: {
+                startDate,
+                endDate,
+                companyName,
+                __RequestVerificationToken: antiForgeryToken
+            },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (data, status, xhr) {
+                var blob = new Blob([data], { type: xhr.getResponseHeader("Content-Type") });
+                var link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `revenue_report.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function (error) {
+                console.error("Error exporting report:", error);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,112 @@
+﻿@model LogisticsShipperCustomerAddressInfoModel
+
+@{
+    var addShipperAddressId = "LogisticsShipperCustomerAddress" + (Model.Counter - 1);
+    var newShipperAddressId = "LogisticsShipperCustomerAddress" + (Model.Counter - 1) + "_OriginZip";
+    var newShipperDestinationAddressId = "LogisticsShipperCustomerAddress" + (Model.Counter - 1) + "_DestinationZip";
+    var newOriginCountry = "LogisticsShipperCustomerAddress" + (Model.Counter - 1) + "_OriginCountry";
+    var newDestinationCountry = "LogisticsShipperCustomerAddress" + (Model.Counter - 1) + "_DestinationCountry";
+}
+<div id="shipperAddress_@(Model.Counter-1)" class="shipperCustomerAddressList @(Model.Counter>1?"border-top p-2":"")">
+    <div class="row">
+        <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+        <input asp-for="CustomerId" type="hidden" />
+        <div class="col-md-6">
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <div class="label-wrapper">
+                        <label class="col-form-label counter" for="Counter">@T("Admin.Customer.Fields.OriginAddressCount",Model.Counter)</label>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <button class="btn btn-danger" id="removeAddressBtn" type="button" onclick="RemoveShipperAddress(@Model.Counter)">@T("Admin.Customer.OriginAddress.Remove")</button>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <label>@T("Admin.Customer.Fields.Origin") : </label>
+                </div>
+                <div class="col-md-7">
+                    <span> &ensp; </span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="OriginZip" asp-required="@Model.ShipperCustomerOriginZipRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" asp-for="OriginZip" onkeyup="ZipRequest('@addShipperAddressId','@newShipperAddressId')" />
+                    <span asp-validation-for="OriginZip"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="OriginCity" asp-required="@Model.ShipperCustomerOriginCityRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" asp-for="OriginCity" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="OriginCountry" asp-required="@Model.ShipperCustomerOriginCountryRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <nop-select asp-for="OriginCountry" onchange="originCountryRequest('@addShipperAddressId','@newOriginCountry')" asp-items="Model.AvailableOriginCountries" class="form-select form-control" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="OriginState" asp-required="@Model.ShipperCustomerOriginStateRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <nop-select asp-for="OriginState" asp-items="Model.AvailableOriginStates" class="form-select form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex flex-column justify-content-end">            
+
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <label>@T("Admin.Customer.Fields.Destination") : </label>
+                </div>
+                <div class="col-md-7">
+                    <span> &ensp; </span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="DestinationZip" asp-required="@Model.ShipperCustomerDestinationZipRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" asp-for="DestinationZip" onkeyup="DestinationZipRequest('@addShipperAddressId','@newShipperDestinationAddressId')" />
+                    <span asp-validation-for="DestinationZip"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="DestinationCity" asp-required="@Model.ShipperCustomerDestinationCityRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" asp-for="DestinationCity" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="DestinationCountry" asp-required="@Model.ShipperCustomerDestinationCountryRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <nop-select asp-for="DestinationCountry" onchange="destinationCountryRequest('@addShipperAddressId','@newDestinationCountry')" asp-items="Model.AvailableDestinationCountries" class="form-select form-control" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="DestinationState" asp-required="@Model.ShipperCustomerDestinationStateRequired" />
+                </div>
+                <div class="col-sm-7">
+                    <nop-select asp-for="DestinationState" asp-items="Model.AvailableDestinationStates" class="form-select form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

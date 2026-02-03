@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Api",
+  "FriendlyName": "Logistics API",
+  "SystemName": "Logistics.API",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "Sigma Solve team",
+  "DisplayOrder": -1,
+  "FileName": "Logistics.API.dll",
+  "Description": "This plugin is Restfull API for nopCommerce."
+}

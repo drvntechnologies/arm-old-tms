@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARM - Internal Server Error</title>
+    <link rel="icon" href="/icons/icons_0/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --danger: #D9534F;
+            --bg: #f3f4f6;
+            --text: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+            .error-container svg {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 20px;
+                color: var(--danger);
+            }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--danger);
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            min-width: 120px;
+            text-align: center;
+        }
+
+            .button:hover {
+                background-color: #357ABD;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.97 0-9-3.582-9-8s4.03-8 9-8 9 3.582 9 8c0 1.693-.53 3.27-1.425 4.575M12 8v4m0 4h.01" />
+        </svg>
+
+        <h1>Something went wrong.</h1>
+        <p>We're experiencing a technical issue.</p>
+        <p>Our team has been notified and is working to resolve it.</p>
+        <p>Please try again later or use the buttons below to navigate.</p>
+
+        <div class="buttons">
+            <a href="javascript:history.back()" class="button">Go Back</a>
+            <a href="/" class="button">Home Page</a>
+        </div>
+    </div>
+</body>
+</html>

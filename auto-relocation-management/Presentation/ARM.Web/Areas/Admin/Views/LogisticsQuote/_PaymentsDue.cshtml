@@ -1,0 +1,152 @@
+﻿@model LogisticsQuoteModel
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-truck"></i>
+            @T("Admin.PaymentDetail")
+        </div>
+    </div>
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.CarrierType))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.CarrierType")
+                </div>
+                <div class="input-name">
+                    @Model.CarrierType
+                </div>
+            </div>
+        }
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.LogisticsQuote.Fields.TotalCost")
+            </div>
+            <div class="input-name">
+                @Model.TotalTariff
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.LogisticsQuote.Fields.EstimatedCarrierRate")
+            </div>
+            <div class="input-name">
+                @Model.EstimatedCarrierRateValue
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.ReferredBy) && 
+            !Model.ReferredBy.Equals("0") && 
+            !Model.ReferredBy.Equals("-1"))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Orders.Fields.ReferralAmount")
+                </div>
+                <div class="input-name">
+                    @Model.ReferralAmount
+                </div>
+            </div>
+        }
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.TotalAPPrice")
+            </div>
+            <div class="input-name">
+                @Model.TotalAPAmount
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.GrossProfit")
+            </div>
+            <div class="input-name">
+                @Model.GrossProfit
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.ProfitAmount")
+            </div>
+            <div class="input-name">
+                @Model.NetProfit
+            </div>
+        </div>
+        <div class="custom-form-group">
+            <div class="label-name">
+                @T("Admin.Orders.Fields.ProfitPercentageMargin")
+            </div>
+            <div class="input-name">
+                @Model.NetProfitMargin
+            </div>
+        </div>
+        @* @if (Model.DeliveryDate.HasValue)
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.DeliveryDate")
+                </div>
+                <div class="input-name">
+                    @Model.DeliveryDate.ToDateFormat()
+                </div>
+            </div>
+        } *@
+        @if (!string.IsNullOrWhiteSpace(Model.PaymentOption))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.PaymentOption")
+                </div>
+                <div class="input-name">
+                    @Model.PaymentOption
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PaymentMethod))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.PaymentMethod")
+                </div>
+                <div class="input-name">
+                    @Model.PaymentMethod
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PaymentTerms))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.PaymentTerms")
+                </div>
+                <div class="input-name">
+                    @Model.PaymentTerms.Replace('_',' ')
+                </div>
+            </div>
+        }
+       @*  @if (!string.IsNullOrWhiteSpace(Model.DepositRequired))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Deposit")
+                </div>
+                <div class="input-name">
+                    @Model.DepositRequired
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.CarrierPayValue))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.CarrierPay")
+                </div>
+                <div class="input-name">
+                    @Model.CarrierPayValue
+                </div>
+            </div>
+        } *@
+        
+    </div>
+</div>

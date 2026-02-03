@@ -1,0 +1,152 @@
+﻿@model LogisticsQuoteVehicleInfoModel
+
+@{
+    var addVehicleId = "LogisticsQuoteVehicles" + (Model.Counter - 1);
+    var newVehicleId = "LogisticsQuoteVehicles" + (Model.Counter - 1) + "_VehicleVINNumber";
+}
+
+<div id="vehicleQuote_@(Model.Counter-1)" class="VehicleInfoList @(Model.Counter>1?"pt-2":"")">
+    <div class="row">
+        <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+
+        <input asp-for="LeadId" type="hidden" />
+        <div class="col-md-12">
+            <div class="card m-0">
+                <div class="card-header d-flex align-items-center py-2">
+                    <div class="counter d-v-counter-position col-form-label counter" for="Shipper">@T("Admin.LogisticsQuoteVehicleInfo.Fields.VehicleCount", Model.Counter)</div>
+                    <button class="btn d-vehicel-close ml-auto" id="removeVehicleInfoBtn" type="button" onclick="RemoveVehicle(@Model.Counter)"> <i class="fa fa-times" aria-hidden="true"></i> </button>
+                </div>
+                <div class="card-body d-form">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3 col-xl-3">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleVINNumber" asp-required="@Model.VehicleVINNumberRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <input autocomplete="off" type="text" class="form-control" asp-for="VehicleVINNumber" onkeyup="VinApiRequest('@addVehicleId','@newVehicleId')" placeholder="Enter VIN" />
+                                    <span asp-validation-for="VehicleVINNumber"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleYear" asp-required="@Model.LogisticsQuoteVehicleYearRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <input type="text" autocomplete="off" class="form-control" onfocusout="FetchVehicleType('@addVehicleId')" asp-for="VehicleYear" placeholder="Enter Year" />
+                                    <span asp-validation-for="VehicleYear"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="Make" asp-required="@Model.LogisticsQuoteMakeRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <input type="text" autocomplete="off" class="form-control" onfocusout="FetchVehicleType('@addVehicleId')" asp-for="Make" placeholder="Enter Make" data-type="Make" />
+                                    <span asp-validation-for="Make"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleModel" asp-required="@Model.LogisticsQuoteVehicleModelRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <input type="text" autocomplete="off" class="form-control" onfocusout="FetchVehicleType('@addVehicleId')" asp-for="VehicleModel" placeholder="Enter Model" data-type="Model" />
+                                    <span asp-validation-for="Make"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleType" asp-required="@Model.LogisticsQuoteVehicleTypeRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <nop-select asp-for="VehicleType" asp-items="Model.AvailableVehicleType" class="form-select form-control vehicle-type" />
+                                    <span asp-validation-for="VehicleType"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2 vehicle-type-other" style="@(!(Model.VehicleType?.Equals("Other", StringComparison.InvariantCultureIgnoreCase) == true) ? "display:none" : "" )">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleTypeOther" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <input autocomplete="off" type="text" class="form-control" asp-for="VehicleTypeOther" />
+                                    <span asp-validation-for="VehicleTypeOther"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="VehicleValue" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <nop-editor asp-for="VehicleValue" html-attributes="@(new { placeholder = "Enter Vehicle Value" })" />
+                                    <span asp-validation-for="VehicleValue"></span>
+                                </div>
+                            </div>
+                        </div>
+                        @* <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="CarrierType" asp-required="Model.LogisticsQuoteCarrierTypeRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <nop-select class="form-select" asp-for="CarrierType" asp-items="Model.AvailableCarrierTypes" />
+                                    <span asp-validation-for="CarrierType"></span>
+                                </div>
+                            </div>
+                        </div> *@
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-6 col-lg-12">
+                                    <nop-label asp-for="IsModified" />
+                                </div>
+                                <div class="input-name col-6 col-lg-12">
+                                    <input type="checkbox" class="check-box" asp-for="IsModified" onchange="isModified('@addVehicleId')" />
+                                    <span asp-validation-for="IsModified"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3 col-xl-2" id="pnl-modifiednotes-reason-@addVehicleId" style="display:none;">
+                            <div class="form-group row">
+                                <div class="label-name col-md-12">
+                                    <nop-label asp-for="ModifiedNotes" asp-required="Model.ModifiedNotesRequired" />
+                                </div>
+                                <div class="input-name col-md-12">
+                                    <nop-textarea asp-for="ModifiedNotes" html-attributes="@(new { placeholder = "Enter Modified Notes", autocomplete="off" })" />
+                                    <span asp-validation-for="ModifiedNotes"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 col-xl-2">
+                            <div class="form-group row">
+                                <div class="label-name col-6 col-md-12">
+                                    <nop-label asp-for="IsInoperable" />
+                                </div>
+                                <div class="input-name col-6 col-md-12">
+                                    <nop-editor asp-for="IsInoperable" />
+                                    <span asp-validation-for="IsInoperable"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    allowNumericWithMaxLength("#VehicleYear", 4);
+</script>

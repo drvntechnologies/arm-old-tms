@@ -1,0 +1,59 @@
+@model Decimal
+<input asp-for="@Model"/>
+@{
+    var postfix = "";
+    if (ViewData.ContainsKey("postfix") && ViewData["postfix"] != null)
+    {
+        postfix = ViewData["postfix"].ToString();
+    }
+    var culture = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
+}
+<script>
+    $(document).ready(function () {
+        try {
+            $("#@Html.IdForModel()").kendoNumericTextBox({
+                value: "@Model.ToString(culture)",
+                decimals: 2,
+                restrictDecimals: true,
+                format: "#.00 @Html.Raw(postfix)",
+                min: 0,
+                spinners: false
+            }).focus(function () {
+                if ($(this).data("kendoNumericTextBox").value() == 0) {
+                    $(this).data("kendoNumericTextBox").value('');
+                }
+                else {
+                    var input = $(this).data("kendoNumericTextBox").element[0];
+                    setTimeout(function () {
+                        input.setSelectionRange(input.value.length, input.value.length);
+                    }, 0);
+                }
+            }).blur(function () {
+                if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+                    $(this).data("kendoNumericTextBox").value(0);
+                }
+            });;
+        }
+        catch {
+
+        }
+
+    });
+</script>
+@* <script>
+    $(document).ready(function () {
+        try{
+            $("#@Html.IdForModel()").kendoNumericTextBox({
+                value: "@Model.ToString(culture)",
+                decimals: 2,
+                restrictDecimals: true,
+                format: "#.00 @Html.Raw(postfix)",
+                min: 0
+            });
+        }
+        catch{
+
+        }
+       
+    });
+</script> *@

@@ -1,0 +1,71 @@
+﻿@model CustomerModel
+
+@using Newtonsoft.Json
+@using Nop.Core.Domain.Customers;
+
+<div class="card-body">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group row">
+                <div class="col-md-3 d-flex justify-content-end">
+                    <nop-label asp-for="Contact1" /><nop-required />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Contact1" />
+                    <span asp-validation-for="Contact1"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-label asp-for="Contact2" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Contact2" />
+                    <span asp-validation-for="Contact2"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-label asp-for="Contact3" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Contact3" />
+                    <span asp-validation-for="Contact3"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group row">
+                <div class="col-md-3 d-flex justify-content-end">
+                    <nop-label asp-for="Phone1" /><nop-required />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Phone1" />
+                    <span asp-validation-for="Phone1"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-label asp-for="Phone2" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Phone2" />
+                    <span asp-validation-for="Phone2"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-label asp-for="Phone3" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="Phone3" />
+                    <span asp-validation-for="Phone3"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    commonPhoneNumber("#Phone1, #Phone2, #Phone3");
+</script>

@@ -1,0 +1,132 @@
+﻿@model OrderModel
+
+@{
+	var customOrderNumber = string.Empty;
+	if (Model.Id > 0 && Model.LeadId > 0 && !Model.MakeCopy)
+	{
+		customOrderNumber = $"({T("Admin.Orders.Number").Value}: {(Model.IsChildOrder? Model.CustomOrderNumber: Model.LeadId.ToString("D5"))})";
+	}
+}
+
+<div class="validation-top-listarea">
+	<div asp-validation-summary="All"></div>	
+</div>
+
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+<input asp-for="LeadId" type="hidden" />
+<input asp-for="QuoteId" type="hidden" />
+<input asp-for="IsChildOrder" type="hidden" />
+<input asp-for="HasPermissionToUpdateARMSalesRep" type="hidden" />
+<input asp-for="USCountryId" type="hidden" />
+<input asp-for="HasPriority" type="hidden" />
+<input asp-for="IsNewOrder" type="hidden" />
+<input asp-for="ParentOrderLeadId" type="hidden" />
+<input asp-for="PercentagePriceMargin" type="hidden" />
+
+<section class="create-edit-pg-common-design">
+	<div class="form-horizontal">
+		<nop-cards id="order-cards">
+
+			<div class="row">
+				<div class="@(Model.IsChildOrder ? "col-md-6" : "")">
+					<nop-card asp-icon="fas fa-user" asp-name="shipper-info" asp-title="@T("Admin.Order.CustomerInfo") @customOrderNumber" asp-hide-block-attribute-name="@T("Admin.Order.CustomerInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CustomerInfo", Model)</nop-card>
+				</div>
+
+				@if (Model.IsNewOrder || Model.IsChildOrder)
+				{
+					<div class="@(Model.IsChildOrder ? "col-md-6" : "")">
+						<nop-card asp-icon="fas fa-user" asp-name="shipper-detail" asp-title="@T("Admin.Order.ShipperInfo")" asp-hide-block-attribute-name="@T("Admin.Order.ShipperInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.ShipperInfo", Model)</nop-card>
+
+						@if (Model.IsChildOrder)
+						{
+							<nop-card asp-icon="fas fa-truck" asp-name="Transport-Information" asp-title="@T("Admin.Orders.CarrierTransportation")" asp-hide-block-attribute-name="@T("Admin.Orders.CarrierTransportation")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CarrierTransportation", Model)</nop-card>
+						}
+					</div>
+				}
+
+			</div>
+
+			@if (!Model.IsNewOrder && !Model.IsChildOrder)
+			{
+				<nop-card asp-icon="fas fa-truck" asp-name="pickup-info" asp-title="@T("Admin.Order.PickupInfo")" asp-hide-block-attribute-name="@T("Admin.Order.PickupInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.PickupInfo", Model)</nop-card>
+
+				<nop-card asp-icon="fas fa-shipping-fast" asp-name="delivery-info" asp-title="@T("Admin.Order.DeliveryInfo")" asp-hide-block-attribute-name="@T("Admin.Order.DeliveryInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.DeliveryInfo", Model)</nop-card>
+
+				<nop-card asp-icon="fas fa-truck" asp-name="Transport-Information" asp-title="@T("Admin.Orders.CarrierTransportation")" asp-hide-block-attribute-name="@T("Admin.Orders.CarrierTransportation")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CarrierTransportation", Model)</nop-card>
+			}
+
+			@if (Model.IsChildOrder)
+			{
+				<nop-card asp-icon="fas fa-truck" asp-name="pickup-info" asp-title="@T("Admin.Order.PickupInfo")" asp-hide-block-attribute-name="@T("Admin.Order.PickupInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.PickupInfo", Model)</nop-card>
+
+				<nop-card asp-icon="fas fa-shipping-fast" asp-name="delivery-info" asp-title="@T("Admin.Order.DeliveryInfo")" asp-hide-block-attribute-name="@T("Admin.Order.DeliveryInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.DeliveryInfo", Model)</nop-card>
+			
+				@* <nop-card asp-icon="fas fa-truck" asp-name="Transport-Information" asp-title="@T("Admin.Orders.CarrierTransportation")" asp-hide-block-attribute-name="@T("Admin.Orders.CarrierTransportation")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.CarrierTransportation", Model)</nop-card> *@
+
+				<nop-card asp-icon="fas fa-money" asp-name="price-info" asp-title="@T("Admin.Order.PriceInfo")  @customOrderNumber" asp-hide-block-attribute-name="@T("Admin.Order.PriceInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.PriceInfo", Model)</nop-card>
+			}
+
+			@if (!Model.IsChildOrder)
+			{
+				<nop-card asp-icon="fas fa-truck" asp-name="vehicle-info" asp-title="@T("Admin.Order.VehicleInfo")" asp-hide-block-attribute-name="@T("Admin.Order.VehicleInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.VehicleInfo", Model)</nop-card>
+
+				@if (!Model.IsNewOrder)
+				{
+					<nop-card asp-icon="fas fa-money" asp-name="price-info" asp-title="@T("Admin.Order.PriceInfo")  @customOrderNumber" asp-hide-block-attribute-name="@T("Admin.Order.PriceInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.PriceInfo", Model)</nop-card>
+				}
+
+				<nop-card asp-name="order-Files" asp-icon="fas fa-file" asp-title="@T("Admin.Orders.Files")" asp-hide-block-attribute-name="@T("Admin.Order.Files")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Files", Model)</nop-card>
+			}
+
+		</nop-cards>
+	</div>
+</section>
+
+<div id="alert-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alert-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="form-horizontal">
+                <div class="modal-body" id="alert-message-body">
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Portal.Common.Ok")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/lib/daterangepicker/css/daterangepicker.css" rel="stylesheet" />
+<script asp-exclude-from-bundle="true" src="~/lib_npm/moment/moment.min.js"></script>
+<script asp-exclude-from-bundle="true" src="~/lib/daterangepicker/js/daterangepicker.min.js"></script>
+
+<script>
+	$(document).on('click', "#alert-popup .close-popup", function (e) {
+		e.preventDefault();
+		$("#alert-popup").modal('hide');
+	});
+
+	$("#alert-popup").on("hidden.bs.modal", function () {
+		$("#alert-message-body").text("");
+		$("#alert-message-body").attr('style', "");
+	});
+
+	function isValidValue(value) {
+		return value !== null && value.trim() !== "";
+	}
+
+	$(function () {
+		var $validationSummary = $(".validation-summary-errors");
+
+		var uniqueMessages = [];
+		$validationSummary.find("li").each(function () {
+			var message = $(this).text().trim();
+			if (uniqueMessages.indexOf(message) === -1) {
+				uniqueMessages.push(message);
+			} else {
+				$(this).remove();
+			}
+		});
+	});
+
+</script>

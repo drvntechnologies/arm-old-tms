@@ -1,0 +1,442 @@
+﻿@model LogisticsQuoteSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Quotes").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Quotes");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "LogisticsQuoteListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="LogisticsQuote" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Quotes")
+        </h1>
+        <div class="float-right">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search d-card-search d-card">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                @* <nop-label asp-for="LeadId" /> *@
+                                                <div class="label-wrapper">
+                                                    <label class="col-form-label" asp-for="LeadId">
+                                                        @T("Admin.LogisticsQuote.List.QuoteDetail")
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 qq">
+                                                <nop-editor asp-for="LeadId" html-attributes="@(new { placeholder = "Enter Quote Id" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="AssignedTo" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="AssignedTo" asp-items="Model.AvailableAssignedTo" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="Email" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-3">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="Phone1" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="Phone1" />
+                                            </div>
+                                        </div>
+                                        <script>
+                                            commonPhoneNumber("#Phone1");
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="Advanced-search hide">
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="ShipperCompany" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="ShipperCompany" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginCity" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="OriginCity" html-attributes="@(new { placeholder = "Enter Origin City" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginState" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="OriginState" asp-items="Model.AvailableStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginZip" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="OriginZip" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="OriginCountry" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="OriginCountry" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="QuoteStatusId" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="QuoteStatusId" asp-items="Model.AvailableQuoteStatuses" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationCity" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="DestinationCity" html-attributes="@(new { placeholder = "Enter Destination City" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationState" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="DestinationState" asp-items="Model.AvailableStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationZip" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="DestinationZip" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="DestinationCountry" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="DestinationCountry" asp-items="Model.AvailableCountries" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="RegionTypeId" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-select asp-for="RegionTypeId" asp-items="Model.AvailableRegionTypes" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-xl-3">
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <nop-label asp-for="Vehicle" />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <nop-editor asp-for="Vehicle" html-attributes="@(new { placeholder = "Enter Vehicle" })" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 position-relative">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <button type="button" id="search-logisticsquote" class="btn btn-primary btn-search">
+                                                <i class="fas fa-search"></i>
+                                                @T("Admin.Common.Search")
+                                            </button>
+                                            <button type="button" id="logisticsquote-btncancel" class="btn btn-primary btn-cancel-search">
+                                                <i class="fas fa-times"></i>
+                                                @T("Admin.Common.Clear")
+                                            </button>
+                                        </div>
+                                        <a href="javascript:void(0);" id="advanced-btn" class="d-advanced-search-btn">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</a>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#logisticsquote-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default d-datatable logistics-quote-list-tbl d-card m-0">
+                        <div class="card-body">
+
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Ordering = true,
+                                    Order = "0,'desc'",
+                                    Targets = "5,7,8",
+                                    Orderable = false,
+                                    Name = "logisticsquote-grid",
+                                    UrlRead = new DataUrl("LogisticsQuoteList", "LogisticsQuote", null),
+                                    UrlDelete = new DataUrl("DeleteQuote", "LogisticsQuote", null),
+                                    SearchButtonId = "search-logisticsquote",
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    Filters = new List<FilterParameter>
+                                    {
+                                        new FilterParameter(nameof(Model.LeadId)),
+                                        new FilterParameter(nameof(Model.AssignedTo)),
+                                        new FilterParameter(nameof(Model.Phone1)),
+                                        new FilterParameter(nameof(Model.Email)),
+                                        new FilterParameter(nameof(Model.FirstName)),
+                                        new FilterParameter(nameof(Model.LastName)),
+                                        new FilterParameter(nameof(Model.Vehicle)),
+                                        new FilterParameter(nameof(Model.ShipperCompany)),
+                                        new FilterParameter(nameof(Model.QuoteStatusId)),
+                                        new FilterParameter(nameof(Model.OriginCity)),
+                                        new FilterParameter(nameof(Model.OriginState)),
+                                        new FilterParameter(nameof(Model.OriginZip)),
+                                        new FilterParameter(nameof(Model.OriginCountry)),
+                                        new FilterParameter(nameof(Model.DestinationCity)),
+                                        new FilterParameter(nameof(Model.DestinationState)),
+                                        new FilterParameter(nameof(Model.DestinationZip)),
+                                        new FilterParameter(nameof(Model.DestinationCountry)),
+                                        new FilterParameter(nameof(Model.RegionTypeId))
+                                    }
+                                };
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.QuoteDetail))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.QuoteDetail").Text}</span>",
+                                    Width = "100",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.ShipperDetail))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.ShipperDetail").Text}</span>",
+                                    Width = "100",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.FirstPickupDate))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.FirstPickupDate").Text}</span>",
+                                    Width = "100",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.OriginAndDestinationAddress))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.OriginAndDestinationAddress").Text}</span>",
+                                    Width = "100",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.VehicleDetail))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.VehicleDetail").Text}</span>",
+                                    Width = "100",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.PaymentOption))
+                                {
+                                    Title = T("Admin.LogisticsQuote.Fields.PaymentOption.List.Title").Text,
+                                    Width = "50",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.TotalTariff))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.Tariff").Text}</span>",
+                                    Width = "50",
+                                    Encode = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.AssignedTo))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.LogisticsQuote.Fields.Assigned").Text}</span>",
+                                    Width = "30",
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.LeadId))
+                                {
+                                    Title = T("Admin.Common.Action").Text,
+                                    Width = "50",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderCustom("renderColumnEditDelete")
+                                });
+                            }
+                            @await Html.PartialAsync("Table", gridModel)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="delete-id" name="delete-id"/>
+                    @T("Admin.Common.DeleteConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                    <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript" asp-location="Footer">
+
+    $("#LeadId").attr("placeholder", "Enter Quote Id");
+    restrictToCityNameFormat("#OriginCity, #DestinationCity");
+    enforceLowerCase("#Email");
+    allowUniversalZip("#OriginZip, #DestinationZip");
+
+    function getStateFromCountry(selectedItem, $stateKendoDropDownList, preSelectedValue = "0"){
+		if(!selectedItem || !$stateKendoDropDownList) return false;
+
+		$.ajax({
+			cache: false,
+			type: "GET",
+			url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+			data: {
+				"countryId": selectedItem,
+				"addSelectStateItem": "false"
+			},
+			success: function (data, textStatus, jqXHR) {
+				var dataSource = $stateKendoDropDownList.dataSource;
+				dataSource.data([]);
+				$.each(data,
+					function (id, option) {
+						dataSource.add({
+							text: option.name,
+							value: option.id
+						});
+					});
+				$stateKendoDropDownList.value(preSelectedValue);
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+			}
+		});
+	};
+
+    function renderColumnEditDelete(data, type, row, meta) {
+        return '<a class="btn btn-default" href="Edit/' + data + '"><i class="fas fa-pencil-alt" title="Edit"></i>Edit</a><br/><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+    }
+
+    $("#logisticsquote-grid").on("click", ".delete-link", function (e) {
+        const id = $(this).attr("data-deleteId");
+        $("#delete-id").val(id);
+    });
+
+    $(function () {
+        $("#advanced-btn").click(function () {
+            $('.Advanced-search.hide').toggle(100);
+        });
+    });
+
+    $("#delete-confirmation-popup").click(function(){
+		var postData = {
+            id: $("#delete-id").val()
+		};
+		addAntiForgeryToken(postData);
+
+        $.post("@Url.Action("DeleteQuote")", postData, function(data){
+            $("#delete-id").val("");
+            $("#delete-confirmation").find('button.close').click();
+
+            if (data) {
+                display_nop_error(data);
+            }
+            else{
+                //refresh grid
+                $('#logisticsquote-grid').DataTable().draw(false);
+            }
+        });
+    });
+
+    $("#@Html.IdFor(model => model.OriginCountry)").change(function () {
+        let selectedItem = $(this).data("kendoDropDownList").value();
+        let ddlStates = $("#@Html.IdFor(model => model.OriginState)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+
+    $("#@Html.IdFor(model => model.DestinationCountry)").change(function () {
+        let selectedItem = $(this).data("kendoDropDownList").value();
+        let ddlStates = $("#@Html.IdFor(model => model.DestinationState)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+</script>

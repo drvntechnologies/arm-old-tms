@@ -1,0 +1,317 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.LeadDetail").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Leads");
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnRefreshlogisticsLead').click(function () {
+            $("#leadList").trigger("submit");
+        });
+    });
+</script>
+<form asp-controller="LogisticsLeads" asp-action="List" id="leadList" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            <span>Lead @Model.Id Detail</span>
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.LogisticsLead.BackToList")</a>
+            </small>
+        </h1>
+        <button type="submit" id="btnRefreshlogisticsLead" style="display: none"></button>
+        <input type="hidden" value="@Model.Id" name="Id" id="Id" />
+        <div class="float-right">
+
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.LogisticsLead.Button.Edit")
+            </a>
+
+            <button type="button" id="btnConvertToQuote" onclick="leadQuoteDetailCommonFuncation(this.id)" name="ConvertToQuote" class="btn btn-primary" data-toggle="modal" data-target="#converttoquote-window">
+                <i class="fas fa-refresh"></i>@T("Admin.LogisticsLead.Button.ConvertToQuote")
+            </button>
+            <button type="button" id="btnReassign" onclick="leadQuoteDetailCommonFuncation(this.id)" name="reassign" class="btn btn-info" data-toggle="modal" data-target="#reassign-window">
+                <i class="fas fa-refresh"></i>@T("Admin.LogisticsLead.Button.Reassign")
+            </button>
+            <button type="button" id="btnOnHold" onclick="leadQuoteDetailCommonFuncation(this.id)" name="OnHold" class="btn btn-secondary" @(Model.LogisticsLeadAction == (int?)Nop.Core.Domain.LogisticsLeads.LogisticsLeadAction.OnHold ? Html.Raw("style='display: none;'") : Html.Raw("style='display: block;'")) data-toggle="modal" data-target="#onhold-window">
+                <i class="fas fa-pause"></i>@T("Admin.LogisticsLead.Button.OnHold")
+            </button>
+            <span class="float-right" @(Model.LogisticsLeadAction == (int?)Nop.Core.Domain.LogisticsLeads.LogisticsLeadAction.OnHold ? Html.Raw("style='display: block;'") : Html.Raw("style='display: none;'"))>
+                <button asp-action="RemoveOnHold" type="submit" name="removeonhold-lead" class="btn btn-primary">
+                    @T("Admin.LogisticsLead.Button.RemoveOnHold")
+                </button>
+            </span>
+            <button type="button" id="btnCancel" onclick="leadQuoteDetailCommonFuncation(this.id)" name="Cancel" class="btn btn-danger" data-toggle="modal" data-target="#cancel-window">
+                <i class="fas fa-times"></i>@T("Admin.LogisticsLead.Button.Cancel")
+            </button>
+            @* <button type="button" name="SearchCD" class="btn btn-primary" @(Model.LogisticsLeadAction == (int?)Nop.Core.Domain.LogisticsLeads.LogisticsLeadAction.OnHold ? Html.Raw("style='display: none;'") : null)>
+            @T("Admin.LogisticsLead.Button.SearchCD")
+            </button> *@
+            <a asp-action="MakeCopy" asp-route-id="@Model.Id" class="btn btn-info">
+                <i class="fas fa-copy"></i>
+                @T("Admin.LogisticsLeads.Leads.MakeCopy")
+            </a>
+        </div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal logistics-lead-details">
+                <nop-cards id="lead-details-cards">
+                    <nop-card asp-icon="fas fa-flag" asp-name="lead-info" asp-title="@T("Admin.LogisticsLead.ShipperInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.LeadInformation")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_LeadInfo", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-calendar" asp-name="lead-dates" asp-title="@T("Admin.LogisticsLead.Dates")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.Dates")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_Dates", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-info" asp-name="lead-Status" asp-title="@T("Admin.LogisticsLead.Status")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.Status")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_Status", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-directions" asp-name="lead-Direction" asp-title="@T("Admin.LogisticsLead.Direction")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.Direction")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_Direction", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-newspaper" asp-name="lead-InternalNotes" asp-title="@T("Admin.LogisticsLead.InternalNotes")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.InternalNotes")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_InternalNotes", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-history" asp-name="lead-history" asp-title="@T("Admin.LogisticsLead.LeadHistory")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.LeadHistory")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_LeadHistory", Model)</nop-card>
+
+                    @* <nop-card asp-icon="fas fa-info" asp-name="lead-MessageHistory" asp-title="@T("Admin.LogisticsLead.MessageHistory")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.MessageHistory")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_MessageHistory", Model)</nop-card>
+                    <nop-card asp-icon="fas  fa-clipboard-list" asp-name="lead-MyTasks" asp-title="@T("Admin.LogisticsLead.MyTasks")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.MyTasks")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_MyTasks", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-user" asp-name="lead-ShipperInfo" asp-title="@T("Admin.LogisticsLead.ShipperInfo")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.ShipperInfo")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_ShipperInfo", Model)</nop-card>
+                    <nop-card asp-icon="fas fa-info" asp-name="lead-DispatchInstructions" asp-title="@T("Admin.LogisticsLead.DispatchInstructions")" asp-hide-block-attribute-name="@T("Admin.LogisticsLead.DispatchInstructions")" asp-hide="false" asp-advanced="false">@await Html.PartialAsync("LogisticsLeadDetails_DispatchInstructions", Model)</nop-card> *@
+                </nop-cards>
+            </div>
+        </div>
+    </section>
+</form>
+
+<div id="converttoquote-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="converttoquote-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="converttoquote-window-title">@T("Admin.LogisticsLead.Button.ConvertToQuote")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="leadToQuote"></ul></div>
+            <form asp-controller="LogisticsLeads" asp-action="ConvertToQuote" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        @for (int i = 0; i < Model.LogisticsVehicleInfos.Count; i++)
+                        {
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <span>&nbsp;</span>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <b>Vehicle @Model.Id - V<span>@(i + 1)</span></b>
+                                        </div>
+                                        <div class="col-md-12"><span>@Model.LogisticsVehicleInfos[i].VehicleYear &nbsp; @Model.LogisticsVehicleInfos[i].Make &nbsp;@Model.LogisticsVehicleInfos[i].VehicleModel&nbsp;@Model.LogisticsVehicleInfos[i].VehicleType</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="QuotePrice" asp-required="true" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="QuotePrice" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="QuoteDeposit" asp-required="true" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="QuoteDeposit" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnLeadToQuote" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsLead.Button.ConvertToQuote")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnLeadToQuote").click(function () {
+                    var quoteDeposite = $("#QuoteDeposit").val();
+                    var quotePrice = $("#QuotePrice").val();
+                    if (quotePrice == "0" && quoteDeposite == "0") {
+                        $('.leadToQuote li').remove();
+                        $(".leadToQuote").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.QuotePrice.Required")</li>');
+                        $(".leadToQuote").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.QuoteDeposit.Required")</li>');
+                        return false;
+                    } else if (quotePrice == "0") {
+                        $('.leadToQuote li').remove();
+                        $(".leadToQuote").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.QuotePrice.Required")</li>');
+                        return false;
+                    }
+                    else if (quoteDeposite == "0") {
+                        $('.leadToQuote li').remove();
+                        $(".leadToQuote").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.QuoteDeposit.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div id="reassign-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="reassign-window-title">
+    <div class="modal-dialog mw-100 w-75">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="reassign-window-title">@T("Admin.LogisticsLead.Button.Reassign")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="leadRessign"></ul></div>
+            <form asp-controller="LogisticsLeads" asp-action="ReassignLead" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="Shipper" asp-required="true" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-select asp-for="Shipper" asp-items="Model.AvailableShipper" class="form-select" />
+                                <script>
+                                    $(document).ready(function () {
+                                        $('#@Html.IdFor(model => model.Shipper)').kendoDropDownList({
+                                            filter: "contains",
+                                            popup: {
+                                                appendTo: $("#reassign-window")
+                                            },
+                                            filtering: function (e) {
+                                                var filter = e.filter;
+                                            }
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnLeadRessign" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsLead.Button.Reassign")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnLeadRessign").click(function () {
+                    var shipper = $("#Shipper").val();
+                    if (shipper == "0") {
+                        $('.leadRessign li').remove();
+                        $(".leadRessign").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.ReassignShipper.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div id="onhold-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="onhold-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="onhold-window-title">@T("Admin.LogisticsLead.Button.OnHold")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="leadOnHold"></ul></div>
+            <form asp-controller="LogisticsLeads" asp-action="OnHoldLead" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <nop-label asp-for="InternalNote" asp-required="true" />
+                            </div>
+                            <div class="col-md-8">
+                                <nop-textarea asp-for="InternalNote" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnLeadOnHold" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsLead.Button.OnHold")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnLeadOnHold").click(function () {
+                    var internalNote = $("#InternalNote").val();
+                    if (internalNote == "" || internalNote == null) {
+                        $('.leadOnHold li').remove();
+                        $(".leadOnHold").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.InternalNote.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div id="cancel-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancel-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="cancel-window-title">@T("Admin.LogisticsLead.Button.Cancel")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="col-md-12 ml-3"><ul class="leadCancel"></ul></div>
+            <form asp-controller="LogisticsLeads" asp-action="CancelLead" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <nop-label asp-for="InternalNote" asp-required="true" />
+                            </div>
+                            <div class="col-md-8">
+                                <nop-textarea asp-for="ShipperNotes" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnLeadClose" data-dismiss="modal" type="button" class="btn btn-primary">
+                            @T("Admin.Common.Close")
+                        </button>
+                        <button id="btnLeadCancel" type="submit" class="btn btn-primary">
+                            @T("Admin.LogisticsLead.Button.Cancel")
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <script>
+                $("#btnLeadCancel").click(function () {
+                    var shipperNote = $("#ShipperNotes").val();
+                    if (shipperNote == "" || shipperNote == null) {
+                        $('.leadCancel li').remove();
+                        $(".leadCancel").append('<li class="validation-summary-errors">@T("Admin.LogisticsLead.Fields.InternalNote.Required")</li>');
+                        return false;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        $.get('@Url.Action("GetGoogleMapsApiKey", "LogisticsCommon")', function (data) {
+            apiKey = data;
+            if (apiKey) {
+                var googleMapsScript = document.createElement('script');
+                googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+                document.body.appendChild(googleMapsScript);
+            } else {
+                alert("Failed to retrieve the API key.");
+            }
+        });
+    }
+    var waitInterval = setInterval(function () {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            clearInterval(waitInterval); // Stop the interval
+            LoadMap();
+
+        }
+    }, 100);
+</script>

@@ -1,0 +1,11 @@
+﻿{
+  "Group": "QuickBooks",
+  "FriendlyName": "QuickBooks",
+  "SystemName": "Logistics.QuickBook",
+  "Version": "1.31.5",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "Sigma Solve team",
+  "DisplayOrder": 5,
+  "FileName": "Logistics.QuickBook.dll",
+  "Description": "This plugin allow to configure QuickBooks."
+}

@@ -1,0 +1,237 @@
+﻿<div class="card card-primary card-outline" id="order-incomplete-report-card">
+    <div class="card-header with-border">
+        <h3 class="card-title">
+            <i class="fas fa-hourglass-start"></i> Incomplete orders
+        </h3>
+        <div class="card-tools float-right">
+            <button class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#order-incomplete-report-card").on("click", 'button[data-card-widget="collapse"]', function () {
+                var n = !$("#order-incomplete-report-card").hasClass("collapsed-card");
+                saveUserPreferences("/Admin/Preferences/SavePreference", "Reports.HideOrderIncompleteReportCard", n)
+            })
+        })
+    </script>
+    <div class="card-body">
+        <div class="incomplete-report-box totol-destination-service">
+            <div class="graph-main">
+                <div class="graph">
+                    <div class="chartjs-size-monitor">
+                        <div class="chartjs-size-monitor-expand">
+                            <div class=""></div>
+                        </div>
+                        <div class="chartjs-size-monitor-shrink">
+                            <div class=""></div>
+                        </div>
+                    </div>
+                    <canvas id="destinationService" height="80" style="display: block; width: 80px; height: 80px;" width="80" class="chartjs-render-monitor"></canvas>
+                </div>
+                <div class="graph-info">
+                    <div class="price">
+                        $18,417.80 <span>Total destination services</span>
+                    </div>
+                </div>
+            </div>
+            <div class="graph-count-view">
+                <a class="btn btn-xs btn-info btn-flat" href="/Admin/Order/List?orderStatuses=10,20,30&amp;paymentStatuses=10">View All</a>
+                <div class="count-view">
+                    <a href="/Admin/Order/List?orderStatuses=10,20,30&amp;paymentStatuses=10"><i class="far fa-eye"></i></a>
+                    <p>5 Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="incomplete-report-box totol-physical-service">
+            <div class="graph-main">
+                <div class="graph">
+                    <div class="chartjs-size-monitor">
+                        <div class="chartjs-size-monitor-expand">
+                            <div class=""></div>
+                        </div>
+                        <div class="chartjs-size-monitor-shrink">
+                            <div class=""></div>
+                        </div>
+                    </div>
+                    <canvas id="physicalSales" height="80" width="80" style="display: block; width: 80px; height: 80px;" class="chartjs-render-monitor"></canvas>
+                </div>
+                <div class="graph-info">
+                    <div class="price">
+                        $38,354.00 <span>Total physical sales</span>
+                    </div>
+                </div>
+            </div>
+            <div class="graph-count-view">
+                <a class="btn btn-xs btn-info btn-flat" href="/Admin/Order/List?orderStatuses=10,20,30&amp;shippingStatuses=20">View All</a>
+                <div class="count-view">
+                    <a href="/Admin/Order/List?orderStatuses=10,20,30&amp;shippingStatuses=20"><i class="far fa-eye"></i></a>
+                    <p>7 Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="incomplete-report-box totol-outsidesla-service">
+            <div class="graph-main">
+                <div class="graph">
+                    <div class="chartjs-size-monitor">
+                        <div class="chartjs-size-monitor-expand">
+                            <div class=""></div>
+                        </div>
+                        <div class="chartjs-size-monitor-shrink">
+                            <div class=""></div>
+                        </div>
+                    </div>
+                    <canvas id="outsideSla" height="80" width="80" style="display: block; width: 80px; height: 80px;" class="chartjs-render-monitor"></canvas>
+                </div>
+                <div class="graph-info">
+                    <div class="price">
+                        $9,267.80 <span>Total outside SLA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="graph-count-view">
+                <a class="btn btn-xs btn-info btn-flat" href="/Admin/Order/List?orderStatuses=10">View All</a>
+                <div class="count-view">
+                    <a href="/Admin/Order/List?orderStatuses=10"><i class="far fa-eye"></i></a>
+                    <p>4 Count</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myChartCircle = new Chart("destinationService", {
+            type: "doughnut",
+            data: {
+                datasets: [{
+                    label: "Destination Service",
+                    percent: 31,
+                    backgroundColor: ["#FE7692"]
+                }]
+            },
+            plugins: [{
+                beforeInit: n => {
+                    const t = n.data.datasets[0];
+                    n.data.labels = [t.label];
+                    t.data = [t.percent, 100 - t.percent]
+                }
+            }, {
+                beforeDraw: n => {
+                    var f = n.chart.width,
+                        i = n.chart.height,
+                        t = n.chart.ctx,
+                        r;
+                    t.restore();
+                    r = (i / 75).toFixed(2);
+                    t.font = r + "em sans-serif";
+                    t.fillStyle = "#9b9b9b";
+                    t.textBaseline = "middle";
+                    var u = n.data.datasets[0].percent + "%",
+                        e = Math.round((f - t.measureText(u).width) / 2),
+                        o = i / 2;
+                    t.fillText(u, e, o);
+                    t.save()
+                }
+            }],
+            options: {
+                cutoutPercentage: 75,
+                maintainAspectRatio: !1,
+                legend: {
+                    display: !1
+                },
+                tooltips: {
+                    filter: n => n.index == 0
+                }
+            }
+        }),
+            myChartCircle = new Chart("physicalSales", {
+                type: "doughnut",
+                data: {
+                    datasets: [{
+                        label: "Physical Sales",
+                        percent: 43,
+                        backgroundColor: ["#50B5FF"]
+                    }]
+                },
+                plugins: [{
+                    beforeInit: n => {
+                        const t = n.data.datasets[0];
+                        n.data.labels = [t.label];
+                        t.data = [t.percent, 100 - t.percent]
+                    }
+                }, {
+                    beforeDraw: n => {
+                        var f = n.chart.width,
+                            i = n.chart.height,
+                            t = n.chart.ctx,
+                            r;
+                        t.restore();
+                        r = (i / 75).toFixed(2);
+                        t.font = r + "em sans-serif";
+                        t.fillStyle = "#9b9b9b";
+                        t.textBaseline = "middle";
+                        var u = n.data.datasets[0].percent + "%",
+                            e = Math.round((f - t.measureText(u).width) / 2),
+                            o = i / 2;
+                        t.fillText(u, e, o);
+                        t.save()
+                    }
+                }],
+                options: {
+                    cutoutPercentage: 75,
+                    maintainAspectRatio: !1,
+                    legend: {
+                        display: !1
+                    },
+                    tooltips: {
+                        filter: n => n.index == 0
+                    }
+                }
+            }),
+            myChartCircle = new Chart("outsideSla", {
+                type: "doughnut",
+                data: {
+                    datasets: [{
+                        label: "Outside SLA",
+                        percent: 25,
+                        backgroundColor: ["#FFC542"]
+                    }]
+                },
+                plugins: [{
+                    beforeInit: n => {
+                        const t = n.data.datasets[0];
+                        n.data.labels = [t.label];
+                        t.data = [t.percent, 100 - t.percent]
+                    }
+                }, {
+                    beforeDraw: n => {
+                        var f = n.chart.width,
+                            i = n.chart.height,
+                            t = n.chart.ctx,
+                            r;
+                        t.restore();
+                        r = (i / 75).toFixed(2);
+                        t.font = r + "em sans-serif";
+                        t.fillStyle = "#9b9b9b";
+                        t.textBaseline = "middle";
+                        var u = n.data.datasets[0].percent + "%",
+                            e = Math.round((f - t.measureText(u).width) / 2),
+                            o = i / 2;
+                        t.fillText(u, e, o);
+                        t.save()
+                    }
+                }],
+                options: {
+                    cutoutPercentage: 75,
+                    maintainAspectRatio: !1,
+                    legend: {
+                        display: !1
+                    },
+                    tooltips: {
+                        filter: n => n.index == 0
+                    }
+                }
+            })
+    </script>
+</div>

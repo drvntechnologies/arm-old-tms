@@ -1,0 +1,209 @@
+﻿@model OrderModel
+
+<div class="card detail-info-card d-card">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="far fa-sticky-note"></i>
+			@T("Admin.InternalNotes")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="form-group row">			
+			<div class="col-md-12 custom-size-input-group">
+				<div class="custom-label-box">
+					<nop-label asp-for="AddNoteMessage" />
+				</div>
+				<div class="custom-input-areabox">
+					<nop-textarea asp-for="AddNoteMessage" html-attributes="@(new { placeholder = "Enter Internal Notes" })" />
+					<span asp-validation-for="AddNoteMessage"></span>
+				</div>
+
+				@if (Model.IsNewOrder)
+				{
+					<div class="custom-label-box">
+						<nop-label asp-for="SubOrderId" />
+					</div>
+					<div class="custom-input-areabox">
+						<nop-select asp-for="SubOrderId" asp-items="@Model.AvailableSubOrderIds" class="form-select form-control" />
+						<span asp-validation-for="SubOrderId"></span>
+					</div>
+				}
+
+				<div class="custom-btn-area">
+					<button type="button" id="addOrderNote" class="btn btn-primary">@T("Admin.Orders.OrderNotes.AddButton")</button>
+				</div>
+			</div>
+		</div>
+		<div class="card card-default d-datatable m-0">
+			<div class="card-body">
+				@await Html.PartialAsync("Table", new DataTablesModel
+				{
+					Name = "ordernote-grid",
+					UrlRead = new DataUrl("NotesSelect", "Order", new RouteValueDictionary { [nameof(Model.NoteSearchModel.OrderId)] = Model.Id}),
+					Length = Model.NoteSearchModel.PageSize,
+					LengthMenu = Model.NoteSearchModel.AvailablePageSizes,
+					ColumnCollection = new List<ColumnProperty>
+					{
+						new ColumnProperty(nameof(QuoteNoteModel.CustomOrderNumber))
+						{
+							Title = T("Admin.Orders.Fields.OrderNumber").Text,
+							Visible = Model.IsNewOrder
+						},
+						new ColumnProperty(nameof(QuoteNoteModel.CreatedOn))
+						{
+							Title = T("Admin.Orders.Fields.CreatedOn").Text,
+							Width = "20%",
+							Render = new RenderDate()
+						},
+						new ColumnProperty(nameof(QuoteNoteModel.Note))
+						{
+							Title = T("Admin.Orders.Fields.Note").Text,
+							Width = "40%",
+							Encode = false
+						},
+						new ColumnProperty(nameof(QuoteNoteModel.Customer))
+						{
+							Title = T("Admin.Orders.Fields.Customer").Text,
+							Width = "25%"
+						},						
+						new ColumnProperty(nameof(QuoteNoteModel.Id))
+						{
+							Title = T("Admin.Common.Delete").Text,
+							Width = "15%",
+							Render = new RenderCustom("renderColumnNotesDelete"),
+							ClassName =  NopColumnClassDefaults.Button
+						}
+					}
+				})
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="orderNote-delete-confirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="orderNote-delete-confirmation-title" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="orderNotedelete-confirmation-title">@T("Admin.Common.AreYouSure")</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			</div>
+			<div class="form-horizontal">
+				<div class="modal-body">
+					<input type="hidden" id="delete-id" name="delete-id" />
+					@T("Admin.Common.DeleteConfirmation")
+				</div>
+				<div class="modal-footer">
+					<span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+					<button type="button" id="orderNote-delete-confirmation-popup" class="btn btn-danger float-right">@T("Admin.Common.Delete")</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	$("#ordernote-grid")
+		.on("click", ".delete-orderNote-link", function (e) {
+			const id = $(this).data('id');
+			$("#delete-id").val(id);
+		});
+
+		$("#orderNote-delete-confirmation-popup").click(function(){
+			var postData = {
+				id: $("#delete-id").val()
+			};
+			addAntiForgeryToken(postData);
+
+			$.post("@Url.Action("NoteDeleteGrid")", postData, function(data){
+				$("#delete-id").val("");
+				$("#orderNote-delete-confirmation").find('button.close').click();
+
+				if (data) {
+					display_nop_error(data);
+				}
+				else{
+					//refresh grid
+					toastr.success('@T("Admin.Order.InternalNote.Remove.Notification")');
+					$("#ordernote-grid").DataTable().draw(false);
+				}
+			});
+		});
+</script>
+<script asp-location="Footer">
+	function renderColumnNotesDelete(data, type, row, meta) {
+		return `<a class="btn btn-default delete-orderNote-link" data-id="${data}" data-toggle="modal" data-target="#orderNote-delete-confirmation"><i class="far fa-trash-alt"></i>Delete</a>`;
+	}
+</script>
+
+<script>
+	$(document).ready(function () {
+		$('#addOrderNote').click(function () {
+			var quoteNoteMessage = $("#@Html.IdFor(model => model.AddNoteMessage)").val();
+
+			if (!quoteNoteMessage || quoteNoteMessage.trim() == "") {
+				let message = "@T("Admin.Order.InternalNote.Fields.Validation")";
+				var validationSpan = $('span[data-valmsg-for="AddNoteMessage"]');
+				validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="AddNoteMessage-error" class="">${message}</span>`).show();
+				return false;
+			}
+			else if(quoteNoteMessage.trim() != "" && quoteNoteMessage.trim().length > 1000){
+				let message = "@T("Admin.LogisticsQuote.AllFields.Notes.MaxLength")";
+				var validationSpan = $('span[data-valmsg-for="AddNoteMessage"]');
+				validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="AddNoteMessage-error" class="">${message}</span>`).show();
+				return false;
+			}
+
+			var quoteNoteDisplayToCustomer =
+				$("#@Html.IdFor(model => model.AddNoteDisplayToCustomer)").is(':checked');
+			$('#addOrderNote').attr('disabled', true);
+
+			let orderId = '@Model.Id';
+			const isNewOrder = @Model.IsNewOrder.ToString().ToLower();
+
+			if(isNewOrder && $("#SubOrderId").length > 0)
+			{
+				orderId = $("#SubOrderId").val();
+			}
+
+			var postData = {
+				DisplayToCustomer: quoteNoteDisplayToCustomer,
+				message: quoteNoteMessage,
+				orderId: orderId
+			};
+			addAntiForgeryToken(postData);
+
+			$.ajax({
+				cache: false,
+				type: "POST",
+				url: "@(Url.Action("NoteAdd", "Order"))",
+				data: postData,
+				success: function (data, textStatus, jqXHR) {
+					if (data.Result) {
+						//reload grid
+						updateTable('#ordernote-grid');
+
+						$("#@Html.IdFor(model => model.AddNoteMessage)").val("");
+						$("#@Html.IdFor(model => model.AddNoteDisplayToCustomer)").prop("checked", false);
+
+						toastr.success("@T("Admin.Order.InternalNote.Add.Notification")");
+					} else {
+						display_nop_error(data);
+					}
+				},
+				complete: function (jqXHR, textStatus) {
+					$('#addOrderNote').attr('disabled', false);
+				}
+			});
+		});
+
+		$("#AddNoteMessage").on('input', function () {
+			let value = $(this).val();
+			var validationSpan = $('span[data-valmsg-for="AddNoteMessage"]');
+
+			if(!value || value.trim() == ""){
+				validationSpan.show();
+			} else{
+				validationSpan.hide();
+			}
+		});
+	});
+</script>

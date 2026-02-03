@@ -1,0 +1,56 @@
+﻿@model CompanyModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.CustomerManagement.Details").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Client list");
+
+    const string hideInfoBlockAttributeName = "CustomerDetailPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+}
+
+<form asp-controller="Company" asp-action="Details" id="customerdetails" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            <span>@T("Admin.CustomerManagement.Details")</span>
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.CustomerManagement.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i>
+                @T("Admin.Client.Edit")
+            </a>
+        </div>
+    </div>
+    <section class="content detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_CreateOrUpdateDetail.Info", Model)
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card d-card">
+                        <div class="card-header with-border clearfix d-flex align-items-center">
+                            <div class="card-title">
+                                <i class="fas fa-user"></i>
+                                @T("Admin.Customer.ContactInfo")
+                            </div>
+                        </div>
+                        @await Html.PartialAsync("_CreateOrUpdate.ContactInfo", Model)
+
+                    </div>
+                </div>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_company_details_quickbook_information", additionalData = Model.Id })
+
+            </div>
+        </div>
+    </section>
+</form>

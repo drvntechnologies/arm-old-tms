@@ -1,0 +1,411 @@
+﻿@model CustomerSearchModel
+
+@using Nop.Core.Domain.Media
+
+@inject MediaSettings _mediaSettings
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Customers.Customers").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Customers list");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "CustomerListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="Customer" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Customers.Customers")
+        </h1>
+        <div class="float-right">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+            @* <div class="btn-group">
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.OrderListButtons, additionalData = Model })
+                <button type="button" class="btn btn-success">
+                    <i class="fas fa-download"></i>
+                    @T("Admin.Common.Export")
+                </button>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">&nbsp;</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                   @* <li class="dropdown-item">
+                        <button asp-action="ExportXML" type="submit" name="exportxml-all">
+                            <i class="far fa-file-code"></i>
+                            @T("Admin.Common.ExportToXml.All")
+                        </button>
+                    </li>
+                    <li class="dropdown-item">
+                        <button type="button" id="exportxml-selected">
+                            <i class="far fa-file-code"></i>
+                            @T("Admin.Common.ExportToXml.Selected")
+                        </button>
+                    </li>
+                    <li class="dropdown-divider"></li>*@
+                    @*<li class="dropdown-item">
+                        <button asp-action="ExportExcel" type="submit" name="exportexcel-all">
+                            <i class="far fa-file-excel"></i>
+                            @T("Admin.Common.ExportToExcel.All")
+                        </button>
+                    </li>
+                    <li class="dropdown-item">
+                        <button type="button" id="exportexcel-selected">
+                            <i class="far fa-file-excel"></i>
+                            @T("Admin.Common.ExportToExcel.Selected")
+                        </button>
+                    </li>
+                </ul>
+
+            </div> *@
+            @* <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
+                <i class="fas fa-upload"></i>
+                @T("Admin.Common.Import")
+            </button> *@
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CustomerListButtons, additionalData = Model })
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search d-card-search d-card">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SearchEmail" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="SearchEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SearchFirstName" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="SearchFirstName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SearchLastName" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="SearchLastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SelectedCustomerRoleIds" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailableCustomerRoles" asp-multiple="true" />
+                                                <script>
+                                                    $(document).ready(function () {
+                                                        var rolesIdsInput =
+                                                            $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)')
+                                                                .data("kendoMultiSelect");
+                                                        rolesIdsInput.setOptions({
+                                                            autoClose: false,
+                                                            filter: "contains"
+                                                        });
+
+                                                    @if (Model.AvailableCustomerRoles.Count == 0)
+                                                    {
+                                                        <text>
+                                                                rolesIdsInput.setOptions({
+                                                                    enable: false,
+                                                                    placeholder:
+                                                                        '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                                                                });
+                                                            rolesIdsInput._placeholder();
+                                                            rolesIdsInput._enable();
+                                                        </text>
+                                                    }
+                                                                                                });
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SearchSupervisor" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select class="form-select form-control" asp-for="SearchSupervisor" asp-items="Model.AvailableSupervisor" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-customers" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                        <button type="button" id="customer-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Clear")
+                                        </button>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#customer-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default d-datatable d-card m-0">
+                        <div class="card-body">
+                            @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Customers", Docs.Customers + Utm.OnAdmin)" /> *@
+
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Ordering = true,
+                                    Order = "1,'desc'",
+                                    Targets = "3,6,7",
+                                    Orderable = false,
+                                    Name = "customers-grid",
+                                    UrlRead = new DataUrl("CustomerList", "Customer", null),
+                                    SearchButtonId = "search-customers",
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    Filters = new List<FilterParameter>
+                                    {
+                                        new FilterParameter(nameof(Model.SelectedCustomerRoleIds)),
+                                        new FilterParameter(nameof(Model.SearchEmail)),
+                                        new FilterParameter(nameof(Model.SearchUsername)),
+                                        new FilterParameter(nameof(Model.SearchFirstName)),
+                                        new FilterParameter(nameof(Model.SearchLastName)),
+                                        new FilterParameter(nameof(Model.SearchDayOfBirth)),
+                                        new FilterParameter(nameof(Model.SearchMonthOfBirth)),
+                                        new FilterParameter(nameof(Model.SearchCompany)),
+                                        new FilterParameter(nameof(Model.SearchRegistrationDateFrom)),
+                                        new FilterParameter(nameof(Model.SearchRegistrationDateTo)),
+                                        new FilterParameter(nameof(Model.SearchLastActivityFrom)),
+                                        new FilterParameter(nameof(Model.SearchLastActivityTo)),
+                                        new FilterParameter(nameof(Model.SearchPhone)),
+                                        new FilterParameter(nameof(Model.SearchZipPostalCode)),
+                                        new FilterParameter(nameof(Model.SearchIpAddress)),
+                                        new FilterParameter(nameof(Model.SearchSupervisor)),
+                                    }
+                                };
+
+                                // gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Id))
+                                // {
+                                //     IsMasterCheckBox = true,
+                                //     Render = new RenderCheckBox("checkbox_customers"),
+                                //     ClassName = NopColumnClassDefaults.CenterAll,
+                                //     Width = "30"
+                                // });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Id))
+                                {
+                                    Title = T("Admin.Customers.Fields.Id").Text,
+                                    Visible = false
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Email))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Customers.Customers.Fields.Email").Text}</span>",
+                                    Render = new RenderLink(new DataUrl("Details", nameof(CustomerModel.Id)))
+                                });
+                                if (Model.AvatarEnabled)
+                                {
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.AvatarUrl))
+                                    {
+                                        Title = T("Admin.Customers.Customers.Fields.Avatar").Text,
+                                        Width = "140",
+                                        Render = new RenderPicture()
+                                    });
+                                }
+                                if (Model.UsernamesEnabled)
+                                {
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Username))
+                                    {
+                                        Title = T("Admin.Customers.Customers.Fields.Username").Text
+                                    });
+                                }
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.FullName))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Customers.Customers.Fields.FullName").Text}</span>",
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Supervisor))
+                                {
+                                    Title = T("Admin.Customers.Customers.Fields.Supervisor").Text
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.CustomerRoleNames))
+                                {
+                                    Title = $"<span class='d-th'>{T("Admin.Customers.Customers.Fields.CustomerRoles").Text}</span>",
+                                    Width = "100"
+                                });
+                                // if (Model.CompanyEnabled)
+                                // {
+                                //     gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Company))
+                                //     {
+                                //         Title = $"<span class='d-th'>{T("Admin.Customers.Customers.Fields.Company").Text}</span>"
+
+                                //     });
+                                // }
+                                //if (Model.PhoneEnabled)
+                                //{
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Phone))
+                                    {
+                                        Title = $"<span class='d-th'>{T("Admin.Customers.Customers.Fields.Phone").Text}</span>",
+                                        Width = "100",
+                                    });
+                                //}
+                                // if (Model.ZipPostalCodeEnabled)
+                                // {
+                                //     gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.ZipPostalCode))
+                                //     {
+                                //         Title = T("Admin.Customers.Customers.Fields.ZipPostalCode").Text
+                                //     });
+                                // }
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Active))
+                                {
+                                    Title = T("Admin.Customers.Customers.Fields.Active").Text,
+                                    Width = "70",
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderBoolean()
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(CustomerModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "80",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("Edit"))
+                                });
+                            }
+                            @await Html.PartialAsync("Table", gridModel)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+</form>
+
+@*import accounts form*@
+<div id="importexcel-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importexcel-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="importexcel-window-title">@T("Admin.Common.ImportFromExcel")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <form asp-controller="Customer" asp-action="ImportFromXlsx" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <ul class="common-list">
+                            <li>
+                                <em>@T("Admin.Account.List.ImportFromExcelTip")</em>
+                            </li>
+                            <li>
+                                <em>@T("Admin.Common.ImportFromExcel.ManyRecordsWarning")</em>
+                            </li>
+                        </ul>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="col-form-label">
+                                        @T("Admin.Common.ExcelFile")
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="file" id="importexcelfile" name="importexcelfile" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            @T("Admin.Common.ImportFromExcel")
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    removeSpecialCharactersAndNumber("#SearchFirstName, #SearchLastName");
+    enforceLowerCase("#SearchEmail");
+
+    $(document).ready(function () {
+        $("#advanced-btn").click(function () {
+            $('.Advanced-search.hide').toggle(500);
+        });
+    });
+</script>
+@*export selected (XML). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
+<form asp-controller="Customer" asp-action="ExportXmlSelected" method="post" id="export-xml-selected-form">
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+<script>
+    $(document).ready(function () {
+        $('#exportxml-selected').click(function (e) {
+            e.preventDefault();
+            var ids = selectedIds.join(",");
+            if (!ids) {
+                $('#exportXmlSelected-info').text("@T("Admin.Customers.NoCustomers")");
+                $("#exportXmlSelected").click();
+            }
+            else {
+                $('#export-xml-selected-form #selectedIds').val(ids);
+                $('#export-xml-selected-form').submit();
+                updateTable('#customers-grid');
+            }
+            return false;
+        });
+    });
+</script>
+<nop-alert asp-alert-id="exportXmlSelected" />
+
+@*export selected (Excel). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
+<form asp-controller="Customer" asp-action="ExportExcelSelected" method="post" id="export-excel-selected-form">
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+<script>
+    $(document).ready(function () {
+        $('#exportexcel-selected').click(function (e) {
+            e.preventDefault();
+            var ids = selectedIds.join(",");
+            if (!ids) {
+                $('#exportExcelSelected-info').text("@T("Admin.Customers.NoCustomers")");
+                $("#exportExcelSelected").click();
+            }
+            else {
+                $('#export-excel-selected-form #selectedIds').val(ids);
+                $('#export-excel-selected-form').submit();
+                updateTable('#customers-grid');
+            }
+            return false;
+        });
+    });
+</script>
+<nop-alert asp-alert-id="exportExcelSelected" /> 

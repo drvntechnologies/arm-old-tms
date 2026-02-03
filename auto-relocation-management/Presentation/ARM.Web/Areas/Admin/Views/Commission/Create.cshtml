@@ -1,0 +1,35 @@
+@model CommissionModel
+@{    
+    //page title
+    ViewBag.PageTitle = T("Admin.Configuration.Settings.Commission.AddNew").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Commissions");
+}
+
+<form asp-controller="Commission" asp-action="Create" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Configuration.Settings.Commission.AddNew")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="Index">@T("Admin.Configuration.Settings.Commission.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>              
+            <button type="button" class="btn btn-primary" data-target="#Cancel-Confirmation-Popup" data-toggle="modal">
+                <i class="fa fa-times" aria-hidden="true"></i>
+                @T("Admin.Common.Cancel")
+            </button>
+        </div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+        </div>
+    </section>
+</form>
+

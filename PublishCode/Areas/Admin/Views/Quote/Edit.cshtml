@@ -1,0 +1,30 @@
+@model QuoteModel
+
+@{
+	//title
+	ViewBag.PageTitle = T("Portal.Quote.Request.Edit.Page.Title").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Portal Quotes");
+}
+
+<form asp-controller="Quote" asp-action="Edit" method="post" id="quote-form">
+	
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Portal.Quote.Request.Edit.Page.Title")
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="List">@T("Portal.Quotes.BackToList")</a>
+			</small>
+		</h1>
+		<div class="float-right">
+			&nbsp;
+		</div>
+	</div>
+	<section class="content">
+		<div class="container-fluid">
+			@await Html.PartialAsync("_CreateOrUpdate.Quote", Model)
+		</div>
+	</section>
+</form>

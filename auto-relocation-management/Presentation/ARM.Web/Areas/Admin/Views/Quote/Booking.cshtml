@@ -1,0 +1,538 @@
+@using Nop.Core.Domain.Customers
+@using Nop.Services.Companies
+@model BookingModel
+
+@inject IWorkContext workContext
+@inject CustomerSettings customerSettings
+@inject QuoteSettings quoteSettings
+@inject ICompanyService companyService
+
+@{
+	//title
+	ViewBag.PageTitle = T("Portal.Quote.Booking.Page.Title").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Portal Booking");
+
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var company = await companyService.GetCompanyByIdAsync(customer?.CompanyId ?? 0);
+	var fvp = Model.TotalFVP;
+	var oneDayPrice = decimal.Zero;
+
+	if (!string.IsNullOrWhiteSpace(Model.OneDayGuaranteedLoadPrice))
+		oneDayPrice = quoteSettings.OneDayGuaranteedLoadPrice * Model.VehicleInfoModel.Count;
+
+	var hasCouponCode = !string.IsNullOrWhiteSpace(company?.CouponCode);
+	var standardReferralAmount = Model.StandardReferralAmount;
+}
+
+<form asp-controller="Quote" asp-action="Booking" method="post" id="booking-form">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Portal.Quote.Booking.Page.Title")
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="List">@T("Portal.Quotes.BackToList")</a>
+			</small>
+		</h1>
+		<div class="float-right">
+			&nbsp;
+		</div>
+	</div>
+	<section class="content">
+		<div class="container-fluid">
+
+			<input type="hidden" asp-for="Id" />
+			<input type="hidden" asp-for="OriginAddress.Id" />
+			<input type="hidden" asp-for="DestinationAddress.Id" />
+			<input type="hidden" asp-for="Linehaul" />
+			<input type="hidden" asp-for="TotalPrice" />
+
+			<section class="page-main-area add-leads-pg create-edit-pg-common-design">
+				<div class="container-fluid">
+					<div class="card card-secondary quote-list-card quote-booking-card form-horizontal background-transparent">
+						<div class="card-body background-transparent">
+
+							<div class="row mt-6">
+								<div class="col-md-12 custom-wrapper">
+									<div class="row">
+										<div class="col-md-12">
+											<div class="card custom-card">
+												<div class="card-body">
+													<div class="vehicles-details-top">
+														<div class="row d-flex align-items-center">
+															<div class="col-md-12">
+																<div class="d-flex align-items-center">
+																	<div class="quote-col">Quote # @Model.QuoteNumber</div>
+																	<div class="booking-col created-col"><i class="far fa-calendar-alt"></i><span><strong>@T("Portal.Quote.CreatedOn")</strong>@Model.CreatedDateOnUtc</span></div>
+																	<div class="booking-col vehicles-count-col"><i class="fas fa-car"></i><span><strong>@T("Portal.Quote.Vehicle.Count")</strong> @Model.VehicleInfoModel.Count</span></div>
+																	@if (!string.IsNullOrWhiteSpace(Model.PickupDate))
+																	{ 
+																		<div class="booking-col pickup-date-col"><i class="far fa-calendar-alt"></i><span><strong>@T("Portal.Quote.Fields.FirstPickupDate")</strong>@Model.PickupDate</span></div>
+																	}
+																	@if (!string.IsNullOrWhiteSpace(Model.DeliveryDate))
+																	{
+																		<div class="booking-col delivery-date-col"><i class="far fa-calendar-alt"></i><span><strong>@T("Portal.Quote.Fields.FirstDeliveryDate")</strong>@Model.DeliveryDate</span></div>
+																	}
+																	<div class="vehicles-price"><strong>@T("Portal.Quote.Fields.EstimatedPrice")</strong> @Model.TotalPriceValue</div>
+																</div>
+															</div>
+														</div>
+													</div>
+
+													@foreach (var vehicle in Model.VehicleInfoModel)
+													{
+														<div class="vehicles-details-list">
+															<div class="vehicles-info">
+																<div class="vehicles-img">
+																	@if (vehicle.VehicleType.Equals("Passenger Car", StringComparison.InvariantCultureIgnoreCase))
+																	{
+																		<img src="/images/vehicle-type/car.png" alt="vehicle image"></img>
+																	}
+																	else if (vehicle.VehicleType.Equals("SUV", StringComparison.InvariantCultureIgnoreCase))
+																	{
+																		<img src="/images/vehicle-type/suv.png" alt="vehicle image"></img>
+																	}
+																	else if (vehicle.VehicleType.Equals("Truck", StringComparison.InvariantCultureIgnoreCase))
+																	{
+																		<img src="/images/vehicle-type/truck.png" alt="vehicle image"></img>
+																	}
+																	else if (vehicle.VehicleType.Equals("Van", StringComparison.InvariantCultureIgnoreCase))
+																	{
+																		<img src="/images/vehicle-type/van.png" alt="vehicle image"></img>
+																	}
+																	else
+																	{
+																		<img src="/css/admin/images/car.svg" alt="vehicle image"></img>
+																	}
+																</div>
+																<div class="vehicles-name">
+																	<h4>@vehicle.Year @vehicle.Make @vehicle.Model</h4>
+																</div>
+
+															</div>
+
+															<div class="destination-col">
+																<div class="destination-from">
+																	<label>From</label>
+																	<h5>@Model.OriginFormattedAddress</h5>
+																</div>
+																<div class="destination-icon">
+																	<img src="/css/admin/images/right.svg" />
+																</div>
+																<div class="destination-to">
+																	<label>To</label>
+																	<h5>@Model.DestinationFormattedAddress</h5>
+																</div>
+															</div>
+														</div>
+													}
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-12 custom-wrapper">
+									<div class="row">
+										<div class="col-md-6 mb-3">
+											<div class="card h-100 custom-card mb-0 pb-3">
+												<div class="card-header">
+													<strong class="d-block">@T("Portal.Quote.Booking.Section.ShipmentInformation") (@T("Portal.Quote.Booking.Section.ShipperContactInfo"))</strong>
+												</div>
+												<div class="card-body">
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="FirstName"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="FirstName" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.FirstName")" />
+															<span asp-validation-for="FirstName"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="LastName"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="LastName" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.LastName")" />
+															<span asp-validation-for="LastName"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="Email"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="Email" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.Email")" />
+															<span asp-validation-for="Email"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="Phone"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="Phone" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.Phone")" />
+															<span asp-validation-for="Phone"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="Reference"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="Reference" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.Reference.PlaceHolder")" />
+															<span asp-validation-for="Reference"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="PaymentType"></label>
+															<nop-required />
+														</div>
+														<div class="input-name">
+															<div class="default-select-arrow">
+																<select asp-for="PaymentType" asp-items="Model.AvailablePaymentTypes" class="form-control no-kendo"></select>
+															</div>
+															<span asp-validation-for="PaymentType"></span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6 mb-3">
+											<div class="card h-100 custom-card mb-0 pb-3">
+												<div class="card-header">
+													<strong class="d-block">@T("Portal.QuoteAddress.Section.OriginAddress")</strong>
+												</div>
+												<div class="card-body">
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="OriginAddress.Address1"></label>
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="OriginAddress.Address1" class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.Address1")" />
+															<span asp-validation-for="OriginAddress.Address1"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="OriginAddress.City"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="OriginAddress.City" disabled class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.City")" />
+															<span asp-validation-for="OriginAddress.City"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="OriginAddress.StateProvinceId"></label>
+														</div>
+														<div class="input-name">
+															<div class="default-select-arrow">
+																<select asp-for="OriginAddress.StateProvinceId" asp-items="Model.OriginAddress.AvailableStates" disabled class="form-control no-kendo"></select>
+															</div>
+															<span asp-validation-for="OriginAddress.StateProvinceId"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="OriginAddress.ZipPostalCode"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="OriginAddress.ZipPostalCode" disabled class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.ZipPostalCode")" />
+															<span asp-validation-for="OriginAddress.ZipPostalCode"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="Notes"></label>
+														</div>
+														<div class="input-name">
+															<textarea asp-for="Notes" placeholder="Notes" class="form-control"></textarea>
+															<span class="italian-text">Allow maximum&nbsp;<span></span> <span class="charCount">0</span>/320 characters.</span>
+															<span asp-validation-for="Notes"></span>
+														</div>
+													</div>
+													<script>
+														allowMaximumCharacters("#Notes", 320, "div.input-name", "span.charCount");
+
+														$("#Notes").closest("div.input-name").find(".charCount").text($("#Notes").val().length);
+													</script>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 custom-wrapper">
+									<div class="row">
+
+										<div class="col-md-6 mb-3">
+											<div class="card h-100 custom-card mb-0 pb-3">
+												<div class="card-header">
+													<strong class="d-block">@T("Portal.QuoteAddress.Section.DestinationAddress")</strong>
+												</div>
+												<div class="card-body">
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="DestinationAddress.Address1"></label>
+														</div>
+														<div class="input-name">
+															<input autocomplete="off" asp-for="DestinationAddress.Address1" class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.Address1")" />
+															<span asp-validation-for="DestinationAddress.Address1"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="DestinationAddress.City"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="DestinationAddress.City" disabled class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.City")" />
+															<span asp-validation-for="DestinationAddress.City"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="DestinationAddress.StateProvinceId"></label>
+														</div>
+														<div class="input-name">
+															<div class="default-select-arrow">
+																<select asp-for="DestinationAddress.StateProvinceId" asp-items="Model.DestinationAddress.AvailableStates" disabled class="form-control no-kendo"></select>
+															</div>
+															<span asp-validation-for="DestinationAddress.StateProvinceId"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="DestinationAddress.ZipPostalCode"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="DestinationAddress.ZipPostalCode" disabled class="form-control" placeholder="@T("Portal.QuoteAddress.Fields.ZipPostalCode")" />
+															<span asp-validation-for="DestinationAddress.ZipPostalCode"></span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-6 mb-3">
+											<div class="card h-100 custom-card mb-0 pb-3">
+												<div class="card-header">
+													<strong class="d-block">@T("Portal.Quote.Booking.Section.CostInformation")</strong>
+												</div>
+												<div class="card-body">
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="Linehaul"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="EstimatedPrice" class="form-control" disabled />
+															<span asp-validation-for="Linehaul"></span>
+														</div>
+													</div>
+
+													@if (!string.IsNullOrWhiteSpace(Model.FVP))
+													{
+														<div class="custom-form-group">
+															<div class="label-name">
+																<label asp-for="FVP"></label>
+															</div>
+															<div class="input-name">
+																<input asp-for="FVP" class="form-control" disabled />
+																<span asp-validation-for="FVP"></span>
+															</div>
+														</div>
+													}
+													@if (!string.IsNullOrWhiteSpace(Model.OneDayGuaranteedLoadPrice))
+													{
+														<div class="custom-form-group">
+															<div class="label-name">
+																<label asp-for="OneDayGuaranteedLoadPrice"></label>
+															</div>
+															<div class="input-name">
+																<input asp-for="OneDayGuaranteedLoadPrice" class="form-control" disabled />
+																<span asp-validation-for="OneDayGuaranteedLoadPrice"></span>
+															</div>
+														</div>
+													}
+													@if (standardReferralAmount > decimal.Zero)
+													{
+														<div class="custom-form-group">
+															<div class="label-name">
+																<label for="standardReferralAmount">@T("Portal.Quote.Booking.Fields.StandardReferralAmount")</label>
+															</div>
+															<div class="input-name">
+																<input id="standardReferralAmount" type="text" class="form-control" disabled />
+															</div>
+														</div>
+													}
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="ReferralFee"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="ReferralFee" value="" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.ReferralFee.Placeholder")" />
+															<span asp-validation-for="ReferralFee"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="PromoCode"></label>
+														</div>
+														<div class="input-name">
+															<input asp-for="PromoCode" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.PromoCode.Placeholder")" />
+															<span asp-validation-for="PromoCode"></span>
+														</div>
+													</div>
+													<div class="custom-form-group">
+														<div class="label-name">
+															<label asp-for="TotalPrice"></label>
+														</div>
+														<div class="input-name">
+															<input id="Price" disabled name="Price" class="form-control" value="@Model.TotalPriceValue" />
+															<span asp-validation-for="TotalPrice"></span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+
+
+									</div>
+								</div>
+							</div>
+
+							<div class="d-flex w-100% justify-content-end">
+								<button type="submit" class="btn btn-primary mt-3 confirm-booking">@T("Portal.Quote.Booking.Confirm")</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+		</div>
+	</section>
+</form>
+
+<script>
+	commonPhoneNumber("#Phone");
+	allowAplhaNumericWithMaxLength("#PromoCode", 12);
+	removeSpecialCharactersAndNumber("#FirstName, #LastName");
+	enforceLowerCase("#Email");
+
+	$(document).on('submit', '#booking-form', function(e){
+		$("button.confirm-booking").prop('disabled', true);
+	});
+
+	// $('#booking-form').on('click', '.expand-vehicles', function () {
+	// 	var $this = $(this);
+	// 	var $extraVehicles = $this.siblings('.extra-vehicles');
+
+	// 	if ($extraVehicles.is(':visible')) {
+	// 		$extraVehicles.hide();
+	// 		$this.text(' (+' + ($this.data('count') - 1) + ')');
+	// 	} else {
+	// 		$extraVehicles.show();
+	// 		$this.text(' (@T("Portal.Common.ShowLess"))');
+	// 	}
+	// });
+
+	function calculateTotalPrice(){
+		let linehaul = parseFloat($("#Linehaul").val()) || 0;
+		let fvp = parseFloat(@fvp) || 0;
+		let oneDayPrice = parseFloat(@oneDayPrice) || 0;
+		let referralFee = parseFloat($("#ReferralFee").val()) || 0;
+		let discountAmount = 0;
+
+		@if (hasCouponCode)
+		{
+			<text>
+				let promoCode = $("#PromoCode").val();
+
+
+				if (promoCode === "@company.CouponCode")
+				{
+					@if (company.UsePercentage)
+					{
+						<text>
+							discountAmount = linehaul * (parseFloat(@company.DiscountPercentage) / 100);
+						</text>
+					}
+					else
+					{
+						<text>
+							discountAmount = parseFloat(@company.DiscountAmount);
+						</text>
+					}
+				}
+			</text>
+		}
+
+		linehaul = Math.ceil(linehaul - discountAmount);
+		let standardReferralAmount = parseFloat("@standardReferralAmount") || 0
+		let totalPrice = linehaul + fvp + oneDayPrice + referralFee + standardReferralAmount;
+
+		$("#TotalPrice").val(totalPrice);
+
+		let totalPriceText = roundDecimal(totalPrice, 2, true, true);
+		$("#Price").val(totalPriceText);
+		$('.vehicles-price').html(`<strong>@T("Portal.Quote.Fields.EstimatedPrice")</strong> ${totalPriceText}`);
+	}
+
+	$("#ReferralFee, #PromoCode").on('input', function(){
+		calculateTotalPrice();
+	});
+
+	$("#ReferralFee").kendoNumericTextBox({
+		value: $("#ReferralFee").val(),
+		decimals: 0,
+		restrictDecimals: true,
+		format: "c2",
+		min: 0,
+		spinners: false,
+	}).focus(function () {
+		if ($(this).data("kendoNumericTextBox").value() == 0) {
+			$(this).data("kendoNumericTextBox").value('');
+			calculateTotalPrice();
+		}
+		else {
+			var input = $(this).data("kendoNumericTextBox").element[0];
+			setTimeout(function () {
+				input.setSelectionRange(input.value.length, input.value.length);
+			}, 0);
+		}
+	}).blur(function () {
+		if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+			$(this).data("kendoNumericTextBox").value("");
+			calculateTotalPrice();
+		}
+	});
+
+	$(function(){
+		let standardReferralAmount = $("#standardReferralAmount");
+		if (standardReferralAmount){
+			let standardReferralFee = parseFloat("@standardReferralAmount") || 0;
+			standardReferralAmount.val(roundDecimal(standardReferralFee, 2, true, true));
+		}
+
+		@if (Model.ReferralFee > 0)
+		{
+			<text>
+				$("#ReferralFee").data("kendoNumericTextBox").value(roundDecimal(@Model.ReferralFee, 2, true, true));
+			</text>
+		}
+
+		calculateTotalPrice();
+	});
+
+</script>

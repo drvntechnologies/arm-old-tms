@@ -1,0 +1,159 @@
+﻿@model OrderModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+@if (!Model.IsChildOrder)
+{
+	<div class="card-body shipper-information">
+		<div class="row">
+			<div class="@(Model.IsChildOrder ? "col-md-12" : "col-md-6")">
+				<div class="card h-100 mb-0">
+					<div class="card-body">
+
+						<div class="custom-form-group custom-checkbox-ui">
+							<div class="label-name">
+								<nop-label asp-for="PickupSameAsShipper" />
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="PickupSameAsShipper" />
+								<span asp-validation-for="PickupSameAsShipper"></span>
+							</div>
+						</div>
+
+						<div class="custom-form-group">
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="PickupAddress_PrimaryContact">
+										@T("Admin.Address.Fields.Contact")
+									</label>
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="PickupAddress.ContactName" html-attributes="@(new { placeholder = "Enter Primary Contact" })" />
+								<span asp-validation-for="PickupAddress.ContactName"></span>
+							</div>
+						</div>
+
+						<div class="custom-form-group">
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="PickupAddress_PhoneNumber">
+										@T("Admin.Address.Fields.PhoneNumber")
+									</label>
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="PickupAddress.PhoneNumber" />
+								<span asp-validation-for="PickupAddress.PhoneNumber"></span>
+							</div>
+						</div>
+
+						<div class="custom-form-group">
+							<div class="label-name">
+								<div class="label-wrapper">
+									<label class="col-form-label" for="PickupAddress_PrimaryEmail">
+										@T("Admin.Address.Fields.Email")
+									</label>
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="input-name">
+								<nop-editor asp-for="PickupAddress.Email" html-attributes="@(new { placeholder = "Enter Primary Email" })" />
+								<span asp-validation-for="PickupAddress.Email"></span>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		commonPhoneNumber("#PickupAddress_PhoneNumber");
+		removeSpecialCharactersAndNumber("#PickupAddress_ContactName", true);
+		enforceLowerCase("#PickupAddress_Email");
+
+		$("#@Html.IdFor(m => m.PickupSameAsShipper)").change(function () {
+			if ($(this).prop("checked")) {
+
+				$("#@Html.IdFor(m => m.PickupAddress.ContactName)").val($("#@Html.IdFor(m => m.CustomerInformation.CustomerId)").data("kendoDropDownList").text());
+
+				$("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val($("#@Html.IdFor(m => m.CustomerInformation.PhoneNumber)").val());
+
+				$("#@Html.IdFor(m => m.PickupAddress.Email)").val($("#@Html.IdFor(m => m.CustomerInformation.Email)").val());
+			}
+			else {
+				$("#@Html.IdFor(m => m.PickupAddress.ContactName)").val("");
+				$("#@Html.IdFor(m => m.PickupAddress.PhoneNumber)").val("");
+				$("#@Html.IdFor(m => m.PickupAddress.Email)").val("");
+			}
+		});
+	</script>
+}
+else if (!string.IsNullOrWhiteSpace(Model.ShipperFullName) ||
+		 !string.IsNullOrWhiteSpace(Model.ShipperPhoneNumber) ||
+		 !string.IsNullOrWhiteSpace(Model.ShipperEmail))
+{
+	<div class="card-body shipper-information">
+		<div class="row">
+			<div class="@(Model.IsChildOrder ? "col-md-12" : "col-md-6")">
+				<div class="card h-100 mb-0">
+					<div class="card-body">
+
+						@if (!string.IsNullOrWhiteSpace(Model.ShipperFullName))
+						{
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+										<label class="col-form-label" for="ShipperFullName">
+											@T("Admin.Address.Fields.Contact")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<nop-editor asp-for="ShipperFullName" html-attributes="@(new { disabled = true })" />
+								</div>
+							</div>
+						}
+
+						@if (!string.IsNullOrWhiteSpace(Model.ShipperPhoneNumber))
+						{
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+									<label class="col-form-label" for="ShipperPhoneNumber">
+											@T("Admin.Address.Fields.PhoneNumber")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<nop-editor asp-for="ShipperPhoneNumber" html-attributes="@(new { disabled = true })"/>
+								</div>
+							</div>
+						}
+
+						@if (!string.IsNullOrWhiteSpace(Model.ShipperEmail))
+						{
+							<div class="custom-form-group">
+								<div class="label-name">
+									<div class="label-wrapper">
+											<label class="col-form-label" for="ShipperEmail">
+											@T("Admin.Address.Fields.Email")
+										</label>
+									</div>
+								</div>
+								<div class="input-name">
+									<nop-editor asp-for="ShipperEmail" html-attributes="@(new { disabled = true })"/>
+								</div>
+							</div>
+						}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

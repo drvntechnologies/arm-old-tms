@@ -1,0 +1,116 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogisticsFieldsHistory;
+
+@model LogisticsQuoteModel
+
+<div class="card detail-info-card d-card m-0">
+    <div class="card-header with-border clearfix card-collapse">
+        <div class="card-title">
+            <i class="fas fa-history"></i>
+            @T("Admin.QuoteHistory")
+        </div>
+        <div class="card-tools float-right">
+            <button class="btn btn-tool" data-card-widget="collapse" type="button">
+                <text><i class="fas fa-plus"></i></text>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="card card-default d-datatable m-0">
+            <div class="card-body">
+                <input type="hidden" asp-for="LogisticsFieldHistorySearchModel.OnLoadShowOrderHistory" />
+                @await Html.PartialAsync("Table", new DataTablesModel
+                {
+                    Name = "field-history-grid",
+                    UrlRead = new DataUrl("QuoteFieldHistory", "LogisticsQuote", new RouteValueDictionary { [nameof(Model.LogisticsFieldHistorySearchModel.EntityId)] = Model.Id }),
+                    Length = Model.LogisticsFieldHistorySearchModel.PageSize,
+                    LengthMenu = Model.LogisticsFieldHistorySearchModel.AvailablePageSizes,
+                    Filters = new List<FilterParameter>
+                    {
+                        new FilterParameter(nameof(Model.LogisticsFieldHistorySearchModel.OnLoadShowOrderHistory), nameof(Model.LogisticsFieldHistorySearchModel)),
+                    },
+                    ColumnCollection = new List<ColumnProperty>
+                    {
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.Id))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.Id").Text,
+                            Encode = false,
+                            Visible=false,
+                        },
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.Message))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.Message").Text,
+                            Encode = false
+                        },
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.OriginalValue))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.OriginalValue").Text,
+                            Encode = false
+                        },
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.ChangeValue))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.ChangeValue").Text,
+                            Encode = false
+                        },
+                        // new ColumnProperty(nameof(LogisticsFieldHistoryModel.HistoryType))
+                        // {
+                        //     Title = T("Admin.LogisticsFieldHistory.Fields.VehicleType").Text,
+                        //     Width = "50",
+                        //     Encode = false
+                        // },
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.UpdatedName))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.UpdatedBy").Text,
+                            Width = "100",
+                            Encode = false
+                        },
+                        new ColumnProperty(nameof(LogisticsFieldHistoryModel.UpdatedOnUtc))
+                        {
+                            Title = T("Admin.LogisticsFieldHistory.Fields.UpdatedOnUtc").Text,
+                            Width = "100",
+                            Encode = false,
+                            Render = new RenderDate()
+                        },
+                    }
+                })
+            </div>
+        </div>
+    </div>
+</div>
+<button type="submit" id="btnRefreshFieldHistory" style="display: none"></button>
+
+<script>
+    $(function () {
+        $('#btnRefreshFieldHistory').click(function () {
+            //refresh grid
+            updateTable('#field-history-grid');
+
+            //return false to don't reload a page
+            return false;
+        });
+
+        $('button[data-card-widget="collapse"]').click();
+
+        $(".card-collapse").on('click', function(e){
+            if (!$(e.target).is('button[data-card-widget="collapse"]')) {
+                $(this).find('button[data-card-widget="collapse"]').click();
+            }
+        });
+
+        $('button[data-card-widget="collapse"]').on('click', function (e) {
+            $("#LogisticsFieldHistorySearchModel_OnLoadShowOrderHistory").val(true);
+
+            let $html = $(this).closest('.card-collapse');
+            $html.toggleClass("opened");
+
+            if ($html.hasClass("opened")){
+                var intervalId = setInterval(function(){
+                    if ($.fn.DataTable && $.fn.DataTable.isDataTable('#field-history-grid')) {
+                        var table = $('#field-history-grid').DataTable();
+                        table.columns.adjust().draw();
+                        clearInterval(intervalId);
+                    }
+                },400);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,353 @@
+﻿@model OrderBillOfLadingModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Orders.ViewDispatchInformation.Fields.OrderBolDetails").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Orders");
+}
+
+<div class="card-body">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Load Number:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.LoadNumber</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Carrier Company Name:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.CarrierCompanyName</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Carrier Email:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.CarrierEmail</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Inspection Notes:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.InspectionNotes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>VIN:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.VIN</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Year /​ Make /​ Model:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.Year</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Type:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.Type</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Color:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.Color</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Odometer:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.Odometer</span>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Origin Address1:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.OriginAddress.Address1</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Origin Address2:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.OriginAddress.Address2</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Origin City:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.OriginAddress.City</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Origin State:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.OriginState</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Origin ZipCode:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.OriginAddress.ZipPostalCode</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Destination Address1:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DestinationAddress.Address1</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Destination Address2:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DestinationAddress.Address2</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Destination City:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DestinationAddress.City</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Destination State:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DestinationState</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Destination ZipCode:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DestinationAddress.ZipPostalCode</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Customer FirstName:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.CustomerFirstName</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Customer LastName:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.CustomerLastName</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Customer Pickup /​ Delivery Date:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.CustomerPickupDeliveryDate</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Customer Signature:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.CustomerSignatureBase64String" width="100%" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Driver FirstName:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DriverFirstName</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Driver LastName:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DriverLastName</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Driver Pickup /​ Delivery Date:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <span>@Model.DriverPickupDeliveryDate</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <b>Driver Signature:</b>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.DriverSignatureBase64String" width="100%"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (Model.OrderUnitPictures.Count > 0)
+            {
+                <div class="col-md-12 border-dark border">
+                    <div class="form-group row">
+                        <div class="col-md-12 mb-3">
+                            <b>Picture's of Unit:</b>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                @foreach (var orderUnitPicture in Model.OrderUnitPictures)
+                                {
+                                    <div class="col-md-3">
+                                        <img src="data:image/png;base64, @orderUnitPicture" width="100%" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12 border-dark border">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <div>
+                            <b>Passenger Side:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.PassengerSide" width="100%" />
+                        </div>
+                    </div>                    
+                    <div class="col-md-3">
+                        <div>
+                            <b>Driver Side:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.DriverSide" width="100%" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div>
+                            <b>Front:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.Front" width="100%" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div>
+                            <b>Rear:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.Rear" width="100%" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 border-dark border">
+                <div class="form-group row">                    
+                    <div class="col-md-3">
+                        <div>
+                            <b>Keys:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.Keys" width="100%" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div>
+                            <b>VIN Plate:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.VINPlate" width="100%" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div>
+                            <b>Odometer:</b>
+                        </div>
+                        <div class="border-dark border">
+                            <img src="data:image/png;base64, @Model.OdometerPicture" width="100%" />
+                        </div>
+                    </div>
+                </div>
+                    
+            </div>
+            @if (Model.OtherPictures.Count > 0)
+            {
+                <div class="col-md-12 border-dark border">
+                    <div class="form-group row">
+                        <div class="col-md-12 mb-3">
+                            <b>Other:</b>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                @foreach (var otherPic in Model.OtherPictures)
+                                {
+                                    <div class="col-md-3">
+                                        <img src="data:image/png;base64, @otherPic" width="100%" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

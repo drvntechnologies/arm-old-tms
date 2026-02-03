@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RepositoryType>Git</RepositoryType>
+    <OutputPath>$(MSBuildProjectDirectory)\..\Presentation\ARM.Web\bin\$(Configuration)</OutputPath>
+  </PropertyGroup> 
+
+  <Target Name="NopClear">
+    
+    <Exec Command='dotnet "ClearPluginAssemblies.dll" "OutputPath=$(OutputPath)|PluginPath=$(PluginPath)|SaveLocalesFolders=$(SaveLocalesFolders)"' />
+  </Target> 
+      
+</Project>

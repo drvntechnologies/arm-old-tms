@@ -1,0 +1,258 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body carrier-information">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header with-border">
+                    <h3 class="card-title">Origin</h3>
+                </div>
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginZip" asp-required="Model.OriginZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginZip" />
+                            <span asp-validation-for="OriginZip"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginCity" asp-required="Model.OriginCityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginCity" />
+                            <span asp-validation-for="OriginCity"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginCountry" asp-required="Model.OriginCountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="OriginCountry" asp-items="Model.AvailableOriginCountries" class="form-select form-control" />
+                            <span asp-validation-for="OriginCountry"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginState" asp-required="Model.OriginStateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="OriginState" asp-items="Model.AvailableOriginStates" class="form-select form-control" />
+                            <span asp-validation-for="OriginState"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginLatitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginLatitude" />
+                            <span asp-validation-for="OriginLatitude"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="OriginLongitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="OriginLongitude" />
+                            <span asp-validation-for="OriginLongitude"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header with-border">
+                    <h3 class="card-title">Destination</h3>
+                </div>
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationZip" asp-required="Model.DestinationZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationZip" />
+                            <span asp-validation-for="DestinationZip"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationCity" asp-required="Model.DestinationCityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationCity" />
+                            <span asp-validation-for="DestinationCity"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationCountry" asp-required="Model.DestinationCountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="DestinationCountry" asp-items="Model.AvailableDestinationCountries" class="form-select form-control" />
+                            <span asp-validation-for="DestinationCountry"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationState" asp-required="Model.DestinationStateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="DestinationState" asp-items="Model.AvailableDestinationStates" class="form-select form-control" />
+                            <span asp-validation-for="DestinationState"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationLatitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationLatitude" />
+                            <span asp-validation-for="DestinationLatitude"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="DestinationLongitude" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="DestinationLongitude" />
+                            <span asp-validation-for="DestinationLongitude"></span>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.OriginCountry)").change(function () {
+            var selectedItem = $(this).data("kendoDropDownList").value();
+            var ddlStates = $("#@Html.IdFor(model => model.OriginState)").data("kendoDropDownList");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                data: {
+                    "countryId": selectedItem,
+                    "addSelectStateItem": "false"
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var dataSource = ddlStates.dataSource;
+                    dataSource.data([]);
+                    $.each(data,
+                        function (id, option) {
+                            dataSource.add({
+                                text: option.name,
+                                value: option.id
+                            });
+                        });
+                    $("#OriginState").data("kendoDropDownList").value(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#statesAlert").click();
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.DestinationCountry)").change(function () {
+            var selectedItem = $(this).data("kendoDropDownList").value();
+            var ddlStates = $("#@Html.IdFor(model => model.DestinationState)").data("kendoDropDownList");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                data: {
+                    "countryId": selectedItem,
+                    "addSelectStateItem": "false"
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var dataSource = ddlStates.dataSource;
+                    dataSource.data([]);
+                    $.each(data,
+                        function (id, option) {
+                            dataSource.add({
+                                text: option.name,
+                                value: option.id
+                            });
+                        });
+                    $("#DestinationState").data("kendoDropDownList").value(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#statesAlert").click();
+                }
+            });
+        });
+    });
+
+</script>
+
+<script>
+    $("#OriginZip, #DestinationZip").keyup(function () {
+        var zipCodeId = $(this).attr('id');
+        if (($("#" + zipCodeId).val().length) >= 4) {
+            var txtZipCode = $("#" + zipCodeId).val();
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    if (zipCodeId == "OriginZip") {
+                        $("#OriginCity").val(response.city);
+                        $("#OriginCountry").data("kendoDropDownList").value(response.country);
+                        $("#OriginState").data("kendoDropDownList").value(response.state);
+                        $("#OriginLatitude").val(response.latitude);
+                        $("#OriginLongitude").val(response.longitude);
+                    }
+                    else if (zipCodeId == "DestinationZip") {
+                        $("#DestinationCity").val(response.city);
+                        $("#DestinationCountry").data("kendoDropDownList").value(response.country);
+                        $("#DestinationState").data("kendoDropDownList").value(response.state);
+                        $("#DestinationLatitude").val(response.latitude);
+                        $("#DestinationLongitude").val(response.longitude);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+        else {
+            if (zipCodeId == "OriginZip") {
+                $("#OriginCity").val('');
+                $("#OriginCountry").data("kendoDropDownList").value(0);
+                $("#OriginState").data("kendoDropDownList").value(0);
+                $("#OriginLatitude").val(0);
+                $("#OriginLongitude").val(0);
+            }
+            else if (zipCodeId == "DestinationZip") {
+                $("#DestinationCity").val('');
+                $("#DestinationCountry").data("kendoDropDownList").value(0);
+                $("#DestinationState").data("kendoDropDownList").value(0);
+                $("#DestinationLatitude").val(0);
+                $("#DestinationLongitude").val(0);
+            }
+        }
+    });
+</script>

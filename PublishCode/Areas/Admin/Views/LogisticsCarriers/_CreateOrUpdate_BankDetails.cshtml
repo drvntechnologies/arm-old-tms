@@ -1,0 +1,87 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card-body Carrier-Contact carrier-edit">
+	<div class="row">
+
+		<div class="col-md-12">
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankRoutingNumber" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankRoutingNumber" html-attributes="@(new { placeholder = "Enter Routing Number" })" />
+					<span asp-validation-for="BankRoutingNumber"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankAccountNumber" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankAccountNumber" html-attributes="@(new { placeholder = "Enter Account Number" })" />
+					<span asp-validation-for="BankAccountNumber"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankAccountType" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankAccountType" html-attributes="@(new { placeholder = "Enter Account Type" })" />
+					<span asp-validation-for="BankAccountType"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankAccountName" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankAccountName" html-attributes="@(new { placeholder = "Enter Account Name" })" />
+					<span asp-validation-for="BankAccountName"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankName" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankName" html-attributes="@(new { placeholder = "Enter Name" })" />
+					<span asp-validation-for="BankName"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankAddress" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankAddress" html-attributes="@(new { placeholder = "Enter Address" })" />
+					<span asp-validation-for="BankAddress"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankPhone" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankPhone" />
+					<span asp-validation-for="BankPhone"></span>
+				</div>
+			</div>
+			<div class="custom-form-group">
+				<div class="label-name">
+					<nop-label asp-for="BankFax" />
+				</div>
+				<div class="input-name">
+					<nop-editor asp-for="BankFax" html-attributes="@(new { placeholder = "Enter Fax" })" />
+					<span asp-validation-for="BankFax"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	commonPhoneNumber("#BankPhone");
+	allowNumericWithMaxLength("#BankRoutingNumber", 9);
+	allowNumberOnly("#BankAccountNumber");
+</script>

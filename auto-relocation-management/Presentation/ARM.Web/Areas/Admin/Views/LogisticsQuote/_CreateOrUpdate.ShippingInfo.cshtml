@@ -1,0 +1,60 @@
+﻿@model LogisticsQuoteModel
+
+<div class="col-md-12 ">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row mb-3">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="EstimatedShippingDate" asp-required="Model.LogisticsQuoteEstimatedShippingDateRequired" />
+                </div>
+                <div class="col-md-7 ">
+                    <nop-editor asp-for="EstimatedShippingDate" />
+                    <span asp-validation-for="EstimatedShippingDate"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="VehicleRun" asp-required="Model.LogisticsQuoteVehicleRunRequired" />
+                </div>
+                <div class="col-md-7">
+                    <nop-select class="form-select" asp-for="VehicleRun" asp-items="Model.AvailableVehicleRun" />
+                    <span asp-validation-for="VehicleRun"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="ShipVia" asp-required="Model.LogisticsQuoteShipViaRequired" />
+                </div>
+                <div class="col-md-7">
+                    <nop-select asp-for="ShipVia" asp-items="Model.AvailableShipVia" />
+                    <span asp-validation-for="ShipVia"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="row mb-3">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="ShipperInformation" asp-required="Model.LogisticsQuoteShipperInformationRequired" />
+                </div>
+                <div class="col-md-7 ">
+                    <nop-textarea asp-for="ShipperInformation" />
+                    <span asp-validation-for="ShipperInformation"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-5 align-items-center d-flex justify-content-end">
+                    <nop-label asp-for="DispatchInstructions" asp-required="Model.LogisticsQuoteDispatchInstructionsRequired" />
+                </div>
+                <div class="col-md-7 ">
+                    <nop-textarea asp-for="DispatchInstructions" />
+                    <span asp-validation-for="DispatchInstructions"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

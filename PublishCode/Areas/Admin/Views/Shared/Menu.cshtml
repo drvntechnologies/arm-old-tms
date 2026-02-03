@@ -1,0 +1,93 @@
+﻿@using Nop.Core.Domain.Customers
+@using Nop.Services.Customers
+@using Nop.Services.Plugins
+@using Nop.Services.Security
+
+@inject IPermissionService permissionService
+@inject IPluginManager<IAdminMenuPlugin> adminMenuPluginManager
+@inject IXmlSiteMap siteMap;
+@inject ICustomerService customerService;
+
+<ul class="nav nav-pills nav-sidebar flex-column nav-legacy" data-widget="treeview" role="menu">
+    @{
+        var customer = await workContext.GetCurrentCustomerAsync();
+        var isAdmin = await customerService.IsAdminAsync(customer);
+
+        var customerRole = await customerService.GetCustomerRoleBySystemNameAsync(NopCustomerDefaults.AdministratorsRoleName);
+
+        var hasPermissionForAdmin = await permissionService.AuthorizeAsync(StandardPermissionProvider.PortalAllowNavigation.SystemName, customerRole?.Id ?? 0);
+
+        var isPermissionAllow = await permissionService.AuthorizeAsync(StandardPermissionProvider.PortalAllowNavigation);
+
+        //load sitemap
+        await siteMap.LoadFromAsync("~/Areas/Admin/sitemap.config");
+
+        //standard (default) items
+        var rootNode = siteMap.RootNode;
+
+        //plugins
+        var adminMenuPlugins = await adminMenuPluginManager.LoadAllPluginsAsync(customer);
+        foreach (var adminMenuPlugin in adminMenuPlugins)
+        {
+            await adminMenuPlugin.ManageSiteMapAsync(rootNode);
+        }
+
+        //"Plugins" menu item should be visible when it has some child nodes
+        var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
+        if (pluginNode?.Visible ?? false)
+        {
+            pluginNode.Visible = pluginNode.ChildNodes.Any(x => x.Visible)
+            && await permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins, customer);
+        }
+
+        string[] systemNames = new[] { "Portal Quotes", "Portal Booking" };
+
+        //display menu items
+        foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+        {
+            if (isAdmin)
+            {
+                if (!systemNames.Any(systemName => systemName.Equals(item.SystemName, StringComparison.InvariantCultureIgnoreCase)) || hasPermissionForAdmin)
+                {
+                    @await Html.PartialAsync("_MenuItem", item)
+                }
+            }
+            else
+            {
+                var customerRoles = await customerService.GetCustomerRolesAsync(customer);
+
+                if (customerRoles.Count == 1)
+                {
+                    var role = customerRoles.FirstOrDefault(r => !string.IsNullOrWhiteSpace(r.SystemName) && r.SystemName.Equals(NopCustomerDefaults.RegisteredRoleName, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (role != null && systemNames.Any(systemName => systemName.Equals(item.SystemName, StringComparison.InvariantCultureIgnoreCase)) && isPermissionAllow)
+                    {
+                        @await Html.PartialAsync("_MenuItem", item)
+                    }
+                }
+                else
+                {
+                    List<string> removeCustomerRoles = new() { NopCustomerDefaults.RegisteredRoleName, NopCustomerDefaults.GuestsRoleName };
+
+                    var cusRoles = customerRoles.Where(cr => !string.IsNullOrWhiteSpace(cr.SystemName) &&
+                    !removeCustomerRoles.Any(rcr => rcr.Equals(cr.SystemName, StringComparison.InvariantCultureIgnoreCase))).ToList();
+
+                    var hasPermission = false;
+
+                    foreach (var role in cusRoles)
+                    {
+                        hasPermission = await permissionService.AuthorizeAsync(StandardPermissionProvider.PortalAllowNavigation.SystemName, role.Id);
+
+                        if (hasPermission)
+                            break;
+                    }
+
+                    if (!systemNames.Any(systemName => systemName.Equals(item.SystemName, StringComparison.InvariantCultureIgnoreCase)) || hasPermission)
+                    {
+                        @await Html.PartialAsync("_MenuItem", item)
+                    }
+                }
+            }
+        }
+    }
+</ul>

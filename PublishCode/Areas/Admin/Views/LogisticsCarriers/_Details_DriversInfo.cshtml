@@ -1,0 +1,355 @@
+﻿@model LogisticsCarriersModel
+
+<div class="card d-card">
+	<div class="card-header with-border clearfix d-flex align-items-center justify-content-between flex-wrap">
+		<div class="card-title w-auto">
+			<i class="fas fa-user"></i>
+			@T("Admin.carriers.carrier.Drivers")
+		</div>
+		@if (Model.Id > 0)
+		{
+			<div class="ml-auto">
+				<button type="button" id="create-driver" class="btn btn-primary">
+					<i class="fa fa-plus"></i>
+					@T("Admin.LogisticsDrivers.View.AddDriver")
+				</button>
+			</div>
+		}
+
+	</div>
+	<div class="card-body">
+		@if (Model.Id > 0)
+		{
+			<div class="card d-datatable carrier-detail-driver-tbl m-0">
+				<div class="card-body">
+					@await Html.PartialAsync("Table", new DataTablesModel
+					{
+						Name = "drivers-grid",
+						UrlRead = new DataUrl("LogisticsDriversList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsDriversSearchModel.CarrierId)] = Model.Id }),
+						Length = Model.LogisticsDriversSearchModel.PageSize,
+						LengthMenu = Model.LogisticsDriversSearchModel.AvailablePageSizes,
+						ColumnCollection = new List<ColumnProperty>
+						{
+							new ColumnProperty(nameof(LogisticsDriversModel.Name))
+							{
+								Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Name").Text,
+								Width = "200"
+							},
+							new ColumnProperty(nameof(LogisticsDriversModel.Email))
+							{
+								Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Email").Text,
+								Width = "200"
+							},
+							new ColumnProperty(nameof(LogisticsDriversModel.Phone))
+							{
+								Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Phone").Text,
+								Width = "100"
+							},
+							new ColumnProperty(nameof(LogisticsDriversModel.Id))
+							{
+								Title = T("Admin.Common.Action").Text,
+                                Width = "100",
+                                ClassName = NopColumnClassDefaults.Button,
+                                Render = new RenderCustom("renderDriverColumnEditDelete")
+							}
+						}
+					})
+					<script>
+                        function renderDriverColumnEditDelete(data, type, row, meta) {
+                    return '<button type="button" data-driver-id="' + data + '" class="btn btn-default edit-driver"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                        }
+
+                        $("#drivers-grid").on("click", ".delete-link", function (e) {
+                            const id = $(this).attr("data-deleteId");
+                            $("#delete-id").val(id);
+                            $("#delete-id").attr("data-url", "@Url.Action("LogisticsDriversDelete")")
+                                           .attr("data-tableId", "drivers-grid");
+                        });
+                        
+					</script>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="card card-default m-0">
+				<div class="card-body">
+					@T("Admin.Carriers.Carrier.Drivers.SaveBeforeEdit")
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+
+@if (Model.Id > 0)
+{
+    <div id="driver-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="driver-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="driver-add-popup-title">@T("Admin.LogisticsDrivers.View.AddNewDriver")</h4>
+                    <button type="button" class="close" id="close-driver-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="DriverId" name="DriverId" type="hidden" />
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DriverFirstName">@T("Admin.LogisticsCarriers.View.Drivers.Fields.FirstName")</label>
+                                    @if (Model.DriverFirstNameRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DriverFirstName" name="DriverFirstName" placeholder="Enter First Name" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DriverFirstName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DriverLastName">@T("Admin.LogisticsCarriers.View.Drivers.Fields.LastName")</label>
+                                    @if (Model.DriverLastNameRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DriverLastName" name="DriverLastName" type="text" placeholder="Enter Last Name" />
+                                    <span class="field-validation-valid" data-valmsg-for="DriverLastName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DriverEmail">@T("Admin.LogisticsCarriers.View.Drivers.Fields.Email")</label>
+                                    @if (Model.DriverEmailRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DriverEmail" name="DriverEmail" type="text" placeholder="Enter Email" />
+                                    <span class="field-validation-valid" data-valmsg-for="DriverEmail" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="DriverPhone">@T("Admin.LogisticsCarriers.View.Drivers.Fields.Phone")</label>
+                                    @if (Model.DriverPhoneRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                                <div class="col-md-9">
+                                    <input class="form-control text-box single-line" id="DriverPhone" name="DriverPhone" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="DriverPhone" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="field-validation-error" id="detail-add-driver-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-driver" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#DriverPhone");
+        removeSpecialCharactersAndNumber("#DriverFirstName, #DriverLastName");
+        enforceLowerCase("#DriverEmail");
+
+        function resetDriverForm() {
+            $("#DriverId").val("");
+            $("#DriverFirstName").val("");
+            $("#DriverLastName").val("");
+            $("#DriverEmail").val("");
+            $("#DriverPhone").val("");
+
+            $('span[data-valmsg-for="DriverFirstName"]').hide();
+            $('span[data-valmsg-for="DriverLastName"]').hide();
+            $('span[data-valmsg-for="DriverEmail"]').hide();
+            $('span[data-valmsg-for="DriverPhone"]').hide();
+            $("#detail-add-driver-errorMessages").html("");
+        }
+
+        $(function () {
+            $('#save-driver').click(function () {
+                $('#save-driver').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id =  $("#DriverId");
+                const $firstName = $("#DriverFirstName");
+                const $lastName = $("#DriverLastName");
+                const $email = $("#DriverEmail");
+                const $phone = $("#DriverPhone");
+
+                let firstName = $firstName.val();
+                let lastName = $lastName.val();
+                let email = $email.val();
+                let phone = $phone.val();
+
+                @if (Model.DriverFirstNameRequired)
+                {
+                    <text>
+                        if (!firstName || firstName.trim() == "") {
+                                let message = "@T("Admin.LogisticsDrivers.FirstName.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DriverFirstName"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverFirstName-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DriverLastNameRequired)
+                {
+                    <text>
+                        if (!lastName || lastName.trim() == "") {
+                                    let message = "@T("Admin.LogisticsDrivers.Email.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DriverLastName"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverLastName-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DriverEmailRequired)
+                {
+                    <text>
+                        if (!email || email.trim() == "") {
+                            let message = "@T("Admin.LogisticsDriver.Email.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DriverEmail"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverEmail-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+                @if (Model.DriverPhoneRequired)
+                {
+                    <text>
+                        if (!phone || phone.trim() == "") {
+                                let message = "@T("Admin.LogisticsDrivers.Phone.Required")";
+                            var validationSpan = $('span[data-valmsg-for="DriverPhone"]');
+                            validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverPhone-error" class="">${message}</span>`).show();
+                            isValid = false;
+                        }
+                    </text>
+                }
+
+                if (!isValid) {
+                    $('#save-driver').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    Id: $id.val(),
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Email: email,
+                    Phone: phone,
+                    CarrierId: "@Model.Id"
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("DriversCreate", "LogisticsCarriers", null))";
+                if($id.val() > 0){
+                    url = "@Html.Raw(Url.Action("DriversEdit", "LogisticsCarriers", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#drivers-grid');
+
+                            $("#close-driver-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";
+                            $.each(data.error, function (key, value) {
+                                if (value.errors) {
+                                    $.each(value.errors, function (index, error) {
+                                        errorMessages += "<p class='m-0'>" + error +"</p>";
+                                    });
+                                }
+                            });
+                            
+                            $("#detail-add-driver-errorMessages").html(errorMessages)
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-driver').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $(document).on('click', "#close-driver-add-popup",function () {
+            resetDriverForm();
+            $("#driver-add-popup").modal('hide');
+        });
+
+        $(document).on('input', "#DriverFirstName, #DriverLastName, #DriverEmail, #DriverPhone", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-driver", function(e){
+            e.preventDefault();
+            $("#driver-add-popup-title").text("@T("Admin.LogisticsDrivers.View.AddNewDriver")");
+            resetDriverForm();
+            $("#driver-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-driver", function(e){
+            e.preventDefault();
+            $("#detail-add-driver-errorMessages").html("");
+            var driverId = $(this).attr('data-driver-id');
+            if (driverId > 0){
+                $("#driver-add-popup-title").text("@T("Admin.LogisticsDrivers.View.EditDriver")");
+                $.get("@Html.Raw(Url.Action("DriversEdit", "LogisticsCarriers"))", { id: driverId }, function (data) {
+                    if(data.Result){
+                        $("#DriverId").val(data.Id);
+                        $("#DriverFirstName").val(data.FirstName);
+                        $("#DriverLastName").val(data.LastName);
+                        $("#DriverEmail").val(data.Email);
+                        $("#DriverPhone").val(data.Phone);
+
+                        $("#driver-add-popup").modal('show');
+                    }
+                    else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

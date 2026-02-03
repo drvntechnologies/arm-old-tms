@@ -1,0 +1,118 @@
+﻿@model CommissionModel
+
+
+<div class="card-body commission-setting">
+    <div class="row">
+        <div class="col-md-6 col-xl-12">
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <nop-label asp-for="CustomerId" asp-required="true" />
+                </div>
+                <div class="col-xl-4">
+                    <nop-select class="form-select" asp-for="CustomerId" asp-items="Model.AvailableCustomers" />
+                    <span asp-validation-for="CustomerId"></span>
+                    <script>
+                        $(document).ready(function () {
+                            $('#@Html.IdFor(model => model.CustomerId)').kendoDropDownList({
+                                filter: "contains",                                
+                                filtering: function (e) {
+                                    var filter = e.filter;
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-12">
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <div class="label-wrapper">
+                        <label class="col-form-label" asp-for="CommissionStartDate">
+                            @T("Admin.Configuration.Settings.CommissionModel.Fields.CommissionStartDate")
+                            <i class="fas fa-info-circle tooltip-icon">
+                                <span class="custom-tooltip">
+                                    @T("Admin.CommissionSettings.StartAndEndDate.Hint")
+                                </span>
+                            </i>
+                        </label>
+                        <nop-required />
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <nop-editor asp-for="CommissionStartDate" />
+                    <span asp-validation-for="CommissionStartDate"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-12">
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <div class="label-wrapper">
+                        <label class="col-form-label" asp-for="CommissionEndDate">
+                            @T("Admin.Configuration.Settings.CommissionModel.Fields.CommissionEndDate")
+                            <i class="fas fa-info-circle tooltip-icon">
+                                <span class="custom-tooltip">
+                                    @T("Admin.CommissionSettings.StartAndEndDate.Hint")
+                                </span>
+                            </i>
+                        </label>
+                        <nop-required />
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <nop-editor asp-for="CommissionEndDate" />
+                    <span asp-validation-for="CommissionEndDate"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-12">
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <nop-label asp-for="CommissionPercentage" asp-required="true" />
+                </div>
+                <div class="col-xl-4">
+                    <nop-editor asp-for="CommissionPercentage" asp-template="DecimalWithPercentage" />
+                    <span asp-validation-for="CommissionPercentage"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-12">
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <nop-label asp-for="DefaultCommissionPercentage" />
+                </div>
+                <div class="col-xl-4">
+                    <nop-editor asp-for="DefaultCommissionPercentage" asp-template="DecimalWithPercentage" />
+                    <span asp-validation-for="DefaultCommissionPercentage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Cancel-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancel-confirmation-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="cancel-confirmation-popup-title">@T("Admin.Common.Cancel")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    @T("Admin.Common.Cancel.Confirmation.Popup.Text")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <a asp-action="List" class="btn btn-primary">@T("Admin.Common.Yes")</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#CommissionStartDate").attr("placeholder", "Select Start Date");
+    $("#CommissionEndDate").attr("placeholder", "Select End Date");
+</script>

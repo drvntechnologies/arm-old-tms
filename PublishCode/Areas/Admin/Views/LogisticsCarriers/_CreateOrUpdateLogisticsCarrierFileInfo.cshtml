@@ -1,0 +1,76 @@
+﻿@model LogisticsCarriersFilesModel;
+
+@* <div asp-validation-summary="All"></div> *@
+<input asp-for="Id" type="hidden" />
+<input asp-for="CarrierId" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+	<script>
+		try { window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();
+		window.opener.alert('@T("Admin.Carriers.Carrier.CarriersFiles.Upload.Notification")');}
+		catch (e) { }
+		window.close();
+	</script>
+}
+<section class="page-main-area">
+	<div class="form-horizontal">
+		<div class="form-horizontal">
+			<div class="cards-group">
+				<div class="card card-default card-popup">
+					<div class="card-body">
+						<div class="form-group row">
+							<div class="col-sm-3">
+								<nop-label asp-for="Category" asp-required="Model.CategoryRequired" />
+							</div>
+							<div class="col-sm-9">
+								<nop-select class="form-select" asp-for="Category" asp-items="Model.AvailableCategory" />
+								<span asp-validation-for="Category"></span>
+								@* <nop-select asp-for="Category" asp-items="@Model.AvailableCategory" class="form-select" /> *@
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3">
+								<nop-label asp-for="File" asp-required="Model.DriverFileRequired" />
+							</div>
+							<div class="col-sm-9">
+								<input type="file" asp-for="DriverFile" />
+								<div>
+									<span asp-validation-for="DriverFile"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<script>
+	$(document).ready(function () {
+		$("#DriverFile")[0].onchange = onSelectedFileChange;
+		function onSelectedFileChange(e) {
+			var val = $(this).val();
+			switch (val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
+				case 'jpeg': case 'jpg': case 'png': case 'pdf': case 'docx': case 'doc': case 'xlsx': case 'xls':
+					break;
+				default:
+					$(this).val('');
+					// error message here
+					alert("Only image, PDF, DOC, and Excel files are permitted.");
+					return false;
+					break;
+			}
+		}
+	});
+</script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#Category").kendoDropDownList({
+			filter: "contains",
+			filtering: function (e) {
+				var filter = e.filter;
+			}
+		});
+	});
+</script>

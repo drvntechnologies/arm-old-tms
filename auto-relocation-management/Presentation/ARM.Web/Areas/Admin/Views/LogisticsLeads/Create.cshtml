@@ -1,0 +1,51 @@
+@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.LogisticsLead.AddNew").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Leads");
+}
+
+<form asp-controller="LogisticsLeads" asp-action="Create" method="post" id="lead-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.LogisticsLead.AddNew")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.LogisticsLead.BackToList")</a>
+            </small>
+        </h1>
+
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+        </div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+
+            @await Html.PartialAsync("_CreateOrUpdate", Model)
+            <div class="page-title-area">
+                <h4 class="mb-2">
+                    <div class="button pull-right">
+                        <button type="submit" name="save" class="btn btn-primary">
+                            <i class="far fa-save"></i>
+                            @T("Admin.Common.Save")
+                        </button>
+                        <button type="submit" name="save-continue" class="btn btn-primary">
+                            <i class="far fa-save"></i>
+                            @T("Admin.Common.SaveContinue")
+                        </button>
+                    </div>
+                </h4>
+            </div>
+        </div>
+    </section>
+</form>

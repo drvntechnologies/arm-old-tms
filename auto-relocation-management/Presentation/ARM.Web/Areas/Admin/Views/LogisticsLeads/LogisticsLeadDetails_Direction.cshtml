@@ -1,0 +1,46 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body">
+    <div class="form-group">
+        <div class="col-md-12">
+            @if (Model.GoogleAPIKeyForLocation != string.Empty)
+            {
+                <div id="map_canvas" style="height: 354px; width:100%;"></div>
+                <div class="ytJVH rreh">
+                    <div class="mGSxre Ra9ql">
+                        <div class="lMmzdb">
+                            <div class="BbbuR uc9Qxb uE1RRc">
+                                <span class="UdvAnf">
+                                    <span id="distance-time" class="iQIYjb myy6W">
+                                    </span>
+                                    <span id="road-distance">
+                                    </span>
+                                </span>
+                                <br class="AzyIKc">
+                            </div>
+                        </div>
+                        <a style="cursor:pointer" target="_blank" href="//www.google.com/maps?saddr=@(string.Format("{0}, {1}, {2}", Model.OriginCity, Model.OriginAbbreviationState, Model.OriginZip))&daddr=@(string.Format("{0}, {1}, {2}", Model.DestinationCity, Model.DestinationAbbreviationState, Model.DestinationZip))" class="w8gKwf aKK8g4cvHE5__rrenl">
+                            <div class="IKKnpb">
+                                <span class="nbuTIc tvbNF"></span>
+                                <div class="udku3">
+                                    Directions
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @T("Admin.LogisticsLeads.Direction.NoData")
+            }
+        </div>
+    </div>
+    <script type="text/javascript">
+        function LoadMap() {
+            DisplayRouteOnMap("map_canvas", "@Html.Raw(Model.OriginCity), @Html.Raw(Model.OriginAbbreviationState), @Html.Raw(Model.OriginZip)", "@Html.Raw(Model.DestinationCity), @Html.Raw(Model.DestinationAbbreviationState), @Html.Raw(Model.DestinationZip)", "#distance-time", "#road-distance");
+        }
+    </script>
+</div>

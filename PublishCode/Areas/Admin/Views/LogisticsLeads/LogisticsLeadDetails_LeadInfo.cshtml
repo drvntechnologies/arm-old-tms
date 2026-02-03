@@ -1,0 +1,114 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services
+
+<div class="card-body carrier-information">
+    <div class="form-group row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            @* <caption>@T("Admin.LogisticsLead.LeadInformation")</caption> *@
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.FirstName")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.FirstName)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.LastName")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.LastName)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.Address")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.LeadAddress)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.Phone1")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.Phone1)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.Phone2")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.Phone2)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.Email")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.Email)
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            @* <caption style="display:none;">@T("Admin.LogisticsLead.LeadInformation")</caption> *@
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.AssignedTo")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.AssignedToName)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.OriginAddress")
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.OriginAddress)
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    @T("Admin.LogisticsLead.Fields.DestinationAddress")-
+                                </div>
+                                <div class="input-name">
+                                    @Html.Raw(Model.DestinationAddress)
+                                </div>
+                            </div>
+
+                            @for (int i = 0; i < Model.LogisticsVehicleInfos.Count; i++)
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        Vehicle - V<span>@(i + 1)</span>
+                                    </div>
+                                    <div class="input-name">
+                                        <span>@Model.LogisticsVehicleInfos[i].VehicleYear <br /> @Model.LogisticsVehicleInfos[i].Make <br /> @Model.LogisticsVehicleInfos[i].VehicleModel <br /> @Model.LogisticsVehicleInfos[i].VehicleType</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

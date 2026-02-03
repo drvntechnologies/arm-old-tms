@@ -1,0 +1,380 @@
+﻿@model Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadSearchModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Leads").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Leads");
+    const string hideSearchBlockAttributeName = "LogisticsQuoteListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+<form asp-controller="LogisticsLeads" asp-action="List" method="post" id="lead-listform">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Leads")
+        </h1>
+        <div class="float-right">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+            @*  <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+            </button>*@
+            <nop-action-confirmation asp-button-id="delete-selected" />
+        </div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <script>
+                    $("#leads-grid").on("click", ".delete-lead-link", function (e) {
+                        $("#lead-delete-confirmation button[type=submit]").attr("name", $(this).attr("name"));
+                    });
+                </script>
+                <div class="cards-group">
+                    <div class="card card-default card-search">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="Shipper" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-select asp-for="Shipper" asp-items="Model.AvailableShipper" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="Email" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="Email" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="Phone1" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="Phone1" />
+                                            </div>
+                                        </div>
+                                        <script>
+                                            commonPhoneNumber("#Phone1");
+                                        </script>
+                                        <div class="Advanced-search hide">
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="FirstName" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="FirstName" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="LastName" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="LastName" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="LeadSource" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="LeadSource" />
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="OriginCity" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="OriginCity" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="OriginZip" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="OriginZip" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="OriginState" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-select asp-for="OriginState" asp-items="Model.AvailableOriginStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                            @* <div class="form-group row">
+                                            <div class="col-md-4">
+                                            <nop-label asp-for="OriginCountry" />
+                                            </div>
+                                            <div class="col-md-8">
+                                            <nop-select asp-for="OriginCountry" asp-items="Model.AvailableOriginCountries" class="form-select form-control" />
+                                            </div>
+                                            </div> *@
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="AssignedTo" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-select asp-for="AssignedTo" asp-items="Model.AvailableAssignedTo" class="form-select form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="ShipperCompany" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="ShipperCompany" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <span>
+                                                    <a href="#" id="advanced-btn">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</a>
+                                                </span>
+                                                @* <button id="advanced-btn" type="button">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</button> *@
+                                            </div>
+                                        </div>
+                                        <div class="Advanced-search hide">
+
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="Phone2" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="Phone2" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="DestinationCity" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="DestinationCity" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="DestinationZip" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-editor asp-for="DestinationZip" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <nop-label asp-for="DestinationState" />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <nop-select asp-for="DestinationState" asp-items="Model.AvailableDestinationStates" class="form-select form-control" />
+                                                </div>
+                                            </div>
+                                            @* <div class="form-group row">
+                                            <div class="col-md-4">
+                                            <nop-label asp-for="DestinationCountry" />
+                                            </div>
+                                            <div class="col-md-8">
+                                            <nop-select asp-for="DestinationCountry" asp-items="Model.AvailableDestinationCountries" class="form-select form-control" />
+                                            </div>
+                                            </div> *@
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-leads" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                        <button type="button" id="lead-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Clear")
+                                        </button>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#lead-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default">
+                        <div class="card-body">
+
+                            @await Html.PartialAsync("Table", new DataTablesModel
+                            {
+                            Ordering = true,
+                            Order = "0,'desc'",
+                            Targets = "6,7,8",
+                            Orderable = false,
+                            Name = "leads-grid",
+                            PrimaryKeyColumn = nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id),
+                            UrlRead = new DataUrl("LogisticsLeadList", "LogisticsLeads", null),
+                            //UrlDelete = new DataUrl("LeadDelete", "LogisticsLeads", null),
+                            SearchButtonId = "search-leads",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                            new FilterParameter(nameof(Model.LeadId)),
+                            new FilterParameter(nameof(Model.LeadSource)),
+                            new FilterParameter(nameof(Model.AssignedTo)),
+                            new FilterParameter(nameof(Model.Shipper)),
+                            new FilterParameter(nameof(Model.ShipperCompany)),
+                            new FilterParameter(nameof(Model.FirstName)),
+                            new FilterParameter(nameof(Model.LastName)),
+                            new FilterParameter(nameof(Model.Email)),
+                            new FilterParameter(nameof(Model.Phone1)),
+                            new FilterParameter(nameof(Model.Phone2)),
+                            new FilterParameter(nameof(Model.OriginCity)),
+                            new FilterParameter(nameof(Model.OriginState)),
+                            new FilterParameter(nameof(Model.OriginZip)),
+                            //new FilterParameter(nameof(Model.OriginCountry)),
+                            new FilterParameter(nameof(Model.DestinationCity)),
+                            new FilterParameter(nameof(Model.DestinationState)),
+                            new FilterParameter(nameof(Model.DestinationZip))
+                            //new FilterParameter(nameof(Model.DestinationCountry))
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id))
+                            {
+                            Title = T("Admin.LogisticsLeads.List.LeadId").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderLink(new DataUrl("LogisticsLeadDetails", nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id)))
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.ShipperName))
+                            {
+                            Title = T("Admin.LogisticsLead.List.Shipper").Text
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.AssignedToName))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.AssignedTo").Text
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.LeadSource))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.LeadSource").Text,
+                            Width = "100"
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.ShipperCompany))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.ShipperCompany").Text,
+                            Width = "100"
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.OriginAddress))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.OriginAddress").Text,
+                            Width = "100"
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.DestinationAddress))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.DestinationAddress").Text,
+                            Width = "100"
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Leadstatus))
+                            {
+                            Title = T("Admin.LogisticsLead.Fields.Leadstatus").Text,
+                            Width = "100"
+                            },
+                            // new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id))
+                            // {
+                            // Title = T("Admin.Common.View").Text,
+                            // Width = "100",
+                            // ClassName = NopColumnClassDefaults.Button,
+                            // Render = new RenderButtonView(new DataUrl("~/Admin/LogisticsLeads/LogisticsLeadDetails/"))
+                            // },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id))
+                            {
+                            Title = T("Admin.Common.Action").Text,
+                            Width = "100",
+                            ClassName = NopColumnClassDefaults.Button,
+                            Render = new RenderCustom("renderColumnEditDelete")
+                            },
+                            // new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsLeads.LogisticsLeadModel.Id))
+                            // {
+                            // Title = T("Admin.Common.Delete").Text,
+                            // Width = "100",
+                            // Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+                            // ClassName = NopColumnClassDefaults.Button
+                            // }
+                            }
+                            })
+                        </div>
+
+                        <div id="lead-delete-confirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lead-delete-confirmation-title" style="display: none;">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title" id="leaddelete-confirmation-title">@T("Admin.Common.AreYouSure")</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    </div>
+                                    <div class="form-horizontal">
+                                        <div class="modal-body">
+                                            @T("Admin.Common.DeleteConfirmation")
+                                        </div>
+                                        <div class="modal-footer">
+                                            <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                                            <button type="submit" class="btn btn-danger float-right">@T("Admin.Common.Delete")</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnRefreshlogisticsLead" style="display: none"></button>
+                        <script>
+                            $(document).ready(function () {
+                                $('#btnRefreshlogisticsLead').click(function () {
+                                    //refresh grid
+                                    updateTable('#leads-grid');
+
+                                    //return false to don't reload a page
+                                    return false;
+                                });
+                            });
+                        </script>
+                        <script asp-location="Footer">
+                            function renderColumnEditDelete(data, type, row, meta) {
+                                return '<a class=\"btn btn-default\" href=\"Edit/' + data + '\"><i class=\"fas fa-pencil-alt\"  title="Edit"></i>Edit</a><a name="delete-lead-link-' + data + '" class="btn btn-default delete-lead-link" data-toggle="modal" data-target"="#lead-delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#advanced-btn").click(function () {
+            $('.Advanced-search.hide').toggle(500);
+            //$('.Advanced-search.hide').removeClass('hide');
+        });
+    });
+</script>

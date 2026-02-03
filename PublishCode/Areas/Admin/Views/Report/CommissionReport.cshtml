@@ -1,0 +1,199 @@
+﻿@model CommissionReportSearchModel
+
+@inject ICustomerService customerService
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Commission.Reports").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Commission report");
+}
+
+@{
+    const string hideCommissionReportAttributeName = "CommissionReportPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideCommissionReportAttributeName);
+
+    var customer = await workContext.GetCurrentCustomerAsync();
+    bool isAdmin = await customerService.IsAdminAsync(customer);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Commission.Reports")
+    </h1>
+    <div class="float-right">
+        &nbsp;
+    </div>
+</div>
+
+<section class="content commission-report">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+
+                @if (isAdmin)
+                {
+                    <div class="card card-default card-search">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideCommissionReportAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">                                
+                               
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <nop-label asp-for="SearchCustomerId" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-select class="form-select" asp-for="SearchCustomerId" asp-items="Model.AvailableCustomers" />
+                                                <script>
+                                                    $(document).ready(function () {
+                                                        $('#@Html.IdFor(model => model.SearchCustomerId)').kendoDropDownList({
+                                                            filter: "contains",
+                                                            filtering: function (e) {
+                                                                var filter = e.filter;
+                                                            }
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <div class="label-wrapper">
+                                                    <label class="col-form-label" asp-for="SearchFromDate">
+                                                        @T("Admin.Reports.CommissionReport.CommissionReportSearchModel.Field.SearchFromDate")
+                                                        <i class="fas fa-info-circle tooltip-icon">
+                                                            <span class="custom-tooltip">
+                                                                @T("Admin.Reports.CommissionReport.FromAndToDate.FilterNote")
+                                                            </span>
+                                                        </i>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="SearchFromDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-4">
+                                        <div class="form-group row">
+                                            <div class="col-md-12">
+                                                <div class="label-wrapper">
+                                                    <label class="col-form-label" asp-for="SearchToDate">
+                                                        @T("Admin.Reports.CommissionReport.CommissionReportSearchModel.Field.SearchToDate")
+                                                        <i class="fas fa-info-circle tooltip-icon">
+                                                            <span class="custom-tooltip">
+                                                                @T("Admin.Reports.CommissionReport.FromAndToDate.FilterNote")
+                                                             </span>
+                                                        </i>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <nop-editor asp-for="SearchToDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-commission-report" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                        <button type="button" id="commission-report-btncancel" class="btn btn-primary btn-cancel-search">
+                                            <i class="fas fa-times"></i>
+                                            @T("Admin.Common.Clear")
+                                        </button>
+                                    </div>
+                                    <script>
+                                        cancelSearch("#commission-report-btncancel");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+                
+                <div class="card card-default d-datatable d-card m-0">
+                    <div class="card-body">
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "commission-report-grid",
+                            UrlRead = new DataUrl("CommissionReportList", "Report", null),
+                            SearchButtonId = "search-commission-report",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes, 
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.SearchFromDate)),
+                                new FilterParameter(nameof(Model.SearchToDate)),
+                                new FilterParameter(nameof(Model.SearchCustomerId)),
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(CommissionReportModel.CommissionId))
+                                {   
+                                    Visible = false,
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.CustomerName))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.CustomerName").Text,
+                                    Render = new RenderLink(new DataUrl("~/Admin/Report/CommissionReportDetails", nameof(CommissionReportModel.CommissionId))),
+                                    Width = "180",
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.TotalOrders))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.TotalOrders").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.TotalPriceValue))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.TotalPrice").Text,                                    
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.CarrierPayValue))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.CarrierPay").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.OrdersTotalAPValue))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.OrdersTotalAPValue").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                },
+                                new ColumnProperty(nameof(CommissionReportModel.MarginValue))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.Margin").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                },                                
+                                new ColumnProperty(nameof(CommissionReportModel.TotalCommisionValue))
+                                {
+                                    Title = T("Admin.Reports.CommissionReport.Fields.TotalCommision").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                }                               
+                            }
+                        })
+
+                        <script>
+                            $("#SearchFromDate").attr("placeholder", "Select From Date");
+                            $("#SearchToDate").attr("placeholder", "Select To Date");
+                        </script>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

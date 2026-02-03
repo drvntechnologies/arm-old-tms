@@ -1,0 +1,267 @@
+﻿@model LogisticsOrderCarrierMappingModel
+
+<div class="row">
+	<div class="col-md-12 mt-3">
+		<div class="card detail-info-card order-driver mb-1">
+
+			<div class="card-header with-border clearfix d-flex align-items-center flex-wrap">
+				<div class="card-title w-auto">
+					<i class="far fa-regular fa-id-card"></i>
+					@T("Admin.carriers.carrier.Drivers")
+				</div>
+				<a class="btn btn-primary ml-auto" href="#" id="addnew-driver">@T("Admin.Orders.Carrier.Driver.Button.Addnew")</a>
+			</div>
+			<div class="card-body">
+				<input asp-for="DriverId" type="hidden" />
+				<div class="content" id="driver-info-card-section" style="display:none;">
+					<div class="form-horizontal">
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DriverModel.FirstName" asp-required="Model.DriverModel.FirstNameRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DriverModel.FirstName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+								<span asp-validation-for="DriverModel.FirstName"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DriverModel.LastName" asp-required="Model.DriverModel.LastNameRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DriverModel.LastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+								<span asp-validation-for="DriverModel.LastName"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DriverModel.Email" asp-required="Model.DriverModel.EmailRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DriverModel.Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+								<span asp-validation-for="DriverModel.Email"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DriverModel.PhoneNumber" asp-required="Model.DriverModel.PhoneNumberRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DriverModel.PhoneNumber" />
+								<span asp-validation-for="DriverModel.PhoneNumber"></span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="text-center col-12">
+								<button type="button" id="save-driver" class="btn btn-primary btn-search">
+									<i class="far fa-save"></i>
+									@T("Admin.Common.Save")
+								</button>
+								<button type="button" id="driver-btncancel" class="btn btn-primary btn-cancel-search">
+									<i class="fas fa-times"></i>
+									@T("Admin.Common.Cancel")
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					commonPhoneNumber("#DriverModel_PhoneNumber");
+					removeSpecialCharactersAndNumber("#DriverModel_FirstName, #DriverModel_LastName");
+					enforceLowerCase("#DriverModel_Email");
+
+					$(document).on('click', "#addnew-driver", function (e) {
+						e.preventDefault();
+						$("#driver-info-card-section").slideDown();
+						$(this).hide();
+
+						$('#save-driver').attr('disabled', false);
+					});
+
+					$(document).on('click', "#driver-btncancel", function (e) {
+						e.preventDefault();
+						$("#driver-info-card-section").slideUp();
+						$("#addnew-driver").show();
+						//clear input value
+						$("#@Html.IdFor(model => model.DriverModel.FirstName)").val('');
+						$("#@Html.IdFor(model => model.DriverModel.LastName)").val('');
+						$("#@Html.IdFor(model => model.DriverModel.PhoneNumber)").val('');
+						$("#@Html.IdFor(model => model.DriverModel.Email)").val('');
+
+						//clear validation
+						$('span[data-valmsg-for="DriverModel.FirstName"]').hide();
+						$('span[data-valmsg-for="DriverModel.LastName"]').hide();
+						$('span[data-valmsg-for="DriverModel.PhoneNumber"]').hide();
+						$('span[data-valmsg-for="DriverModel.Email"]').hide();
+
+						$('#save-driver').attr('disabled', false);
+					});
+
+					$(document).on('input', "#DriverModel_FirstName, #DriverModel_LastName, #DriverModel_Email, #DriverModel_PhoneNumber", function () {
+						var name = $(this).attr('name');
+						let value = $(this).val();
+						var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+						if (!value || value.trim() == "") {
+							validationSpan.show();
+						} else {
+							validationSpan.hide();
+						}
+					});
+
+					$('#save-driver').click(function () {
+						$('#save-driver').attr('disabled', true);
+
+						let isValid = true;
+
+						var firstNameValue = $("#@Html.IdFor(model => model.DriverModel.FirstName)").val();
+						if (!firstNameValue || firstNameValue.trim() == "") {
+							let message = "@T("Admin.LogisticsDrivers.FirstName.Required")";
+							var validationSpan = $('span[data-valmsg-for="DriverModel.FirstName"]');
+							validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverModel.FirstName-error" class="">${message}</span>`).show();
+							isValid = false;
+						}
+
+						var lastNameValue = $("#@Html.IdFor(model => model.DriverModel.LastName)").val();
+						// if(!lastNameValue  || lastNameValue .trim() == "") {
+						//     let message = "@T("Admin.LogisticsDrivers.LastName.Required")";
+						//     var validationSpan = $('span[data-valmsg-for="DriverModel.LastName"]');
+						//     validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverModel.LastName-error" class="">${message}</span>`).show();
+						//     isValid = false;
+						// }
+
+						var phoneNumberValue = $("#@Html.IdFor(model => model.DriverModel.PhoneNumber)").val();
+						if (!phoneNumberValue || phoneNumberValue.trim() == "") {
+							let message = "@T("Admin.LogisticsDrivers.Phone.Required")";
+							var validationSpan = $('span[data-valmsg-for="DriverModel.PhoneNumber"]');
+							validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverModel.PhoneNumber-error" class="">${message}</span>`).show();
+							isValid = false;
+						}
+
+						var emailValue = $("#@Html.IdFor(model => model.DriverModel.Email)").val();
+						// if (!emailValue || emailValue.trim() == "") {
+						//     let message = "@T("Admin.LogisticsDrivers.Email.Required")";
+						//     var validationSpan = $('span[data-valmsg-for="DriverModel.Email"]');
+						//     validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DriverModel.Email-error" class="">${message}</span>`).show();
+						//     isValid = false;
+						// }
+
+						if (!isValid) {
+							$('#save-driver').attr('disabled', false);
+							return false;
+						}
+
+						var postData = {
+							FirstName: firstNameValue,
+							LastName: lastNameValue,
+							PhoneNumber: phoneNumberValue,
+							Email: emailValue,
+							CarrierId: "@Model.CarrierId",
+						};
+						addAntiForgeryToken(postData);
+
+						$.ajax({
+							cache: false,
+							type: "POST",
+							url: "@Html.Raw(Url.Action("CreateDriver", "Order", null))",
+							data: postData,
+							success: function (data, textStatus, jqXHR) {
+								if (data.Result) {
+									//reload grid
+									updateTable('#drivers-grid');
+									$("#DriverId").val(data.DriverId);
+
+									const driverInterval = setInterval(function(){
+										const $driver = $(`input[name='checkbox_driver'][value='${data.DriverId}']`);
+
+										if ($driver.length > 0){
+											$(`input[name='checkbox_driver']`).prop('checked', false);
+											$driver.prop('checked', true);
+
+											clearInterval(driverInterval);
+											return false;
+										}
+									},250);
+
+									$("#driver-info-card-section").slideUp();
+									$("#addnew-driver").show();
+
+									//clear input value
+									$("#@Html.IdFor(model => model.DriverModel.FirstName)").val('');
+									$("#@Html.IdFor(model => model.DriverModel.LastName)").val('');
+									$("#@Html.IdFor(model => model.DriverModel.PhoneNumber)").val('');
+									$("#@Html.IdFor(model => model.DriverModel.Email)").val('');
+								} else {
+									//display errors if returned
+									display_nop_error(data);
+								}
+							},
+							complete: function (jqXHR, textStatus) {
+								$('#save-driver').attr('disabled', false);
+							}
+						});
+					});
+				</script>
+				<div class="card card-default d-datatable order-detail-driver-tbl d-datatable-small mb-0">
+					<div class="card-body">
+						@await Html.PartialAsync("Table", new DataTablesModel
+						{
+							Name = "drivers-grid",
+							UrlRead = new DataUrl("LogisticsDriversList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsDriversSearchModel.CarrierId)] = Model.DriverModel.CarrierId }),
+							Length = Model.LogisticsDriversSearchModel.PageSize,
+							LengthMenu = Model.LogisticsDriversSearchModel.AvailablePageSizes,
+							ColumnCollection = new List<ColumnProperty>
+							{
+								new ColumnProperty(nameof(LogisticsDriversModel.Id))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Drivers.SelectOne").Text,
+									Render = new RenderCustom("checkboxDriver"),
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Width = "70"
+								},
+								new ColumnProperty(nameof(LogisticsDriversModel.Name))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Name").Text,
+									Width = "110"
+								},
+								new ColumnProperty(nameof(LogisticsDriversModel.Phone))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Phone").Text,
+									Width = "100"
+								},
+								new ColumnProperty(nameof(LogisticsDriversModel.Email))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Drivers.Fields.Email").Text,
+									Width = "120"
+								}
+							}
+						})
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function checkboxDriver(data, type, row, meta){
+		return '<input name="checkbox_driver" value="'+ row.Id +'" type="radio">';
+	}
+
+	$(document).on('click', "input[name='checkbox_driver']", function() {
+		$("input[name='checkbox_driver']").prop('checked', false);
+		$(this).prop('checked', true);
+		$("#DriverId").val($(this).val());
+	});
+
+	// let hasRefreshDriverGrid = false;
+
+	// setInterval(function () {
+	// 	if(hasRefreshDriverGrid) return false;
+
+	// 	if($("#drivers-grid_info").text()){
+	// 			updateTable('#drivers-grid');
+	// 			hasRefreshDriverGrid = true;
+	// 	}
+	// }, 50);
+</script>

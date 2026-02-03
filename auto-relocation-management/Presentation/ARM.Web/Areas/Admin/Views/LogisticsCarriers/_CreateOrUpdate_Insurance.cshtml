@@ -1,0 +1,493 @@
+﻿@model LogisticsCarriersModel
+
+@{
+    var isCarrierDetailPage = Convert.ToBoolean(ViewData["IsCarrierDetailPage"] ?? false);
+}
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        if (!isCarrierDetailPage)
+        {
+            <div class="card-header with-border clearfix d-flex align-items-center">
+                <div class="ml-auto">
+                    <button type="button" id="create-insurance" class="btn btn-primary">
+                        <i class="fa fa-plus"></i>
+                        @T("Admin.Carrier.Insurance.AddInsurance")
+                    </button>
+                </div>
+            </div>
+        }
+        <div class="card d-datatable m-0">
+            @await Html.PartialAsync("Table", new DataTablesModel
+            {
+                Name = "insurance-grid",
+                UrlRead = new DataUrl("CarrierInsuranceList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.CarrierInsuranceSearchModel.CarrierId)] = Model.Id }),
+                Length = Model.CarrierInsuranceSearchModel.PageSize,
+                LengthMenu = Model.CarrierInsuranceSearchModel.AvailablePageSizes,
+                ColumnCollection = new List<ColumnProperty>
+                {
+                    new ColumnProperty(nameof(CarrierInsuranceModel.CertificateId))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.CertificateId").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.InsurerName))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.InsurerName").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.PolicyNumber))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.PolicyNumber").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.Type))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.Type").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.CoverageLimitAmount))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.CoverageLimit").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.ExpirationDateValue))
+                    {
+                        Title = T("Admin.CarrierInsurance.Fields.ExpirationDate").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierInsuranceModel.Id))
+                    {
+                        Title = T("Admin.Common.Action").Text,
+                        Width = "100",
+                        ClassName = NopColumnClassDefaults.Button,
+                        Render = new RenderCustom("renderInsuranceColumnEditDelete")
+                    }
+                }
+            })
+            <script>
+                function renderInsuranceColumnEditDelete(data, type, row, meta) {
+                    return '<button type="button" data-insurance-id="' + data + '" class="btn btn-default edit-insurance"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                }
+
+                $("#insurance-grid").on("click", ".delete-link", function (e) {
+                    const id = $(this).attr("data-deleteId");
+                    $("#delete-id").val(id);
+                    $("#delete-id").attr("data-url", "@Url.Action("CarrierInsuranceDelete")")
+                                    .attr("data-tableId", "insurance-grid");
+                });
+            </script>
+        </div>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.Carriers.Insurance.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="insurance-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="insurance-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="insurance-add-popup-title">@T("Admin.Carrier.Insurance.AddNewInsurance")</h4>
+                    <button type="button" class="close" id="close-insurance-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="InsuranceId" name="InsuranceId" type="hidden" />
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="CertificateId">@T("Admin.CarrierInsurance.Fields.CertificateId")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="CertificateId" name="CertificateId" type="text" placeholder="Enter Certificate Id" />
+                                    <span class="field-validation-valid" data-valmsg-for="CertificateId" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="InsurerName">@T("Admin.CarrierInsurance.Fields.InsurerName")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="InsurerName" name="InsurerName" type="text" placeholder="Enter Company Name" />
+                                    <span class="field-validation-valid" data-valmsg-for="InsurerName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="PolicyNumber">@T("Admin.CarrierInsurance.Fields.PolicyNumber")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="PolicyNumber" name="PolicyNumber" type="text" placeholder="Enter Policy Number" />
+                                    <span class="field-validation-valid" data-valmsg-for="PolicyNumber" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="InsuranceType">@T("Admin.CarrierInsurance.Fields.Type")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <select class="form-select form-control no-kendo" id="InsuranceType" name="InsuranceType">
+                                    </select>
+                                    <span class="field-validation-valid" data-valmsg-for="InsuranceType" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="InsurancePhoneNumber">@T("Admin.CarrierInsurance.Fields.PhoneNumber")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="InsurancePhoneNumber" name="InsurancePhoneNumber" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="InsurancePhoneNumber" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="EffectiveDate">@T("Admin.CarrierInsurance.Fields.EffectiveDate")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="EffectiveDate" name="EffectiveDate" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="EffectiveDate" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="ExpirationDate">@T("Admin.CarrierInsurance.Fields.ExpirationDate")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="ExpirationDate" name="ExpirationDate" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="ExpirationDate" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="CoverageLimit">@T("Admin.CarrierInsurance.Fields.CoverageLimit")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="CoverageLimit" name="CoverageLimit" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="CoverageLimit" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="Deductible">@T("Admin.CarrierInsurance.Fields.Deductible")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="Deductible" name="Deductible" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="Deductible" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="InsuranceNotes">@T("Admin.CarrierInsurance.Fields.Notes")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <textarea class="form-control" placeholder="Enter Insurance Notes" rows="4" cols="20" id="InsuranceNotes" name="InsuranceNotes"></textarea>
+                                    <span class="field-validation-valid" data-valmsg-for="InsuranceNotes" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="field-validation-error" id="add-edit-insurance-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-insurance" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#InsurancePhoneNumber");
+        $("#EffectiveDate").attr("placeholder", "Select Effective Date");
+        $("#ExpirationDate").attr("placeholder", "Select Expiration Date");
+
+        const dropdownDataForInsurance = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AvailableInsuranceType));
+
+        $("#InsuranceType").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: dropdownDataForInsurance,
+        });
+
+        function setKendoDatePicker(id){
+            $("#"+id).kendoDatePicker({
+                format: "MMM dd, yyyy",
+                culture: "en-US",
+            });
+        }
+
+        function setKendoDecimalDollar(id){
+            try {
+                    $("#" + id).kendoNumericTextBox({
+                        decimals: 2,
+                        restrictDecimals: false,
+                        format: "c2",
+                        @* min: 0, *@
+                        spinners: false
+                    }).focus(function () {
+                        if ($(this).data("kendoNumericTextBox").value() == 0) {
+                            $(this).data("kendoNumericTextBox").value('');
+                        }
+                        else {
+                            var input = $(this).data("kendoNumericTextBox").element[0];
+                            setTimeout(function () {
+                                input.setSelectionRange(input.value.length, input.value.length);
+                            }, 0);
+                        }
+                    }).blur(function () {
+                        if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+                            $(this).data("kendoNumericTextBox").value(0);
+                        }
+                    });
+            }
+            catch {
+            }
+        }
+
+        setKendoDatePicker("ExpirationDate");
+        setKendoDatePicker("EffectiveDate");
+        setKendoDecimalDollar("CoverageLimit");
+        setKendoDecimalDollar("Deductible");
+
+        function resetInsuranceForm() {
+            $("#CertificateId").val("");
+            $("#InsuranceId").val("");
+            $("#InsurerName").val("");
+            $("#PolicyNumber").val("");
+            $("#InsuranceType").data("kendoDropDownList").value("");
+            $("#InsurancePhoneNumber").val("");
+            $("#EffectiveDate").val("");
+            $("#ExpirationDate").val("");
+            $("#CoverageLimit").data("kendoNumericTextBox").value(0);
+            $("#Deductible").data("kendoNumericTextBox").value(0);
+            $("#InsuranceNotes").val("");
+
+            $('span[data-valmsg-for="CertificateId"]').hide();
+            $('span[data-valmsg-for="InsurerName"]').hide();
+            $('span[data-valmsg-for="PolicyNumber"]').hide();
+            $('span[data-valmsg-for="InsuranceType"]').hide();
+            $('span[data-valmsg-for="InsurancePhoneNumber"]').hide();
+            $('span[data-valmsg-for="EffectiveDate"]').hide();
+            $('span[data-valmsg-for="ExpirationDate"]').hide();
+            $('span[data-valmsg-for="CoverageLimit"]').hide();
+            $('span[data-valmsg-for="Deductible"]').hide();
+            $('span[data-valmsg-for="InsuranceNotes"]').hide();
+            $("#add-edit-insurance-errorMessages").html("");
+        }
+
+        $(function () {
+            $('#save-insurance').click(function () {
+                $('#save-insurance').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id =  $("#InsuranceId");
+                const $insuranceCertificateId = $("#CertificateId");
+                const $insuranceName = $("#InsurerName");
+                const $insuranceNumber = $("#PolicyNumber");
+                const $insuranceType = $("#InsuranceType");
+                const $insurancePhone = $("#InsurancePhoneNumber");
+                const $insuranceEffectiveDate = $("#EffectiveDate");
+                const $insuranceExpirationDate = $("#ExpirationDate");
+                const $insuranceCoverageLimit = $("#CoverageLimit");
+                const $insuranceDeductible = $("#Deductible");
+                const $insuranceInsuranceNotes = $("#InsuranceNotes");
+
+                let certificateId = $insuranceCertificateId.val();
+                let name = $insuranceName.val();
+				let number = $insuranceNumber.val();
+				let type = $insuranceType.val();
+				let phone = $insurancePhone.val();
+				let effectiveDate = $insuranceEffectiveDate.val();
+				let expirationDate = $insuranceExpirationDate.val();
+				let coverageLimit = $insuranceCoverageLimit.val();
+				let deductible = $insuranceDeductible.val();
+				let notes = $insuranceInsuranceNotes.val();
+
+                if (!certificateId || certificateId.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.CertificateId.Required")";
+                    var validationSpan = $('span[data-valmsg-for="CertificateId"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="CertificateId-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!name || name.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.CompanyName.Required")";
+                    var validationSpan = $('span[data-valmsg-for="InsurerName"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="InsurerName-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!number || number.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.PolicyNumber.Required")";
+                    var validationSpan = $('span[data-valmsg-for="PolicyNumber"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="PolicyNumber-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!type || type.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.InsuranceType.Required")";
+                    var validationSpan = $('span[data-valmsg-for="InsuranceType"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="InsuranceType-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!effectiveDate || effectiveDate.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.EffectiveDate.Required")";
+                    var validationSpan = $('span[data-valmsg-for="EffectiveDate"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="EffectiveDate-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!expirationDate || expirationDate.trim() == "") {
+                    let message = "@T("Admin.Carriers.Insurance.ExpirationDate.Required")";
+                    var validationSpan = $('span[data-valmsg-for="ExpirationDate"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="ExpirationDate-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!coverageLimit || coverageLimit.trim() == "" || coverageLimit <= 0) {
+                    let message = "@T("Admin.Carriers.Insurance.CoverageLimit.Required")";
+                    var validationSpan = $('span[data-valmsg-for="CoverageLimit"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="CoverageLimit-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    $('#save-insurance').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    CarrierId: "@Model.Id",
+                    DOTNumber: "@Model.DOTNumber",
+                    Id: $id.val(),
+                    CertificateId: certificateId,
+                    InsurerName: name,
+                    PolicyNumber: number,
+                    Type: type,
+                    EffectiveDate: effectiveDate,
+                    ExpirationDate: expirationDate,
+                    PhoneNumber: phone,
+                    CoverageLimit: coverageLimit,
+                    Deductible: deductible,
+                    Notes: notes
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("CarrierInsuranceCreate", "LogisticsCarriers", null))";
+                if($id.val() > 0){
+                    url = "@Html.Raw(Url.Action("CarrierInsuranceEdit", "LogisticsCarriers", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#insurance-grid');
+
+                            $("#close-insurance-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";
+                            $.each(data.error, function (key, value) {
+                                if (value.errors) {
+                                    $.each(value.errors, function (index, error) {
+                                        errorMessages += "<p class='m-0'>" + error +"</p>";
+                                    });
+                                }
+                            });
+
+                            $("#add-edit-insurance-errorMessages").html(errorMessages);
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-insurance').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $(document).on('click', "#close-insurance-add-popup",function () {
+            resetInsuranceForm();
+            $("#insurance-add-popup").modal('hide');
+        });
+
+        $(document).on('input change', "#InsurerName, #PolicyNumber, #InsuranceType, #EffectiveDate, #ExpirationDate, #CoverageLimit", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-insurance", function(e){
+            e.preventDefault();
+            $("#insurance-add-popup-title").text("@T("Admin.Carrier.Insurance.AddNewInsurance")");
+            resetInsuranceForm();
+            $("#insurance-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-insurance", function(e){
+            e.preventDefault();
+            $("#add-edit-insurance-errorMessages").html("");
+            var insuranceId = $(this).attr('data-insurance-id');
+            if (insuranceId > 0){
+                $("#insurance-add-popup-title").text("@T("Admin.Carrier.Insurance.EditInsurance")");
+                $.get("@Html.Raw(Url.Action("CarrierInsuranceEdit", "LogisticsCarriers"))", { id: insuranceId }, function (data) {
+                    if(data.Result){
+
+                        $("#InsuranceId").val(data.Id);
+                        $("#CertificateId").val(data.CertificateId);
+                        $("#InsurerName").val(data.InsurerName);
+                        $("#PolicyNumber").val(data.PolicyNumber);
+                        $("#InsuranceType").data("kendoDropDownList").value(data.Type);
+                        $("#InsurancePhoneNumber").val(data.PhoneNumber);
+                        $("#EffectiveDate").val(data.EffectiveDate);
+                        $("#ExpirationDate").val(data.ExpirationDate);
+                        $("#CoverageLimit").data("kendoNumericTextBox").value(data.CoverageLimit);
+                        $("#Deductible").data("kendoNumericTextBox").value(data.Deductible);
+                        $("#InsuranceNotes").val(data.Notes);
+
+                        $("#insurance-add-popup").modal('show');
+                    }
+                    else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

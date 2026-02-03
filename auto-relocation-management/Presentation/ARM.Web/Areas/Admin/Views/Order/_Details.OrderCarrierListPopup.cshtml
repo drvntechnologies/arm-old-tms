@@ -1,0 +1,377 @@
+﻿@model OrderCarrierListModel
+@using Nop.Web.Areas.Admin.Models.LogisticsCarriers
+@{
+    const string hideSearchBlockAttributeName = "LogisticsCarriersListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<div class="card detail-info-card d-card">
+    <div class="card-header with-border clearfix d-flex align-items-center">
+        <div class="card-title">
+            <i class="fas fa-truck"></i>
+            @T("Admin.Orders.Carrier.Section.Title")
+        </div>
+    </div>
+     <div class="card-body">
+        <div class="row d-form">
+            <div class="col-lg-6 col-xl-4">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="CompanyLegalName" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="CompanyLegalName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                    </div>
+                </div>
+            </div>
+             <div class="col-lg-6 col-xl-4">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="DOTNumber" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="DOTNumber" html-attributes="@(new { placeholder = "Enter DOT Number" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-4">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="MCNumber" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="MCNumber" html-attributes="@(new { placeholder = "Enter MC Number" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-12 mt-3">
+                <div class="form-group text-center mb-0">                    
+                    <button type="button" id="search-carriers" class="btn btn-primary ">
+                        <i class="fas fa-search" aria-hidden="true"></i>&nbsp;
+                        @T("Admin.Common.Search")
+                    </button>        
+                    <button type="button" id="order-btncancel" class="btn btn-primary">
+                        <i class="fas fa-times"></i>
+                        @T("Admin.Common.Clear")
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="border rounded-3 border-theme-yellowColor my-3 p-2">
+            <div class="card card-default d-datatable mb-0">
+                <div class="card-body">
+                    @await Html.PartialAsync("Table", new DataTablesModel
+                    {
+                        UrlRead = new DataUrl("CarriersList", "Order", null),
+                        Name = "carriers-list",
+                        SearchButtonId = "search-carriers",
+                        Length = Model.LogisticsCarriersSearchModel.PageSize,
+                        LengthMenu = Model.LogisticsCarriersSearchModel.AvailablePageSizes,
+                        Filters = new List<FilterParameter>
+                        {
+                            new FilterParameter(nameof(Model.CompanyLegalName)),
+                            new FilterParameter(nameof(Model.MCNumber)),
+                            new FilterParameter(nameof(Model.DOTNumber)),
+                            new FilterParameter(nameof(Model.Preference)),
+                        },
+                        ColumnCollection = new List<ColumnProperty>
+                        {
+                            new ColumnProperty(nameof(LogisticsCarriersModel.CompanyLegalName))
+                            {
+                                Title = T("LogisticsCarrier.Application.Fields.CompanyLegalName").Text,
+                                Encode=false,
+                                Width = "100"
+                            },
+                            new ColumnProperty(nameof(LogisticsCarriersModel.DOTNumber))
+                            {
+
+                                Title = $"<span class='d-th'>{T("LogisticsCarrier.Application.Fields.DOTNumber").Text}</span>",
+                                Width = "100"
+                            },
+                            new ColumnProperty(nameof(LogisticsCarriersModel.MCNumber))
+                            {
+                                Title = $"<span class='d-th'>{T("LogisticsCarrier.Application.Fields.ICCNumberMC").Text}</span>",
+                                Width = "100"
+                            },
+                            new ColumnProperty(nameof(Nop.Web.Areas.Admin.Models.LogisticsCarriers.LogisticsCarriersModel.Location))
+                            {
+                                Title = T("LogisticsCarrier.Application.Fields.Location").Text,
+                                Encode=false,
+                                Width = "100"
+                            },
+                            new ColumnProperty(nameof(LogisticsCarriersModel.Id))
+                            {
+                                Title = "",
+                                Width = "50",
+                                Render = new RenderCustom("renderColumnSelectCarrier")
+                            }
+                        }
+                    })
+                    </div>
+                </div>
+
+            <div class="col-md-12">
+                <div class="row">
+                    <div id="driver-information" class="col-xl-6">
+                    </div>
+                    <div id="dispatcher-information" class="col-xl-6">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex w-100 justify-content-end my-3">
+            <button type="button" id="submit-carriers" disabled class="btn btn-primary ml-auto">
+                @T("Admin.Common.Submit")
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="Carrier-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="carrier-confirmation-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="carrier-confirmation-title">@T("Admin.Orders.Carrier.Section.Popup.Confirmation.Title")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    <div class="field-validation-error" id="custom-error-notification"></div>
+                    <div class="form-group row">
+                        <div class="col-md-5">
+                            <nop-label asp-for="DispatchInstructions" />
+                        </div>
+                        <div class="col-md-7">
+                            <nop-textarea asp-for="DispatchInstructions" />
+                            <span asp-validation-for="DispatchInstructions"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button type="button" class="btn btn-primary" id="save-carriers">
+                       @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let carrierId = 0;
+
+    function renderColumnSelectCarrier(data, type, row, meta) {
+        return '<button type="button" class="btn btn-primary openNewPopup" data-id="' + row.Id + '">@T("Admin.Order.Carrier.button.SelectCarrier").Text</button>';
+    }
+
+    function showCustomErrorNotificationPopup(message = ""){
+        $("#custom-error-notification").html(message);
+    }
+
+    $('#CompanyLegalName, #DOTNumber, #MCNumber').on('keydown', function (event) {
+        const isEnterKey = event.key === "Enter" || event.which === 13 || event.keyCode === 13;
+
+        if (isEnterKey) {
+            event.preventDefault();
+            $('#search-carriers').click();
+        }
+    });
+
+    $("#search-carriers").click(function(e){
+        carrierId = 0;
+        $("#driver-information").html("");
+        $("#dispatcher-information").html("");
+        $("#submit-carriers").prop('disabled', true);
+    });
+
+    $("#order-btncancel").on('click', function(){
+        $("#CompanyLegalName").val('');
+        $("#DOTNumber").val('');
+        $("#MCNumber").val('');
+
+        $('#search-carriers').click();
+    });
+
+    $("#submit-carriers").click(function(e){
+        e.preventDefault();
+
+        if (carrierId <= 0){
+            showErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Carrier.Required")");
+            return false;
+        }
+        
+        let driverId = $("#DriverId").val() ?? 0;
+        if (driverId <= 0){
+            showErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Driver.Required")");
+            return false;
+        }
+
+        let dispatcherId = $("#DispatcherId").val() ?? 0;
+        if (dispatcherId <= 0){
+            showErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Dispatcher.Required")");
+            return false;
+        }
+
+        $("#Carrier-Confirmation-Popup").modal('show');
+    });
+
+    $("#Carrier-Confirmation-Popup .close").click(function(e){
+        $("#Carrier-Confirmation-Popup").modal('hide');
+        $("#custom-error-notification").text("");
+    });
+
+    $("#save-carriers").click(function(){
+
+        showCustomErrorNotificationPopup();
+
+        if (carrierId <= 0){
+            showCustomErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Carrier.Required")");
+            return false;
+        }
+
+        let driverId = $("#DriverId").val() ?? 0;
+        if (driverId <= 0){
+            showCustomErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Driver.Required")");
+            return false;
+        }
+
+        let dispatcherId = $("#DispatcherId").val() ?? 0;
+        if (dispatcherId <= 0){
+            showCustomErrorNotificationPopup("@T("Admin.Order.Carrier.Mapping.Dispatcher.Required")");
+            return false;
+        }
+
+        var dispatchInstruction = $("#DispatchInstructions").val();
+        // isRequired = $("#DispatchInstructions").parents('div.form-group.row').find('span.required').length > 0;
+
+        // if (isRequired && !dispatchInstruction){
+        //     showCustomErrorNotificationPopup("@T("Admin.Orders.OrderCarrierMapping.Fields.DispatchInstructions.Required")");
+        //     return false;
+        // }
+
+        if (dispatchInstruction.length > 1000) {
+            showCustomErrorNotificationPopup("@T("Admin.Orders.OrderCarrierMapping.Fields.DispatchInstructions.MaxLength.Required")");
+            return false;
+        }
+
+        var postData = {
+            LeadId : @Model.LeadId,
+            CarrierId : carrierId,
+            DriverId : driverId,
+            DispatcherId : dispatcherId,
+            DispatchInstructions : dispatchInstruction,
+        }
+
+        addAntiForgeryToken(postData);
+
+        $(this).attr('disabled', true);
+
+        $.post("@Url.Action("SaveCarrierDetails", "Order")", postData, function (data) {
+            if(data) {
+                if(data.Result){
+                    location.reload();
+                }
+                else if (data.ErrorMessages && (typeof data.ErrorMessages) == 'string'){
+                    showCustomErrorNotificationPopup(data.ErrorMessages);
+                }
+                else if (data.error && (typeof data.error) == 'string'){
+                    showCustomErrorNotificationPopup(data.ErrorMessages);
+                }
+                else{
+                    var message = "";
+                    $.each(data.ErrorMessages, function (index, value) {
+                        if (value) {
+                            message += `${value}<br/>`;
+                        }
+                    });
+                    showCustomErrorNotificationPopup(message);
+                }
+            }
+            else{
+                showCustomErrorNotificationPopup("@T("Admin.Common.Fail")");
+            }
+
+            $("#save-carriers").attr('disabled', false);
+        });
+    });
+
+    setInterval(function(){
+        let driverId = $("#DriverId").val() ?? 0;
+        let dispatcherId = $("#DispatcherId").val() ?? 0;
+
+        if (driverId > 0 && dispatcherId > 0 && carrierId > 0){
+             $("#submit-carriers").prop('disabled', false);
+        }
+        else{
+             $("#submit-carriers").prop('disabled', true);
+        }
+
+    },100);
+
+    $(function(){
+        
+        let currentOrderStatus = $("#StatusId option:selected").text();
+
+        $("#carriers-list").on("click", ".openNewPopup", function (e) {
+            e.preventDefault();
+
+            const $this = $(this);
+            var id = $this.attr("data-id");
+
+            if (id == carrierId){
+                return;
+            }
+
+            carrierId = 0;
+
+            const $siblings = $("#carriers-list .openNewPopup");
+
+            $siblings.text("@T("Admin.Order.Carrier.button.SelectCarrier")");
+            
+            $siblings.each(function () { 
+                $(this).removeClass("btn-info");
+                if (!$(this).hasClass("btn-primary")) {
+                    $(this).addClass("btn-primary");
+				}
+            });
+
+
+            if (!currentOrderStatus || currentOrderStatus === "@LogisticsStatusDefaults.Order.New") {
+                toastr.error('@T("Admin.Orders.Status.Change.NewOrCanceled.ToCovered.Notification")');
+
+                return false;
+            } else if (currentOrderStatus === "@LogisticsStatusDefaults.Order.Canceled") {
+                toastr.error('@T("Admin.Orders.Status.Change.NewOrCanceled.ToCovered.Notification")');
+
+                return false;
+            }
+
+
+            var postData = {
+                carrierId: parseInt(id),
+                leadId: @Model.LeadId,
+            };
+
+            addAntiForgeryToken(postData);
+
+            $.post("@Url.Action("SelectCarrier", "Order")",postData,function(data){
+                if (data.success){
+                    $("#driver-information").html(data.driverPartialView);
+                    $("#dispatcher-information").html(data.dispatcherPartialView);
+
+                    carrierId = id;
+
+                    $this.text("@T("Admin.Order.Carrier.button.SelectedCarrier")");
+					$this.removeClass("btn-primary");
+                    $this.addClass("btn-info");
+                }
+                else{
+                    display_nop_error(data);
+                }
+            });
+        });
+    });
+</script>

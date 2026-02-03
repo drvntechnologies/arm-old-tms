@@ -1,0 +1,324 @@
+﻿@model LogisticsCarriersModel
+
+@{
+    var isCarrierDetailPage = Convert.ToBoolean(ViewData["IsCarrierDetailPage"] ?? false);
+}
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+        if (!isCarrierDetailPage)
+        {
+            <div class="card-header with-border clearfix d-flex align-items-center">
+                <div class="ml-auto">
+                    <button type="button" id="create-tin" class="btn btn-primary">
+                        <i class="fa fa-plus"></i>
+                        @T("Admin.Carrier.TIN.AddTIN")
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div class="card d-datatable m-0">
+            @await Html.PartialAsync("Table", new DataTablesModel
+            {
+                Name = "tin-grid",
+                UrlRead = new DataUrl("CarrierTINList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.CarrierTINSearchModel.CarrierId)] = Model.Id }),
+                Length = Model.CarrierTINSearchModel.PageSize,
+                LengthMenu = Model.CarrierTINSearchModel.AvailablePageSizes,
+                ColumnCollection = new List<ColumnProperty>
+                {
+                    new ColumnProperty(nameof(CarrierTINModel.TIN))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.TIN").Text,
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.TINName))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.TINName").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.MatchingStatus))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.MatchingStatus").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.ContactEmail))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.ContactEmail").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.ContactPhoneNumber))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.ContactPhoneNumber").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.MatchingResult))
+                    {
+                        Title = T("Admin.CarrierTIN.Fields.MatchingResult").Text,
+                        Width = "200"
+                    },
+                    new ColumnProperty(nameof(CarrierTINModel.Id))
+                    {
+                        Title = T("Admin.Common.Action").Text,
+                        ClassName = NopColumnClassDefaults.Button,
+                        Render = new RenderCustom("renderTINColumnEditDelete")
+                    }
+                }
+            })
+
+            <script>
+                function renderTINColumnEditDelete(data, type, row, meta) {
+                    return '<button type="button" data-tin-id="' + data + '" class="btn btn-default edit-tin"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                }
+
+                $("#tin-grid").on("click", ".delete-link", function (e) {
+                    const id = $(this).attr("data-deleteId");
+                    $("#delete-id").val(id);
+                    $("#delete-id").attr("data-url", "@Url.Action("CarrierTINDelete")")
+                                    .attr("data-tableId", "tin-grid");
+                });
+            </script>
+        </div>
+    }
+    else
+    {
+        <div class="card-default m-0">
+            <div class="">
+                @T("Admin.Carriers.TIN.SaveBeforeEdit")
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="tin-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tin-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="tin-add-popup-title">@T("Admin.Carrier.TIN.AddNewTIN")</h4>
+                    <button type="button" class="close" id="close-tin-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="TINId" name="TINId" type="hidden" />
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="TIN">@T("Admin.CarrierTIN.Fields.TIN")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="TIN" name="TIN" type="text" placeholder="Enter TIN Number" />
+                                    <span class="field-validation-valid" data-valmsg-for="TIN" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="TINName">@T("Admin.CarrierTIN.Fields.TINName")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="TINName" name="TINName" type="text" placeholder="Enter TIN Name" />
+                                    <span class="field-validation-valid" data-valmsg-for="TINName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="TINEmail">@T("Admin.CarrierTIN.Fields.ContactEmail")</label>
+                                    <nop-required />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="TINEmail" name="TINEmail" type="text" placeholder="Enter Contact Email" />
+                                    <span class="field-validation-valid" data-valmsg-for="TINEmail" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label class="col-form-label" for="TINPhoneNumber">@T("Admin.CarrierTIN.Fields.ContactPhoneNumber")</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control text-box single-line" id="TINPhoneNumber" name="TINPhoneNumber" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="TINPhoneNumber" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="field-validation-error" id="add-edit-tin-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-tin" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#TINPhoneNumber");
+        enforceLowerCase("#TINEmail");
+
+        function resetTINForm() {
+            $("#TINId").val("");
+            $("#TIN").val("");
+            $("#TINName").val("");
+            $("#TINEmail").val("");
+            $("#TINPhoneNumber").val("");
+
+            $('span[data-valmsg-for="TIN"]').hide();
+            $('span[data-valmsg-for="TINName"]').hide();
+            $('span[data-valmsg-for="TINEmail"]').hide();
+            $('span[data-valmsg-for="TINPhoneNumber"]').hide();
+            $("#add-edit-tin-errorMessages").html("");
+        }
+
+        $(function () {
+            $('#save-tin').click(function () {
+                $('#save-tin').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id =  $("#TINId");
+                const $tin = $("#TIN");
+                const $tinName = $("#TINName");
+                const $tinEmail = $("#TINEmail");
+                const $tinPhone = $("#TINPhoneNumber");
+
+				const tin = $tin.val();
+				const name = $tinName.val();
+				const email = $tinEmail.val();
+				const phone = $tinPhone.val();
+
+                if (!tin || tin.trim() == "") {
+                    let message = "@T("Admin.Carriers.TIN.Number.Required")";
+                    var validationSpan = $('span[data-valmsg-for="TIN"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="TIN-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!name || name.trim() == "") {
+                    let message = "@T("Admin.Carriers.TIN.Name.Required")";
+                    var validationSpan = $('span[data-valmsg-for="TINName"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="TINName-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!email || email.trim() == "") {
+                    let message = "@T("Admin.Carriers.TIN.Email.Required")";
+                    var validationSpan = $('span[data-valmsg-for="TINEmail"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="TINEmail-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    $('#save-tin').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    CarrierId: "@Model.Id",
+                    Id: $id.val(),
+                    TIN: tin,
+                    TINName: name,
+                    ContactEmail: email,
+                    ContactPhoneNumber: phone
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("CarrierTINCreate", "LogisticsCarriers", null))";
+                if($id.val() > 0){
+                    url = "@Html.Raw(Url.Action("CarrierTINEdit", "LogisticsCarriers", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#tin-grid');
+
+                            $("#close-tin-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";
+                            $.each(data.error, function (key, value) {
+                                if (value.errors) {
+                                    $.each(value.errors, function (index, error) {
+                                        errorMessages += "<p class='m-0'>" + error +"</p>";
+                                    });
+                                }
+                            });
+
+                            $("#add-edit-tin-errorMessages").html(errorMessages);
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-tin').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $(document).on('click', "#close-tin-add-popup",function () {
+            resetTINForm();
+            $("#tin-add-popup").modal('hide');
+        });
+
+        $(document).on('input', "#TIN, #TINName, #TINEmail", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-tin", function(e){
+            e.preventDefault();
+            $("#tin-add-popup-title").text("@T("Admin.Carrier.TIN.AddNewTIN")");
+            resetTINForm();
+            $("#tin-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-tin", function(e){
+            e.preventDefault();
+            $("#add-edit-tin-errorMessages").html("");
+            var tinId = $(this).attr('data-tin-id');
+            if (tinId > 0){
+                $("#tin-add-popup-title").text("@T("Admin.Carrier.TIN.EditTIN")");
+                $.get("@Html.Raw(Url.Action("CarrierTINEdit", "LogisticsCarriers"))", { id: tinId }, function (data) {
+                    if(data.Result){
+
+                        $("#TINId").val(data.Id);
+                        $("#TIN").val(data.TIN);
+                        $("#TINName").val(data.TINName);
+                        $("#TINEmail").val(data.ContactEmail);
+                        $("#TINPhoneNumber").val(data.ContactPhoneNumber);
+
+                        $("#tin-add-popup").modal('show');
+                    }
+                    else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

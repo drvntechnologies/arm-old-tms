@@ -1,0 +1,1598 @@
+@model QuoteModel
+
+@inject QuoteSettings quoteSettings
+
+@{
+	const string dateFormat = "MM/DD/YYYY";
+	var distance = "0 Mile";
+
+	if (Model.DistanceInMile == 1) {
+		distance = "1 Mile";
+	}
+	else if (Model.DistanceInMile > 1) {
+		distance = $"{Math.Round(Model.DistanceInMile, 2)} Miles";
+	}
+
+	var hasCouponCode = !string.IsNullOrWhiteSpace(Model.Company?.CouponCode);
+	var fvp = Model.Company?.FVP ?? decimal.Zero;
+	var standardReferralAmount = Model.Company?.StandardReferralAmount ?? decimal.Zero;
+}
+
+<input asp-for="Id" type="hidden" />
+<input asp-for="OriginAddress.Id" type="hidden" />
+<input asp-for="DestinationAddress.Id" type="hidden" />
+<input asp-for="DistanceInMile" type="hidden" />
+
+<section class="page-main-area add-leads-pg create-edit-pg-common-design">
+	<div class="container-fluid">
+		
+		<div class="card card-secondary quote-list-card form-horizontal background-transparent">			
+			<div class="d-flex mb-2 gap-2 justify-content-between align-items-center getquote-header-area">
+				<div class="d-flex flex-column trailer-type-box">
+					<div class="custom-info-checkbox-area d-flex align-items-center quote-list-card gap-2">					
+						<b class="form-check p-0 m-0 text-bold">
+							@T("Portal.Quote.Request.Vehicle.Table.TrailerType")
+							@* <i class="fas fa-info-circle tooltip-icon" style="display:none;">
+								<span class="custom-tooltip"> The carrier that loads the vehicle will be the one that delivers the vehicle. Vehicles will not be stored or loaded with a local tow company.</span> 
+							</i> *@
+						</b>
+						<div class="form-inline ">
+							<div class="form-group mr-2 mb-0">								
+								<input type="radio" id="idOpen" name="TrailerType" class="mr-1 cursor-pointer" value="@LogisticsDefaults.TransportType.Open" checked />
+								<label for="idOpen" class="mb-0">@LogisticsDefaults.TransportType.Open</label>
+							</div>
+							<div class="form-group mb-0">								
+								<input type="radio" id="idEnclosed" name="TrailerType" class="mr-1 cursor-pointer" value="@LogisticsDefaults.TransportType.Enclosed" @(!string.IsNullOrEmpty(Model.TrailerType) && Model.TrailerType.ToLower().Equals(LogisticsDefaults.TransportType.Enclosed.ToLower()) ? "checked" : "") />
+								<label for="idEnclosed" class="mb-0">@LogisticsDefaults.TransportType.Enclosed</label>
+							</div>							
+						</div>					
+					</div>		
+					<span class="p-0 m-0 field-validation-error" id="showEnclosedError">
+						@if (ViewData.ModelState[nameof(Model.TrailerType)] != null && ViewData.ModelState[nameof(Model.TrailerType)].Errors.Count > 0)
+						{
+							foreach (var error in ViewData.ModelState[nameof(Model.TrailerType)].Errors)
+							{
+								@Html.Raw(error.ErrorMessage)
+							}
+						}
+					</span>
+				</div>
+				<div class="input-name ml-auto">
+					<button type="button" class="btn btn-primary" id="add-new-row">@T("Portal.Quote.Request.AddVehicle")</button>
+				</div>
+			</div>
+
+			<div class="card custom-card h-100">
+				<div class="card-body">
+					<div class="table-responsive">
+						<table id="vehicle-info-table" border="0" class="table-wrapper quote-list-tbl quote-add-vehicle-tbl">
+							<colgroup>
+								<col width="20%" />
+								<col width="11%" />
+								<col width="15%" />
+								<col width="15%" />
+								<col width="20%" />
+								<col width="3%" />
+								<col width="3%" />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.VIN")</th>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.Year") <nop-required /></th>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.Make") <nop-required /></th>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.Model") <nop-required /></th>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.VehicleType") <nop-required /></th>
+									<th>@T("Portal.Quote.Request.Vehicle.Table.Running")</th>
+									<th>@T("Portal.Common.Action")</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row ">
+				<div class="col-md-12 custom-wrapper">
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<div class="card custom-card h-100 mb-0">
+								<div class="card-header">
+									<strong class="d-block">@T("Portal.QuoteAddress.Section.OriginAddress")</strong>
+								</div>									
+								<div class="card-body">										
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="OriginAddress.City"></label>
+											<nop-required />
+										</div>											
+										<div class="input-name">
+											<input asp-for="OriginAddress.City" placeholder="@T("Portal.QuoteAddress.Fields.City")" class="form-control" autocomplete="off" />
+											<span asp-validation-for="OriginAddress.City"></span>
+										</div>											
+									</div>
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="OriginAddress.StateProvinceId"></label>
+											<nop-required />
+										</div>
+										<div class="input-name">
+											<div class="default-select-arrow">
+												<select asp-for="OriginAddress.StateProvinceId" asp-items="Model.OriginAddress.AvailableStates" class="form-control no-kendo"></select>
+											</div>
+											<span asp-validation-for="OriginAddress.StateProvinceId"></span>
+										</div>
+									</div>
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="OriginAddress.ZipPostalCode"></label>
+											<nop-required />
+										</div>
+										<div class="input-name">
+											<input asp-for="OriginAddress.ZipPostalCode" placeholder="Zip Code" class="form-control" autocomplete="off" />
+											<span asp-validation-for="OriginAddress.ZipPostalCode"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<div class="card custom-card h-100 mb-0">
+								<div class="card-header">
+									<strong class="d-block">@T("Portal.QuoteAddress.Section.DestinationAddress")</strong>
+								</div>
+								<div class="card-body">										
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="DestinationAddress.City"></label>
+											<nop-required />
+										</div>
+										<div class="input-name">
+											<input asp-for="DestinationAddress.City" placeholder="@T("Portal.QuoteAddress.Fields.City")" class="form-control" autocomplete="off" />
+											<span asp-validation-for="DestinationAddress.City"></span>
+										</div>
+									</div>
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="DestinationAddress.StateProvinceId"></label>
+											<nop-required />
+										</div>
+										<div class="input-name">
+											<div class="default-select-arrow">
+												<select asp-for="DestinationAddress.StateProvinceId" asp-items="Model.DestinationAddress.AvailableStates" class="form-control no-kendo"></select>
+											</div>
+											<span asp-validation-for="DestinationAddress.StateProvinceId"></span>
+										</div>
+									</div>
+									<div class="custom-form-group">
+										<div class="label-name">
+											<label asp-for="DestinationAddress.ZipPostalCode"></label>
+											<nop-required />
+										</div>
+										<div class="input-name">
+											<input asp-for="DestinationAddress.ZipPostalCode" placeholder="Zip Code" class="form-control" autocomplete="off" />
+											<span asp-validation-for="DestinationAddress.ZipPostalCode"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6 mb-3">
+					<div class="card custom-card h-100 mb-0">
+						<div class="card-body">
+							<div class="custom-form-group ">
+								<div class="label-name">
+									<label asp-for="FirstPickupDate"></label>
+									<nop-required />
+								</div>
+								<div class="input-name">
+
+									<div class="custom-dateInput-view">
+										<input type="text" placeholder="Select Pickup Date" id="date-range-picker" style="@(Model.LoadingOptionId != (int)LoadingOption.DirectLoadingWindow ? "display:none;" : "")" class="form-control date-range" readonly />
+
+										<input type="text" placeholder="Select Pickup Date" id="date-picker" style="@(Model.LoadingOptionId == (int)LoadingOption.DirectLoadingWindow ? "display:none;" : "")" class="form-control single-date" readonly />
+										
+										<label class="custom-dateIcon-box pickup-date-picker"><i class='far fa-calendar-alt'></i></label>
+
+										<div id="date-picker-wrapper" class="flatpickr-wrapper">
+											<div id="open-date-range-picker"></div>
+											<button type="button" class="btn-apply" id="applyBtn">Apply</button>
+										</div>
+									</div>
+
+									<input type="hidden" class="startdate" asp-for="FirstPickupDate" value="@Model.FirstPickupDate" />
+									<input type="hidden" class="enddate" asp-for="LastPickupDate" value="@Model.LastPickupDate" />
+
+									<span asp-validation-for="FirstPickupDate"></span>
+								</div>
+							</div>
+
+							<div class="custom-form-group ">
+								<div class="label-name">
+									<label asp-for="FirstDeliveryDate"></label>
+								</div>
+								<div class="input-name">
+
+									<div class="custom-dateInput-view">
+										<input type="text" placeholder="Auto Select Delivery Spread" disabled id="delivery-date-range-picker" class="form-control date-range" readonly />
+									</div>
+
+									<input type="hidden" class="startdate" asp-for="FirstDeliveryDate" value="@Model.FirstDeliveryDate" />
+									<input type="hidden" class="enddate" asp-for="LastDeliveryDate" value="@Model.LastDeliveryDate" />
+
+									<span asp-validation-for="FirstDeliveryDate"></span>
+								</div>
+							</div>
+							<div class="custom-form-group ">
+								<div class="label-name">
+									<label for="distance-in-mile">@T("Portal.Quote.Fields.Distance")</label>
+								</div>
+								<div class="input-name">
+									<input id="distance-in-mile" type="text" disabled="" value="@distance" class="form-control date-range" readonly="">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6 mb-3">
+					<div class="card custom-card h-100 mb-0">
+						<div class="card-body">
+							<div class="form-group d-flex flex-wrap">
+								<div class="w-100">
+									<label asp-for="LoadingOptionId"></label>
+									<span asp-validation-for="LoadingOptionId"></span>
+								</div>
+								<div class="col-md-12">
+									<div class="row">
+										<div class="form-check col-md-6">
+											<input type="radio" checked="@(Model.LoadingOptionId == 0 ? "checked" : "" )" asp-for="LoadingOptionId" class="form-check-input" value="@((int)LoadingOption.DirectLoadingWindow)" id="directLoading" />
+											<label class="form-check-label" for="directLoading">
+												@T("Portal.Enums.Quote.Vehicle.Loading.Options.DirectLoadingWindow")
+												<i class="fas fa-info-circle tooltip-icon">
+													<span class="custom-tooltip">
+														@T("Portal.Vehicle.LoadingOptions.DirectLoadingWindow.Hint")
+													</span>
+												</i>
+											</label>
+										</div>
+										<div class="form-check col-md-6">
+											<input type="radio" asp-for="LoadingOptionId" class="form-check-input" value="@((int)LoadingOption.OneDayGuaranteedDate)" id="oneDayGuaranteed" />
+											<label class="form-check-label" for="oneDayGuaranteed">
+												@T("Portal.Enums.Quote.Vehicle.Loading.Options.OneDayGuaranteedDate")
+												<i class="fas fa-info-circle tooltip-icon">
+													<span class="custom-tooltip">
+														@T("Portal.Vehicle.LoadingOptions.OneDayGuaranteedDate.Hint")
+													</span>
+												</i>
+											</label>
+											&nbsp;
+											<p style="display:none;margin-bottom:0px;" id="oneDayGuaranteedText">@T("Portal.Vehicle.LoadingOptions.OneDayGuaranteedDate.Note")</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+						
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6 mb-3">
+					<div class="card custom-card h-100 mb-0">
+						<div class="card-body">
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="Reference"></label>
+								</div>
+								<div class="input-name">
+									<input asp-for="Reference" placeholder="Reference" class="form-control" autocomplete="off" />
+									<span asp-validation-for="Reference"></span>
+								</div>
+							</div>
+						</div>
+					</div>	
+				</div>
+				<div class="col-md-6 mb-3">
+					<div class="card custom-card h-100 mb-0">
+						<div class="card-body">
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="Notes"></label>
+								</div>
+								<div class="input-name">
+									<textarea asp-for="Notes" placeholder="Notes" class="form-control"></textarea>
+									<span class="italian-text">Allow maximum&nbsp;<span></span> <span class="charCount">0</span>/320 characters.</span>
+									<span asp-validation-for="Notes"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card custom-card">
+						<div class="card-body">
+							
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="Linehaul"></label>
+								</div>
+								<div class="input-name">
+									<input asp-for="Linehaul" type="hidden" />
+									<input asp-for="LinehaulPrice" class="form-control" disabled />
+									<span asp-validation-for="Linehaul"></span>
+								</div>
+							</div>
+
+							@if (fvp > 0)
+							{
+								<div class="custom-form-group">
+									<div class="label-name">
+										<label asp-for="FVP"></label>
+									</div>
+									<div class="input-name">
+										<input asp-for="FVP" class="form-control" disabled />
+										<span asp-validation-for="FVP"></span>
+									</div>
+								</div>
+							}
+							
+							<div class="custom-form-group" id="OneDayLoadPrice" style="@(Model.LoadingOptionId == (int)LoadingOption.OneDayGuaranteedDate ? "" : "display:none;")">
+								<div class="label-name">
+									<label asp-for="OneDayGuaranteedLoadPrice"></label>
+								</div>
+								<div class="input-name">
+									<input asp-for="OneDayGuaranteedLoadPrice" class="form-control" disabled />
+									<span asp-validation-for="OneDayGuaranteedLoadPrice"></span>
+								</div>
+							</div>
+
+							@if (standardReferralAmount > 0)
+							{
+								<div class="custom-form-group">
+									<div class="label-name">
+										<label for="standardReferralAmount">@T("Portal.Quote.Booking.Fields.StandardReferralAmount")</label>
+									</div>
+									<div class="input-name">
+										<input asp-for="@standardReferralAmount" class="form-control" disabled />
+									</div>
+								</div>
+							}
+
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="ReferralFee"></label>
+								</div>
+								<div class="input-name">
+									<input asp-for="ReferralFee" value="" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.ReferralFee.Placeholder")" />
+									<span asp-validation-for="ReferralFee"></span>
+								</div>
+							</div>
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="PromoCode"></label>
+								</div>
+								<div class="input-name">
+									<input asp-for="PromoCode" class="form-control" placeholder="@T("Portal.Quote.Booking.Fields.PromoCode.Placeholder")" autocomplete="off" />
+									<span asp-validation-for="PromoCode"></span>
+								</div>
+							</div>
+							<div class="custom-form-group">
+								<div class="label-name">
+									<label asp-for="TotalPrice"></label>
+								</div>
+								<div class="input-name">
+									<input id="Price" disabled name="Price" class="form-control" value="@Model.TotalPriceValue" />
+									<span asp-validation-for="TotalPrice"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div class="d-flex w-100% justify-content-end">
+
+					@if(Model.Id > 0)
+					{
+						<button type="submit" class="btn btn-primary mt-3 quote-submit-btn">@T("Portal.Quote.Generate.Edit")</button>
+					}
+					else
+					{
+						<button type="submit" class="btn btn-primary mt-3 quote-submit-btn">@T("Portal.Quote.Generate")</button>
+					}
+				</div>				
+		</div>
+	</div>
+</section>
+
+<div id="alert-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alert-popup-title" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="form-horizontal">
+				<div class="modal-body" id="alert-message-body">
+				</div>
+				<div class="modal-footer">
+					<span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Portal.Common.Ok")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script asp-exclude-from-bundle="true" src="~/lib_npm/moment/moment.min.js"></script>
+<script src="~/lib_npm/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script asp-location="Footer">
+	allowAplhaNumericWithMaxLength("#PromoCode", 12);
+	restrictToCityNameFormat("#OriginAddress_City, #DestinationAddress_City");
+	allowNumericWithMaxLength("#OriginAddress_ZipPostalCode, #DestinationAddress_ZipPostalCode", 5);
+	allowMaximumCharacters("#Notes", 320, "div.input-name", "span.charCount");
+
+	const availableVehicleTypes = @Html.Raw(Json.Serialize(Model.AvailableVehicleTypes));
+	const allowAvailableStates = @Html.Raw(Json.Serialize(Model.AllowAvailableStates));
+
+	const blackoutDates = @Html.Raw(Json.Serialize(BlackoutDateHelper.GetBlackoutDates().Select(date => date.ToDateFormat()).ToList()));
+	
+	let destinationStartDate = $("#delivery-date-range-picker").closest('div.input-name').find(".startdate");
+	let destinationEndDate = $("#delivery-date-range-picker").closest('div.input-name').find(".enddate");
+
+	let spreadTimer = setInterval(function(){
+			
+		if (destinationStartDate.val() && destinationEndDate.val()){
+			clearInterval(spreadTimer);
+		}
+
+		if (convertToNumber(distanceInMile) != 0)
+		{
+			handleData(distanceInMile);
+
+			clearInterval(spreadTimer);
+		}
+
+	}, 125);
+
+	function reInitializeQuoteValidation() {
+		var form = $("#quote-form");
+		form.removeData("validator").removeData("unobtrusiveValidation");
+		$.validator.unobtrusive.parse(form);
+	}
+
+	$(document).on('click', "#alert-popup .close-popup", function(e){
+		e.preventDefault();
+		$("#alert-popup").modal('hide');
+	});
+
+	$(document).on('submit', '#quote-form', function(e){
+
+		$("button.quote-submit-btn").prop('disabled', true);
+
+		$('input[data-type="Vin"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+		$('input[data-type="Year"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+		$('input[data-type="Make"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+		$('input[data-type="Model"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+		$('input[data-type="OtherVehicleType"]').each(function(){
+			$(this).val($(this).val().trim());
+		});
+
+		if (!$(this).valid()) {
+			e.preventDefault();
+			$("button.quote-submit-btn").prop('disabled', false);
+		}
+
+		let isRunningAll = true;
+		$('input[data-type="IsRunning"]').each(function(){
+			if(isRunningAll){
+				isRunningAll = $(this).prop('checked');
+			}
+		});
+
+		if(!isRunningAll){
+			e.preventDefault();
+			$("#alert-message-body").html(`@T("Portal.Quote.Request.InRunning.ConactUs.Popup")`);
+			$("#alert-popup").modal('show');
+			$("button.quote-submit-btn").prop('disabled', false);
+		}
+
+		let allowVehicleType = true;
+		let isEncloseSelected = $('#idEnclosed').is(":checked");
+		$('select[data-type="VehicleType"]').each(function(){
+			let type = $(this).val();
+
+			if (isEncloseSelected) {
+				if (type !== "Passenger Car" && type !== "SUV" && type !== "Van"){
+					allowVehicleType = false;
+					return false;
+				}
+			}
+			else {				
+				if (type !== "Passenger Car" && type !== "SUV" && type !== "Van" && type !== "Truck"){
+					allowVehicleType = false;
+					return false;
+				}
+			}
+		});
+
+		if (!allowVehicleType){
+			e.preventDefault();			
+			if(isEncloseSelected){
+				$("#alert-message-body").html(`@T("Portal.Quote.Request.Vehicle.Type.EnclosedError")`);
+			}
+			else{
+				$("#alert-message-body").html(`@T("Portal.Quote.Request.Vehicle.Type.DisAllow")`);
+			}
+			$("#alert-popup").modal('show');
+			$("button.quote-submit-btn").prop('disabled', false);
+		}
+
+		if (allowAvailableStates.length > 0) {
+			var originAddressStateProvinceId = parseInt($("#OriginAddress_StateProvinceId").val()) || 0;
+			var destinationAddressStateProvinceId = parseInt($("#DestinationAddress_StateProvinceId").val()) || 0;
+
+			if ((originAddressStateProvinceId > 0 && !allowAvailableStates.includes(originAddressStateProvinceId)) ||
+			(destinationAddressStateProvinceId > 0 && !allowAvailableStates.includes(destinationAddressStateProvinceId))) {
+				e.preventDefault();
+				$("#alert-message-body").html(`@T("Portal.Quote.Request.NonContinental.US.States.DisAllow")`);
+				$("#alert-popup").modal('show');
+				$("button.quote-submit-btn").prop('disabled', false);
+			}
+		}
+
+		let distanceInMile = parseFloat($("#distance-in-mile").val().replace(/[^\d.]/g, "")) || 0.0;
+		$("#DistanceInMile").val(distanceInMile)
+	});
+
+	function getHtml(index, vehicleTypes, id = 0, typeId = "", vinNumber = "", year = "", make = "", model = "", isRunning = true){
+		const prefix = "Vehicles";
+
+		if (typeId == "Other"){
+			typeId = "";
+		}
+
+		if (vinNumber == null){
+			vinNumber = "";
+		}
+
+		const checked = isRunning ? "checked" : "";
+
+		return `<tr>
+					<td>
+						<input type="text" class="form-control" data-type="Vin" placeholder="Enter VIN Number" name="${prefix}[${index}].Vin" id="${prefix}[${index}]_Vin" value="${vinNumber}" autocomplete="off">
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].Vin" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<input type="text" class="form-control" data-type="Year" name="${prefix}[${index}].Year" id="${prefix}[${index}]_Year" value="${year}" data-val="true" data-val-required="@T("Portal.Quote.Request.Vehicle.Table.Year.Required")" autocomplete="off"/>
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].Year" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<div class="suggestion-drop-parentbox tbl-sugest-filed">
+							<input type="text" class="form-control" placeholder="Enter Make" data-type="Make" name="${prefix}[${index}].Make" id="${prefix}[${index}]_Make" value="${make}" data-val="true" data-val-required="@T("Portal.Quote.Request.Vehicle.Table.Make.Required")" autocomplete="off"/>
+						</div>
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].Make" data-valmsg-replace="true"></span>
+					</td>
+					<td>
+						<div class="suggestion-drop-parentbox tbl-sugest-filed">
+							<input type="text" class="form-control" data-type="Model" placeholder="Enter Model" name="${prefix}[${index}].Model" id="${prefix}[${index}]_Model" value="${model}" data-val="true" data-val-required="@T("Portal.Quote.Request.Vehicle.Table.Model.Required")" autocomplete="off" />
+						</div>
+						<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].Model" data-valmsg-replace="true"></span>
+						<span class="field-validation-error vehicle-type-spelling-error" style="display: none;">@T("Portal.Quote.Request.Vehicle.Table.Model.Spelling.Error")</span>
+					</td>
+					<td class="vehicle-type">
+						<div class="vehicle-type-dropdown">
+							<div class="default-select-arrow">
+								<select class="form-control" data-type="VehicleType" name="${prefix}[${index}].VehicleType" id="${prefix}[${index}]_VehicleType" data-val="true" data-val-required="@T("Portal.Quote.Request.Vehicle.Table.VehicleType.Required")">
+									${vehicleTypes}
+								</select>
+							</div>
+							<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].VehicleType" data-valmsg-replace="true"></span>
+						</div>
+
+						<div class="vehicle-type-other" style="display: none;">
+							<div class="customs-type-flex">
+								<input type="text" class="form-control" data-type="OtherVehicleType" name="${prefix}[${index}].OtherVehicleType" id="${prefix}[${index}]_OtherVehicleType" value="" data-val="true" data-val-required="@T("Portal.Quote.Request.Vehicle.Table.OtherVehicleType.Required")" autocomplete="off">
+
+								<span class="revert-icon" title="Revert" data-typeid="${typeId}">
+									<svg height="22" viewBox="0 -960 960 960" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"></path>
+									</svg>
+								</span>
+							</div>
+
+							<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].OtherVehicleType" data-valmsg-replace="true"></span>
+						</div>
+					</td>					
+					<td class="text-center">
+						<div class="form-group">
+							<input type="checkbox" class="" data-type="IsRunning" name="${prefix}[${index}].IsRunning" id="${prefix}[${index}]_IsRunning" ${checked} value="true">
+							<span class="field-validation-valid" data-valmsg-for="${prefix}[${index}].IsRunning" data-valmsg-replace="true"></span>
+						</div>
+					</td>
+					<td>
+						<input type="hidden" name="${prefix}[${index}].Id" id="${prefix}[${index}]_Id" value="${id}">
+						<button type="button" class="btn btn-default common-delete vehicle-delete" data-id="${id}"><i class="far fa-trash-alt" title="@T("Portal.Common.Delete")"></i></button>
+					</td>
+				</tr>`;
+	}
+
+	$(document).on('click', '#add-new-row', function(e){
+		e.preventDefault();
+		addRow();
+	});
+
+	function addRow() {
+		const tbody = $('#vehicle-info-table tbody');
+		let rowCount = tbody.find('tr').length;
+
+		let vehicleOptionsHtml = '';
+
+		availableVehicleTypes.forEach(option => {
+			vehicleOptionsHtml += `<option value="${option.Value}">${option.Text}</option>`;
+		});
+
+		tbody.append(getHtml(rowCount, vehicleOptionsHtml));
+		allowNumericWithMaxLength('input[data-type="Year"]', 4);
+
+		reInitializeQuoteValidation();
+	}
+
+	$(document).on('click','.vehicle-delete', function(e){
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		removeRow(this, id);
+		showAlertForVehicleType();
+	});
+
+	function removeRow(button, id) {
+		const row = $(button).closest('tr');
+		const tbody = $(button).closest('table').find('tbody');
+
+		let $vin = row.find('input[data-type="Vin"]');
+		let $year = row.find('input[data-type="Year"]');
+		let $make = row.find('input[data-type="Make"]');
+		let $model = row.find('input[data-type="Model"]');
+
+		let selectVinId = $vin.attr("id");
+		let selectYearId = $year.attr("id");
+		let selectMakeId = $make.attr("id");
+		let selectModelId = $model.attr("id");
+
+		previousVehicleVinNumber[selectVinId] = "";
+		previousVehicleYear[selectYearId] = "";
+		previousVehicleMake[selectMakeId] = "";
+		previousVehicleModel[selectModelId] = "";
+
+		row.remove();
+
+		updateRowIndices(tbody, "Vehicles");
+		reInitializeQuoteValidation();
+		debounceCalcTotalPriceFunc();
+
+		const rowCount = tbody.find('tr').length;
+
+		if (rowCount == 0){
+			addRow();
+			return false;
+		}
+	}
+
+	function updateRowIndices(tbody, prefix) {
+		function setElement(index, cell, element){
+			let $element = $(cell).find(`${element}[data-type]`);
+			if ($element.length > 0){
+				var type = $element.attr('data-type');
+				$element.attr("name", `${prefix}[${index}].${type}`)
+						.attr("id", `${prefix}[${index}]_${type}`);
+
+				let $span = $(cell).find('span[data-valmsg-for]');
+				if ($span.length > 0){
+					$span.attr("data-valmsg-for", `${prefix}[${index}].${type}`);
+				}
+			}
+
+			let deleteInputId = $(cell).find(`input[id^='${prefix}'][id$='_Id']`);
+			deleteInputId.attr("name", `${prefix}[${index}].Id`)
+						 .attr("id", `${prefix}[${index}]_Id`);
+		};
+
+		tbody.find("tr").each(function(index, html) {
+			for(let cell of $(html).prop('cells')){
+				setElement(index, cell, "input");
+				setElement(index, cell, "select");
+			}
+		});
+	}
+
+	function populateForm() {
+		
+		const tbody = $('#vehicle-info-table tbody');
+		const existingData = @Html.Raw(Json.Serialize(Model.Vehicles));
+
+		if (existingData.length == 0){
+			addRow();
+			return false;
+		}
+
+		let disableLoadingOption = false;
+		existingData.forEach((data, index) => {
+			let vehicleOptionsHtml = '';
+
+			availableVehicleTypes.forEach(option => {
+				const selected = data.VehicleType == option.Value ? "selected" : "";
+				vehicleOptionsHtml += `<option value="${option.Value}" ${selected}>${option.Text}</option>`;
+			});
+
+
+			tbody.append(getHtml(index, vehicleOptionsHtml, data.Id, data.VehicleType, data.Vin, data.Year, data.Make, data.Model, data.isRunning));
+
+			if (data.VehicleType == "Other"){
+				const $input = $(`#Vehicles\\[${index}\\]_OtherVehicleType`);
+				$input.val(data.OtherVehicleType);
+
+				const $div = $input.closest('div.vehicle-type-other');
+				$div.show();
+
+				const $dropDown = $div.closest('td')
+					.find('select[data-type="VehicleType"]');
+				$dropDown.hide();
+				$dropDown.closest('.vehicle-type-dropdown').hide();
+				$dropDown.siblings('span').hide();
+			}
+
+			if (!disableLoadingOption && data.TrailerType == "@LogisticsDefaults.TransportType.Enclosed"){
+				disableLoadingOption = true;
+			}
+
+			allowNumericWithMaxLength('input[data-type="Year"]', 4);
+		});
+
+		try{
+			let validationErrors= @Json.Serialize(ViewData.ModelState);
+			if (validationErrors) {
+				Object.keys(validationErrors).forEach(function (key) {
+					if (key.startsWith("Vehicles[")) {
+
+						if (validationErrors[key]?.Errors[0]?.ErrorMessage?.length > 0){
+							let spanElement = $(`span[data-valmsg-for='${key}']`);
+							if (spanElement && spanElement.length > 0){
+								spanElement.removeClass("valid").addClass("field-validation-error");
+								spanElement.text(validationErrors[key].Errors[0].ErrorMessage);
+
+								$(`[name="${key}"]`).removeClass("field-validation-valid").addClass("input-validation-error");
+							}
+						}
+					}
+				});
+			}
+		}
+		catch (error){
+			console.error(error.message);
+		}
+		
+		reInitializeQuoteValidation();
+
+		if (disableLoadingOption){
+			const oneDayOption = $('#oneDayGuaranteed');
+			oneDayOption.prop('checked', false);
+			oneDayOption.prop('disabled', true);
+			$('#oneDayGuaranteedText').hide();
+			$('#directLoading').prop('checked', true);
+		}
+	}
+
+	function reInitializeForLoadingOption(){
+		const oneDayOption = $('#oneDayGuaranteed');
+
+		let hasAllOpenTrailerType = false;
+		if($('#idOpen').is(":checked")){
+			hasAllOpenTrailerType = true;
+		}
+
+		if (hasAllOpenTrailerType){
+			oneDayOption.prop('disabled', false);
+			return false;
+		}
+
+		const loadingOptionId = $("input[name='LoadingOptionId']:checked").val();
+		if (loadingOptionId == @((int)LoadingOption.OneDayGuaranteedDate)){
+			$("#alert-message-body").html(`@T("Portal.Quote.Request.Enclosed.ConactUs.Popup")`);
+			$("#alert-popup").modal('show');
+		}
+
+		oneDayOption.prop('checked', false);
+		oneDayOption.prop('disabled', true);
+		$('#directLoading').prop('checked', true);
+		$("#oneDayGuaranteedText").hide();
+
+		//reset the single calendar
+		const $singleCalendar = $("#date-picker");
+		if ($singleCalendar.is(':visible')){
+			$singleCalendar.val("").trigger('change');
+			$singleCalendar.hide();
+
+			const $calendar = $("#date-range-picker");
+			$calendar.val("");
+			$calendar.closest('div.input-name').find(".startdate").val("");
+			$calendar.closest('div.input-name').find(".enddate").val("");
+			$calendar.show();
+			$calendar.trigger('change');
+
+			clearDatFlatPicker("#open-date-range-picker");
+		}
+
+		handleData(distanceInMile);
+	}
+
+	$(document).on('change', 'select[data-type="VehicleType"]', function(){
+		let type = $(this).val();
+		const td = $(this).closest('td');
+		if (type != "Other"){
+			td.find('input[data-type="OtherVehicleType"]')
+			  .closest('div.vehicle-type-other')
+			  .find('span.revert-icon')
+			  .attr("data-typeId",type);
+		}
+		else if (type == "Other"){
+			$(this).hide();
+			$(this).closest('.vehicle-type-dropdown').hide();
+			$(this).siblings("span").hide();
+			td.find('input[data-type="OtherVehicleType"]').closest('div.vehicle-type-other').show();
+		}
+
+		showAlertForVehicleType();
+	});
+
+	$(document).on('click', "span.revert-icon", function(){
+		var typeId = $(this).attr("data-typeId");
+
+		const $div = $(this).closest('div.vehicle-type-other');
+
+		$div.hide();
+		$div.find('input[data-type="OtherVehicleType"]').val("");
+
+		const $dropdown = $div.closest('td').find('select[data-type="VehicleType"]');
+		$dropdown.val(typeId).show();
+		$dropdown.closest('.vehicle-type-dropdown').show();
+		$dropdown.siblings('span').show();
+	});
+
+	$(document).on("click","#date-range-picker", function () {
+		openPicker("#date-picker-wrapper");
+	});
+
+	$(function () {
+
+		let defaultContent = '<div class="custom-message" style="display: flex;justify-content: center;"><span style="display:block;text-align:center;font-size:12px;font-weight:bold;padding:5px;width: 250px;">@T("Portal.Quote.Request.LoadingOption.DirectLoad.Calendar.Title")</span></div>';
+
+		setDateRangePickerByFlatpickr("#open-date-range-picker", "#applyBtn", "#date-range-picker", "#date-picker-wrapper", blackoutDates, defaultContent, "#delivery-date-range-picker", "@dateFormat" );
+
+		defaultContent = '<div class="custom-message" style="display: flex;justify-content: center;"><span style="display:block;text-align:center;font-size:12px;font-weight:bold;padding:5px;width: 250px;">@T("Portal.Quote.Request.LoadingOption.OneDayGuaranteed.Calendar.Title")</span></div>'
+
+		setDatePickerByFlatpickr("#date-picker", blackoutDates, defaultContent, "#delivery-date-range-picker", "@dateFormat" );
+
+		populateForm();
+
+		if ($("#idEnclosed").is(':checked')){
+			const oneDayOption = $('#oneDayGuaranteed');
+			oneDayOption.prop('checked', false);
+			oneDayOption.prop('disabled', true);
+			$('#oneDayGuaranteedText').hide();
+			$('#directLoading').prop('checked', true);
+		}
+
+		let zipCode = $("#OriginAddress_ZipPostalCode").val();
+		if (zipCode.length >= 5) {
+			var postData = { zipCode: zipCode };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					updateDeliveryDate("@Url.Action("GetDistanceUsingZipCodes", "LogisticsCommon")",$("#OriginAddress_ZipPostalCode").val(), $("#DestinationAddress_ZipPostalCode").val());
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					distanceInMile = 0;
+				}
+			});
+		}
+
+		let destinationZipCode = $("#DestinationAddress_ZipPostalCode").val();
+		if (destinationZipCode.length >= 5) {
+			var postData = { zipCode: destinationZipCode };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					updateDeliveryDate("@Url.Action("GetDistanceUsingZipCodes", "LogisticsCommon")",$("#OriginAddress_ZipPostalCode").val(), $("#DestinationAddress_ZipPostalCode").val());
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					distanceInMile = 0;
+				}
+			});
+		}
+
+		let standardReferralAmount = $("#standardReferralAmount");
+		if (standardReferralAmount){
+			let standardReferralFee = parseFloat("@standardReferralAmount") || 0;
+			standardReferralAmount.val(roundDecimal(standardReferralFee, 2, true, true));
+		}
+
+		@if (Model.ReferralFee > 0)
+		{
+			<text>
+				$("#ReferralFee").data("kendoNumericTextBox").value(roundDecimal(@Model.ReferralFee, 2, true, true));
+			</text>
+		}
+	});
+
+	let previousVehicleVinNumber = {};
+	let previousVehicleYear = {};
+	let previousVehicleMake = {};
+	let previousVehicleModel = {};
+
+	$(document).on('focusout', 'input[data-type="Vin"]', function(){
+		let selectVinId = $(this).attr('id');
+
+		const vinNumber = $(this).val();
+		var $tr = $(this).closest('tr');
+
+		previousVehicleVinNumber[selectVinId] = vinNumber;
+
+		let $year = $tr.find('input[data-type="Year"]');
+		let $make = $tr.find('input[data-type="Make"]');
+		let $model = $tr.find('input[data-type="Model"]');
+
+		let selectYearId = $year.attr("id");
+		let selectMakeId = $make.attr("id");
+		let selectModelId = $model.attr("id");
+
+		let makeError = $('span[data-valmsg-for="' + $make.attr("name") +'"]');
+		makeError.removeClass("field-validation-error");
+		makeError.addClass("field-validation-valid");
+		makeError.text("");
+
+		let modelError = $('span[data-valmsg-for="' + $model.attr("name") +'"]');
+		modelError.removeClass("field-validation-error");
+		modelError.addClass("field-validation-valid");
+		modelError.text("");
+
+		previousVehicleYear[selectYearId] = "";
+		previousVehicleMake[selectMakeId] = "";
+		previousVehicleModel[selectModelId] = "";
+
+		if (vinNumber.length != 17) {
+
+			$year.val("");
+			$make.val("");
+			$model.val("");
+			$tr.find('select[data-type="VehicleType"]').val("");
+
+			previousVehicleYear[selectYearId] = "";
+			previousVehicleMake[selectMakeId] = "";
+			previousVehicleModel[selectModelId] = "";
+
+			return false;
+		}
+
+		var postData = { vinNumber: vinNumber };
+		addAntiForgeryToken(postData);
+
+		$.ajax({
+			cache: false,
+			type: "GET",
+			url: "@(Url.Action("VehicleInfoUpdateUsingVINNumber", "LogisticsCommon"))",
+			data: postData,
+			success: function (response) {
+				$year.val(response.VehicleModelYear);
+				$make.val(response.VehicleMake);
+				$model.val(response.VehicleModel);
+
+				previousVehicleYear[selectYearId] = response.VehicleModelYear;
+				previousVehicleMake[selectMakeId] = response.VehicleMake;
+				previousVehicleModel[selectModelId] = response.VehicleModel;
+
+				if (vehicles != null && vehicles != undefined && vehicles.length > 0)
+				{
+					const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === response?.VehicleMake?.toUpperCase());	
+					
+					if (vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+						makeError.removeClass("field-validation-valid");
+						makeError.addClass("field-validation-error");
+						makeError.text(`Incorrect vehicle make.`);
+					}
+										
+					const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === response?.VehicleModel?.toUpperCase());
+					
+					if(vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+						modelError.removeClass("field-validation-valid");
+						modelError.addClass("field-validation-error");
+						modelError.text(`Incorrect vehicle model.`);
+					}
+					
+					let vehicleType = vehiclesFilteredByModel?.length > 0 
+											? vehiclesFilteredByModel[0]?.type.toUpperCase()
+											: "0";
+
+					let type = "";					
+					if (vehicleType){
+						if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+							type = "Passenger Car";
+						} 
+						else if (vehicleType === "SUV"){
+							type = "SUV";
+						} 
+						else if (vehicleType === "VAN"){
+							type = "Van";
+						}
+						else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+							type = "Truck";
+						}
+					}				
+					
+					var $select = $tr.find('select[data-type="VehicleType"]');					
+					$select.find('option').each(function () {
+						if ($(this).val() === type) {
+							$(this).prop('selected', true);
+						}
+					});
+				}
+				
+				showAlertForVehicleType();
+				debounceCalcTotalPriceFunc();
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+			}
+		});
+	});
+
+	$(document).on('focusout', 'input[data-type="Year"], input[data-type="Make"], input[data-type="Model"]', function(){
+		const trElement = $(this).closest('tr');
+
+		let $year = trElement.find('input[data-type="Year"]');
+		let $make = trElement.find('input[data-type="Make"]');
+		let $model = trElement.find('input[data-type="Model"]');
+
+		let selectYearId = $year.attr("id");
+		let selectMakeId = $make.attr("id");
+		let selectModelId = $model.attr("id");
+
+		let makeError = $('span[data-valmsg-for="' + $make.attr("name") +'"]');
+		makeError.removeClass("field-validation-error");
+		makeError.addClass("field-validation-valid");
+		makeError.text("");
+
+		let modelError = $('span[data-valmsg-for="' + $model.attr("name") +'"]');
+		modelError.removeClass("field-validation-error");
+		modelError.addClass("field-validation-valid");
+		modelError.text("");
+
+		let year = $year.val().trim();
+		let make = $make.val().trim();
+		let model = $model.val().trim();
+
+		let previousYear = previousVehicleYear[selectYearId];
+        let previousMake = previousVehicleMake[selectMakeId];
+        let previousModel = previousVehicleModel[selectModelId];
+
+		trElement.find('.vehicle-type-spelling-error').hide();
+
+        if (previousYear == year && previousMake == make && previousModel == model){
+            return false;
+        }
+
+        previousVehicleYear[selectYearId] = year;
+        previousVehicleMake[selectMakeId] = make;
+        previousVehicleModel[selectModelId] = model;
+
+		if (year?.length == 4 && make?.length > 0 && model?.length > 0)
+		{
+			if (vehicles != null && vehicles != undefined && vehicles.length > 0){
+				const vehiclesFilteredByMake = vehicles.filter(v => v.make.toUpperCase() === make.toUpperCase());
+				if (vehiclesFilteredByMake == null || vehiclesFilteredByMake.length == 0) {
+					makeError.removeClass("field-validation-valid");
+					makeError.addClass("field-validation-error");
+					makeError.text(`Incorrect vehicle make.`);
+				}
+				
+				const vehiclesFilteredByModel = vehicles.filter(v => v.model.toUpperCase() === model.toUpperCase());
+				if (vehiclesFilteredByModel == null || vehiclesFilteredByModel.length == 0){
+					modelError.removeClass("field-validation-valid");
+					modelError.addClass("field-validation-error");
+					modelError.text(`Incorrect vehicle model.`);
+				}
+
+				let vehicleType = vehiclesFilteredByModel?.length > 0
+											? vehiclesFilteredByModel[0]?.type.toUpperCase()
+											: "0";
+
+				let type = "";
+				if (vehicleType){
+					if (vehicleType === "SEDAN" || vehicleType === "COUPE_2_DOORS"){
+						type = "Passenger Car";
+					}
+					else if (vehicleType === "SUV"){
+						type = "SUV";
+					}
+					else if (vehicleType === "VAN"){
+						type = "Van";
+					}
+					else if (vehicleType === "PICKUP_4_DOORS" || vehicleType === "PICKUP_2_DOORS"){
+						type = "Truck";
+					}
+				}
+
+				var $select = trElement.find('select[data-type="VehicleType"]');
+				$select.find('option').each(function () {
+					if ($(this).val() === type) {
+						$(this).prop('selected', true);
+					}
+				});								
+			}
+			
+			showAlertForVehicleType();
+			debounceCalcTotalPriceFunc();
+		}
+		else
+		{
+			trElement.find('select[data-type="VehicleType"]').val("");
+		}
+	});
+
+	$(document).on('change', 'input[data-type="IsRunning"]', function(){
+		const isRunning = $(this).prop('checked');
+
+		if (!isRunning){
+			$("#alert-message-body").html(`@T("Portal.Quote.Request.InRunning.ConactUs.Popup")`);
+			$("#alert-popup").modal('show');
+		}
+	});
+
+	$("input[name='LoadingOptionId']").on('change', function(){
+		const loadingOptionId = $(this).val();
+
+		clearDatFlatPicker("#date-picker");
+		clearDatFlatPicker("#open-date-range-picker");
+
+		$("#date-range-picker").val("");
+		$("#date-range-picker").closest('div.input-name').find(".startdate").val("");
+		$("#date-range-picker").closest('div.input-name').find(".enddate").val("");
+		$("#date-range-picker").trigger('change');
+
+		if (loadingOptionId == @((int)LoadingOption.DirectLoadingWindow)){
+			$("#date-range-picker").show();
+			$("#date-picker").hide();
+
+			$("#OneDayLoadPrice").hide();
+		}
+		else {
+			$("#date-picker").show();
+			$("#date-range-picker").hide();
+
+			$("#OneDayLoadPrice").show();
+		}
+
+		handleData(distanceInMile);
+	});
+
+	let previousZipCode = {};
+
+	$("#OriginAddress_ZipPostalCode, #DestinationAddress_ZipPostalCode").keyup(function () {
+		var zipCodeId = $(this).attr('id');
+		var txtZipCode = $("#" + zipCodeId).val();
+
+		let previousPostalCode = previousZipCode[zipCodeId];
+
+		if (previousPostalCode == txtZipCode){
+			return false;
+		}
+
+		previousZipCode[zipCodeId] = txtZipCode;
+
+		if (txtZipCode.length >= 5) {
+			$("#"+ zipCodeId).prop('readonly', true);
+			var postData = { zipCode: txtZipCode };
+			addAntiForgeryToken(postData);
+			$.ajax({
+				cache: false,
+				type: "GET",
+				url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+				data: postData,
+				success: function (response) {
+					if (zipCodeId == "OriginAddress_ZipPostalCode") {
+						$("#OriginAddress_City").val(response.city);
+						$("#OriginAddress_StateProvinceId").val(response.state).trigger('change');
+					}
+
+					else if (zipCodeId == "DestinationAddress_ZipPostalCode") {
+						$("#DestinationAddress_City").val(response.city);
+						$("#DestinationAddress_StateProvinceId").val(response.state).trigger('change');
+					}
+
+					$("#"+ zipCodeId).prop('readonly', false);
+					updateDeliveryDate("@Url.Action("GetDistanceUsingZipCodes", "LogisticsCommon")",$("#OriginAddress_ZipPostalCode").val(), $("#DestinationAddress_ZipPostalCode").val());
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					distanceInMile = 0;
+					$("#distance-in-mile").val(`${distanceInMile} Mile`);
+					handleData(distanceInMile);
+
+					$("#"+ zipCodeId).prop('readonly', false);
+				}
+			});
+		}
+		else {
+			if (zipCodeId == "OriginAddress_ZipPostalCode") {
+				$("#OriginAddress_City").val('');
+				$("#OriginAddress_StateProvinceId").val(0).trigger('change');
+			}
+			else if (zipCodeId == "DestinationAddress_ZipPostalCode") {
+				$("#DestinationAddress_City").val('');
+				$("#DestinationAddress_StateProvinceId").val(0).trigger('change');
+			}
+
+			distanceInMile = 0;
+			$("#distance-in-mile").val(`${distanceInMile} Mile`);
+
+			$("#"+ zipCodeId).prop('readonly', false);
+			handleData(distanceInMile);
+		}
+	});
+
+	function showAlertForVehicleType(){
+		let selectedVehicleTypes = GetAllVehicleTypes();	
+		if($('#idOpen').is(":checked")){
+			let isNotSuvPassengerCarAndTruckType = IsNotSuvPassengerCarAndTruckType(selectedVehicleTypes);
+			if(isNotSuvPassengerCarAndTruckType){
+				$("#alert-message-body").html(`@T("Portal.Quote.Request.Vehicle.Type.DisAllow")`);
+				$("#alert-popup").modal('show');				
+			}
+			$("#showEnclosedError").html("");
+			
+			return;
+		}
+		
+		let isNotSuvAndPassengerCarType = IsNotSuvAndPassengerCarType(selectedVehicleTypes);		
+		if(isNotSuvAndPassengerCarType) {
+			$("#showEnclosedError").html(`@T("Portal.Quote.Request.Vehicle.Type.EnclosedError")`);
+		}
+		else{
+			$("#showEnclosedError").html("");
+		}
+	}
+
+	$(".pickup-date-picker").click(function(){
+		const loadingOptionId = $("input[name='LoadingOptionId']:checked").val();
+		if (loadingOptionId == @((int)LoadingOption.OneDayGuaranteedDate)){
+			$("#date-picker").click();
+			return;
+		}
+		
+		$("#date-range-picker").click();
+	});
+
+	$(".delivery-date-picker").click(function(){
+		$("#delivery-date-range-picker").click();
+	});
+		
+	if ($('#oneDayGuaranteed').prop('checked')) {
+		$('#oneDayGuaranteedText').show();
+	}
+
+	$(document).on('change', '#oneDayGuaranteed, #directLoading', function () {		
+		if ($('#oneDayGuaranteed').prop('checked')) {
+			$('#oneDayGuaranteedText').show();
+		}
+		if ($('#directLoading').prop('checked')) {
+			$('#oneDayGuaranteedText').hide();
+		}
+	});
+
+	prepareMakeForVehicle('input[data-type="Make"]');
+	prepareModelForVehicle('input[data-type="Model"]', 'input[data-type="Make"]');
+
+	$(document).on('change', "input[name=TrailerType]", function(){
+		showAlertForVehicleType();
+		reInitializeForLoadingOption();
+	});
+
+	function IsNotSuvAndPassengerCarType(arrayInput){
+		let isSuccess = false;		
+		if(arrayInput != null && arrayInput != undefined && arrayInput.length > 0){
+			isSuccess = Array.from(arrayInput).some(option => option === "ATV" || option === "BOAT" || option === "BUS" ||
+						option === "INCOMPLETE VEHICLE" || option === "LOW SPEED VEHICLE (LSV)" ||
+						option === "MOTORCYCLE" || option === "OTHER" || option === "TRAILER" || option === "TRUCK");
+		}
+
+		return isSuccess;
+	}
+
+	function IsNotSuvPassengerCarAndTruckType(arrayInput){
+		let isSuccess = false;
+		if(arrayInput != null && arrayInput != undefined && arrayInput.length > 0){
+			isSuccess = Array.from(arrayInput).some(option => option === "ATV" || option === "BOAT" || option === "BUS" ||
+						option === "INCOMPLETE VEHICLE" || option === "LOW SPEED VEHICLE (LSV)" ||
+						option === "MOTORCYCLE" || option === "OTHER" || option === "TRAILER");
+		}
+
+		return isSuccess;
+	}
+
+	function GetAllVehicleTypes(){
+		var selectedVehicleTypes = [];
+		var allVehicleTypes = $('select[data-type="VehicleType"]');
+		
+		if(allVehicleTypes != null && allVehicleTypes != undefined && allVehicleTypes.length > 0){
+			$(allVehicleTypes).each(function (key, value) {
+				var selectedValue = $(value).val();
+				if(selectedValue != null && selectedValue != undefined && selectedValue != ""){
+					selectedVehicleTypes.push(selectedValue.toUpperCase());
+				}
+			});		
+		}
+		
+		return selectedVehicleTypes;
+	}
+
+	async function updateDeliveryDate(url, origin, destination) {
+		try {
+			let distance = await getDistance(url, origin, destination);
+			if (distance) {
+				handleData(distance);
+				if (distance == 0 || distance == 1) {
+					$("#distance-in-mile").val(`${distance} Mile`);
+				}
+				else {
+					$("#distance-in-mile").val(`${distance} Miles`);
+				}
+			}
+		} catch (error) {
+			console.error("Error in updating delivery date: ", error);
+		}
+	}
+
+	function handleData(data) {
+		if ($("#date-range-picker").is(':visible')) {
+			setDeliverySpreadDateFromDistance(data, "#delivery-date-range-picker", "#open-date-range-picker", "#date-range-picker", true, "@dateFormat");
+		}
+		else {
+			setDeliverySpreadDateFromDistance(data, "#delivery-date-range-picker", "#date-picker", "#date-picker", true, "@dateFormat");
+		}
+
+		debounceCalcTotalPriceFunc();
+	}
+
+	$("#Notes").closest("div.input-name").find(".charCount").text($("#Notes").val().length);
+
+	$("#date-range-picker").on('change', function(){
+		debounceCalcTotalPriceFunc();
+	});
+
+	$("#date-picker").on('change', function(){
+		debounceCalcTotalPriceFunc();
+	});
+
+	let currentRequestForEstimate = null;
+
+	async function fetchEstimate(url, data) {
+
+		if (currentRequestForEstimate) {
+			currentRequestForEstimate.abort();
+		}
+
+		return await getData(url, data);
+	}
+
+	async function getLinehaulPrice(byPassLinehaulPrice = false) {
+
+		const $vehicles = $("#vehicle-info-table tbody tr");
+		const $pickupZip = $("#OriginAddress_ZipPostalCode");
+		const $destinationZip = $("#DestinationAddress_ZipPostalCode");
+
+		if (!$vehicles || $vehicles.length <= 0 || !$pickupZip || !$destinationZip || distanceInMile <= 0){
+			return {linehaul: 0, numbersOfVehicles: 0};
+		}
+
+		const vehicles = [];
+		let numbersOfVehicles = 0;
+
+		$vehicles.each((_,field) =>
+		{
+			const year = $(field).find('[data-type="Year"]').val();
+			const make = $(field).find('[data-type="Make"]').val();
+			const model = $(field).find('[data-type="Model"]').val();
+			const vehicleType = $(field).find('[data-type="VehicleType"]').val();
+			const isRunning = $(field).find('[data-type="IsRunning"]').prop('checked');
+
+			if (year && make && model && vehicleType) {
+				vehicles.push({
+					Year: year,
+					Make: make,
+					Model: model,
+					Type: vehicleType,
+					IsInoperable: isRunning
+				});
+
+				numbersOfVehicles++;
+			}
+		});
+
+		if (numbersOfVehicles <= 0){
+			return {linehaul: 0, numbersOfVehicles: 0};
+		}
+
+		if (byPassLinehaulPrice){
+			return {linehaul: (parseFloat($("#Linehaul").val()) || 0), numbersOfVehicles: numbersOfVehicles};
+		}
+
+		let postData = {
+			distanceInMile: distanceInMile,
+			hasEnclosedTrailerType:$("#idEnclosed:checked").length > 0,
+			firstPickupDate: $("#FirstPickupDate").val(),
+			lastPickupDate: $("#LastPickupDate").val()
+		};
+
+		postData["originAddressModel.StateProvinceId"] = $("#OriginAddress_StateProvinceId").val();
+		postData["originAddressModel.City"] = $("#OriginAddress_City").val();
+		postData["originAddressModel.ZipPostalCode"] = $pickupZip.val();
+
+		postData["destinationAddressModel.StateProvinceId"] = $("#DestinationAddress_StateProvinceId").val();
+		postData["destinationAddressModel.City"] = $("#DestinationAddress_City").val();
+		postData["destinationAddressModel.ZipPostalCode"] = $destinationZip.val();
+
+		vehicles.forEach((v, i) => {
+			postData[`vehicleInfoModels[${i}].Year`] = v.Year;
+			postData[`vehicleInfoModels[${i}].Make`] = v.Make;
+			postData[`vehicleInfoModels[${i}].Model`] = v.Model;
+			postData[`vehicleInfoModels[${i}].VehicleType`] = v.Type;
+			postData[`vehicleInfoModels[${i}].IsRunning`] = v.IsInoperable;
+		});
+
+		addAntiForgeryToken(postData);
+
+		try {
+			let response = await fetchEstimate("@Url.Action("GetEstimatedPriceForQuote")", postData);
+
+			if (!response || !response.Result || response.WithMarginTotalPrice <= 0){
+				return {linehaul: 0, numbersOfVehicles: numbersOfVehicles};
+			}
+
+			$("#Linehaul").val(roundDecimal(response.WithMarginTotalPrice, 2, false, true));
+			$("#LinehaulPrice").val(roundDecimal(response.WithMarginTotalPrice, 2, true, true));
+
+			return {linehaul: response.WithMarginTotalPrice, numbersOfVehicles: numbersOfVehicles};
+
+		} catch (error) {
+			console.error("Error: ", error);
+			return {linehaul: 0, numbersOfVehicles: numbersOfVehicles};
+		}
+	}
+
+	async function calculateTotalPrice(byPassLinehaulPrice = false){
+
+		try {
+			let {linehaul, numbersOfVehicles} = await getLinehaulPrice(byPassLinehaulPrice);
+			if (!linehaul || linehaul <= 0){
+				linehaul = 0;
+				$("#Linehaul").val(roundDecimal(linehaul, 2, false, true));
+				$("#LinehaulPrice").val(roundDecimal(linehaul, 2, true, true));
+			}
+
+			let fvp = (parseFloat("@fvp") || 0) * numbersOfVehicles;
+			const $fvp = $("#FVP");
+			if ($fvp){
+				$fvp.val(roundDecimal(fvp, 2, true, true));
+			}
+
+			const $oneDayGuaranteed = $("#oneDayGuaranteed:checked");
+			const $oneDayGuaranteedLoadPrice = $("#OneDayGuaranteedLoadPrice");
+			let oneDayPrice = 0;
+
+			if ($oneDayGuaranteed && $oneDayGuaranteed.length > 0){
+				oneDayPrice = (parseFloat("@quoteSettings.OneDayGuaranteedLoadPrice") || 0) * numbersOfVehicles;
+			}
+
+			if ($oneDayGuaranteedLoadPrice){
+				$("#OneDayGuaranteedLoadPrice").val(roundDecimal(oneDayPrice, 2, true, true));
+			}
+
+			let referralFee = parseFloat($("#ReferralFee").val()) || 0;
+
+			let discountAmount = 0;
+
+			@if (hasCouponCode)
+			{
+				<text>
+					let promoCode = $("#PromoCode").val();
+
+
+					if (promoCode === "@Model.Company.CouponCode")
+					{
+						@if (Model.Company.UsePercentage)
+						{
+							<text>
+								discountAmount = linehaul * (parseFloat(@Model.Company.DiscountPercentage) / 100);
+							</text>
+						}
+						else
+						{
+							<text>
+								discountAmount = parseFloat(@Model.Company.DiscountAmount);
+							</text>
+						}
+					}
+				</text>
+			}
+
+			linehaul = Math.ceil(linehaul - discountAmount);
+			let standardReferralAmount = parseFloat("@standardReferralAmount") || 0
+			let totalPrice = linehaul + fvp + oneDayPrice + referralFee + standardReferralAmount;
+
+			let totalPriceText = roundDecimal(totalPrice, 2, true, true);
+			$("#Price").val(totalPriceText);
+		} catch (error) {
+			console.error("Error in updating delivery date: ", error);
+		}
+	}
+
+	const debounceCalcTotalPriceFunc = debounce(calculateTotalPrice, 500);
+
+	$("#ReferralFee, #PromoCode").on('input', function(){
+		debounceCalcTotalPriceFunc(true);
+	});
+
+	$("#ReferralFee").kendoNumericTextBox({
+		value: $("#ReferralFee").val(),
+		decimals: 0,
+		restrictDecimals: true,
+		format: "c2",
+		min: 0,
+		spinners: false,
+	}).focus(function () {
+		if ($(this).data("kendoNumericTextBox").value() == 0) {
+			$(this).data("kendoNumericTextBox").value('');
+			debounceCalcTotalPriceFunc(true);
+		}
+		else {
+			var input = $(this).data("kendoNumericTextBox").element[0];
+			setTimeout(function () {
+				input.setSelectionRange(input.value.length, input.value.length);
+			}, 0);
+		}
+	}).blur(function () {
+		if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+			$(this).data("kendoNumericTextBox").value("");
+			debounceCalcTotalPriceFunc(true);
+		}
+	});
+
+	if (allowAvailableStates.length > 0) {
+		$("#OriginAddress_StateProvinceId, #DestinationAddress_StateProvinceId").on('change', function(){
+			var val = parseInt($(this).val()) || 0;
+			if (val > 0 && !allowAvailableStates.includes(val)) {
+				$("#alert-message-body").html(`@T("Portal.Quote.Request.NonContinental.US.States.DisAllow")`);
+				$("#alert-popup").modal('show');
+			}
+		});
+	}
+
+</script>

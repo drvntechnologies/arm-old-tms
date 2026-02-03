@@ -1,0 +1,252 @@
+﻿@model CompanyModel
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-info"></i>
+            @T("Admin.Client.CustomersInfo")
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-lg-6 mb-3">
+                        <div class="card h-100 mb-0">
+                            <div class="card-body">
+                                @if (!string.IsNullOrWhiteSpace(Model.Name))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.Name")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.Name
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Domain))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.Domain")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.Domain
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.AccountingEmail))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.AccountingEmail")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.AccountingEmail
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.PhoneNumber")
+                                        </div>
+                                        <div class="input-name">
+                                            @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.PhoneNumber)
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Note))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.Note")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.Note
+                                        </div>
+                                    </div>
+                                }
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Company.Fields.PercentagePriceMargin")
+                                    </div>
+                                    <div class="input-name">
+                                        @Convert.ToInt32(Math.Ceiling(Model.PercentagePriceMargin)) %
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Company.Fields.StandardReferralAmount")
+                                    </div>
+                                    <div class="input-name">
+                                        @Model.StandardReferralAmount
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        @T("Admin.Company.Fields.FVP")
+                                    </div>
+                                    <div class="input-name">
+                                        @Model.FVP
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(Model.AccountType) && !Model.AccountType.Equals("0"))
+                                {
+                                    <div class="custom-form-group">
+                                        <div class="label-name">
+                                            @T("Admin.Company.Fields.AccountType")
+                                        </div>
+                                        <div class="input-name">
+                                            @Model.AccountType
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CouponCode) ||
+                        !string.IsNullOrWhiteSpace(Model.Address) ||
+                        !string.IsNullOrWhiteSpace(Model.City) ||
+                        !string.IsNullOrWhiteSpace(Model.StateProvinceName) ||
+                        !string.IsNullOrWhiteSpace(Model.ZipCode) ||
+                        !string.IsNullOrWhiteSpace(Model.Region) ||
+                        !string.IsNullOrWhiteSpace(Model.CountryName) ||
+                        !string.IsNullOrWhiteSpace(Model.PrimarySalesRepName) ||
+                        !string.IsNullOrWhiteSpace(Model.SecondarySalesRepName))
+                    {
+                        <div class="col-lg-6 mb-3">
+                            <div class="card h-100 mb-0">
+                                <div class="card-body">
+                                    @if (!string.IsNullOrWhiteSpace(Model.CouponCode))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.CouponCode")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.CouponCode
+                                            </div>
+                                        </div>
+                                        <div class="custom-form-group">
+                                            @if (Model.UsePercentage)
+                                            {
+                                                <div class="label-name">
+                                                    @T("Admin.Company.Fields.DiscountPercentage")
+                                                </div>
+                                                <div class="input-name">
+                                                    @(Math.Round(Model.DiscountPercentage, 0)) %
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="label-name">
+                                                    @T("Admin.Company.Fields.DiscountAmount")
+                                                </div>
+                                                <div class="input-name">
+                                                    @Model.DiscountAmount
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.Address))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.Address")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.Address
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.City))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.City")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.City
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.StateProvinceName))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.StateProvinceId")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.StateProvinceName
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.ZipCode))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.ZipCode")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.ZipCode
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.Region))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Address.Fields.Region")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.Region
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.CountryName))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.CountryId")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.CountryName
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.PrimarySalesRepName))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.PrimarySalesRep")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.PrimarySalesRepName
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.SecondarySalesRepName))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name">
+                                                @T("Admin.Company.Fields.SecondarySalesRep")
+                                            </div>
+                                            <div class="input-name">
+                                                @Model.SecondarySalesRepName
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,750 @@
+﻿@using Nop.Services.Helpers
+@model Nop.Web.Models.LogisticsDocument.OrderDocumentModel
+
+@if (!Model.IsShowSignButton)
+{
+    Layout = null;
+}
+else
+{
+    Layout = "_ColumnsOne";
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" />
+
+@if (Model.IsShowSignButton)
+{ 
+    if (string.IsNullOrWhiteSpace(Model.Result))
+    {
+        <style type="text/css">
+
+            @@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+            .arm-pdf-main-section {
+                display: table;
+                width: 100%;
+                background-color: #fff;
+                padding: 15px 0px;
+                box-sizing: border-box;
+            }
+
+            .arm-pdf-main-section .arm-pdf-cardbox {
+                padding: 10px;
+                background-color: #fff;
+                border-radius: 8px;
+                width: 850px;
+                max-width: 85%;
+                display: table;
+                margin: 0px auto;
+                font-family: "Prompt", sans-serif !important;
+                letter-spacing: 0.8px;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-header {
+                padding: 0px 0px 5px;
+                display: table;
+                width: 100%;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-header img {
+                width: 70%;
+                height: auto;
+                max-width: 70%;
+                margin: 0px auto;
+                display: inline-table;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-body {
+                padding: 0px 0px;
+                color: #090304;
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-body ul {
+                margin: 0px;
+                padding-left: 20px;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-body ul li {
+                list-style-type: disc;
+                margin-bottom: 15px;
+                font-size: 15px;
+                line-height: 1.25;
+            }
+
+            .arm-pdf-cardbox .arm-pdf-body input:focus {
+                box-shadow: none;
+                outline: none;
+            }
+
+            .sign-box-left canvas {
+                border: #ccc solid 1px;
+            }
+
+            .form-control {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+
+            .type-here {
+                max-width: 284px;
+            }
+
+            .btn-dark {
+                background-color: #242424;
+                color: #fff;
+                padding: 8px 8px;
+                border-radius: 8px;
+                outline: none;
+                border: none;
+                margin-top: 10px;
+            }
+
+            .btn-primary {
+                background-color: #cab656;
+                border: none;
+                color: #fff;
+                padding: 8px 8px;
+                border-radius: 4px;
+                margin-top: 10px;
+            }
+
+            .btn:hover {
+                opacity: 0.7;
+            }
+
+            #custom-loader {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.8);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .loader-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.1);
+            }
+
+            .loader-content {
+                text-align: center;
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .loader-spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #cab656;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 10px;
+            }
+
+            @@keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loader-text {
+                font-size: 16px;
+                color: #333;
+            }
+        </style>
+    }
+    else
+    {
+        <style>
+            body, html {
+                box-sizing: border-box;
+                height: 100%;
+            }
+
+            .master-wrapper-page {
+                height: 100%;
+            }
+
+            .master-wrapper-content {
+                height: 100%;
+            }
+
+            .master-column-wrapper {
+                height: 100%;
+            }
+
+            .center-1 {
+                height: 100%;
+            }
+
+            .template-bg {
+                background: url(/Themes/DefaultClean/Content/images/arm-login-bg.jpg) no-repeat center top;
+                background-size: cover;
+                padding: 50px 0;
+                min-height: 100vh;
+                box-sizing: border-box;
+            }
+
+            .template-container {
+                max-width: 90%;
+                width: 870px;
+                margin: 0px auto;
+                background: #fff;
+                box-sizing: border-box;
+                border-radius: 12px;
+                padding: 20px 40px;
+            }
+
+            .template-container h2 {
+                text-align: center;
+            }
+
+            .template-header-section {
+                display: flex;
+                align-items: center;
+                position: relative;
+                padding: 10px 0;
+                border-bottom: #777 solid 1px;
+                margin-bottom: 30px;
+            }
+
+            .temp-lego-right-col {
+                position: absolute;
+                width: 100%;
+                top: 0;
+                text-align: center;
+            }
+
+            .temp-lego-right-col h1 {
+                font-weight: 700;
+                font-size: 36px;
+                line-height: 1.2;
+                margin: 15px 0;
+                padding: 0;
+            }
+
+            .custom-row {
+                display: flex;
+                align-items: flex-start;
+                margin: 0 -15px;
+                flex-wrap: wrap;
+            }
+
+            .half-col {
+                width: 50%;
+                min-width: 50%;
+                max-width: 50%;
+                padding: 0 15px;
+                box-sizing: border-box;
+            }
+
+            .half-col label {
+                font-weight: bold;
+            }
+
+            .mb-3 {
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                border-radius: 5px;
+                border: 0;
+                border-bottom: 1px solid #ccc;
+                color: #090304;
+                font-size: 14px;
+                border-radius: 0px;
+                width: 100%;
+                padding-bottom: 10px;
+            }
+
+            .form-control:focus {
+                outline: none;
+            }
+
+            .template-container table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            .template-container table td, .template-container table th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+
+            .sign-box-left canvas {
+                border: #ccc solid 1px;
+            }
+
+            .type-here {
+                max-width: 284px;
+            }
+
+            .btn-dark {
+                background-color: #242424;
+                color: #fff;
+                padding: 8px 8px;
+                border-radius: 8px;
+                outline: none;
+                border: none;
+                margin-top: 10px;
+            }
+
+            .btn-primary {
+                background-color: #cab656;
+                border: none;
+                color: #fff;
+                padding: 8px 8px;
+                border-radius: 4px;
+                margin-top: 10px;
+            }
+
+            #custom-loader {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.8);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .loader-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.1);
+            }
+
+            .loader-content {
+                text-align: center;
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .loader-spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #cab656;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 10px;
+            }
+
+            @@keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loader-text {
+                font-size: 16px;
+                color: #333;
+            }
+
+            @@media (max-width:991px) {
+                .template-header-section {
+                    flex-direction: column;
+                    margin-bottom: 20px;
+                }
+
+                    .template-header-section img {
+                        max-height: 50px;
+                        width: auto;
+                    }
+
+                .temp-lego-right-col {
+                    position: relative;
+                    top: unset;
+                }
+
+                .template-container {
+                    padding: 20px 30px;
+                }
+
+                .temp-lego-right-col h1 {
+                    font-weight: 700;
+                    font-size: 22px;
+                }
+            }
+        </style>
+    }
+}
+else
+{
+    <style type="text/css">
+
+        .arm-pdf-main-section {
+            display: table;
+            width: 100%;
+            background-color: #fff;
+            padding: 0px 0px;
+            box-sizing: border-box;
+            font-family: "Prompt",sans-serif !important;
+        }
+
+        .arm-pdf-main-section .arm-pdf-cardbox {
+            padding: 0;
+            background-color: #fff;
+            border-radius: 0;
+            width: 100%;
+            max-width: 100%;
+            display: table;
+            margin: 0px auto;
+            font-family: "Prompt", sans-serif !important;
+            /* letter-spacing: 0.8px; */
+        }
+
+        .arm-pdf-cardbox .arm-pdf-header {
+            padding-bottom: 10px;
+            display: table;
+            width: 100%;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .arm-pdf-cardbox .arm-pdf-header img {
+            max-width: 400px;
+            height: auto;
+            max-width: 100%;
+            margin: 0px auto;
+            display: inline-table;
+        }
+
+        .arm-pdf-cardbox .arm-pdf-body {
+            padding: 0px 0px;
+            color: #090304;
+            font-size: 16px;
+            line-height: 1.5;
+            font-family: "Prompt",sans-serif !important;
+        }
+
+        .arm-pdf-cardbox .arm-pdf-body ul {
+            margin: 0px;
+            padding-left: 20px;
+        }
+
+        .arm-pdf-cardbox .arm-pdf-body ul li {
+            list-style-type: disc;
+            margin-bottom: 1rem;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .arm-pdf-cardbox .arm-pdf-body input:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .sign-box-left canvas {
+            border: #ccc solid 1px;
+        }
+
+        .form-control {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+
+        .type-here {
+            max-width: 284px;
+        }
+
+        .btn-dark {
+            background-color: #242424;
+            color: #fff;
+            padding: 8px 8px;
+            border-radius: 8px;
+            outline: none;
+            border: none;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: #cab656;
+            border: none;
+            color: #fff;
+            padding: 8px 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.7;
+        }
+
+        #custom-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .loader-content {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .loader-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #cab656;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+}
+
+
+@if (string.IsNullOrWhiteSpace(Model.Result))
+{
+    <script src="~/js/crm/signature_pad.min.js"></script>
+    <script asp-exclude-from-bundle="true" src="~/js/crm/public.signaturepad.js" asp-location="Footer"></script> 
+
+    <div class="arm-pdf-main-section">
+        <div class="arm-pdf-cardbox">
+            <div class="arm-pdf-header">
+                <img src="https://arm.sigmasolve.com/Themes/DefaultClean/Content/images/ARM_LogoV3-2.png" alt="ARM" width="70%" />
+            </div>
+            <div class="arm-pdf-body">
+                <p style="margin: 0px;">We are very happy to assist you with this move and we aim to make the shipping process as easy as possible. We want to go over the process with you as shipping a vehicle is completely separate from shipping household goods. Below you will find a brief list of what to expect before, during and after shipping and also guidelines for transportation procedure.</p>
+                <br>
+                <ul>
+                    <li>Drivers are instructed to call Customer the day before the scheduled pick up to arrange a time and location to load the vehicle.</li>
+                    <li>Loading/Unloading may or may not be completed after sunset, that is solely at the customer’s discretion.</li>
+                    <li>Carrier will pick up and deliver as close to Customer’s door as legally and safely as possible.</li>
+                    <li>At the time of pickup, Customer and Carrier will carefully inspect the vehicle for pre-existing damage (exterior only) by completing a vehicle inspection report recorded on the Bill of Lading.</li>
+                    <li>
+                        At the time of delivery, Customer and Carrier will carefully inspect the vehicle for possible damages incurred during transit.<b>Any claim must be filed within 24 hours of delivery, even on weekends</b> <div style="display: table;">
+                            <div style="border: none;border-bottom: 1px solid #5a9ded; min-width: 180px;min-height: 19px;max-width: 60%;padding: 8px 0px;display: table;margin-bottom:2px;">
+                                <img src="" alt="signature" class="signature-img" style="display:none;" />
+                            </div>
+                            <span style="display: table-row;color: #5a9ded;font-size: 9px;letter-spacing: 0.2px;margin-top: 3px;">@Model.CustomerNameWithSignature</span>
+                        </div>
+                    </li>
+                    <li> Customers shall, in their absence, designate a person to act as their agent at the point of pickup and/or delivery. If you are unavailable, someone must be present for inspection on both pickup and delivery.</li>
+                    <li>EZ pass / tolls. Customer must remove any electronic device or tags from vehicle that may be automatically scanned when passing through toll stations or toll roads.</li>
+                    <li>
+                        <b>Transport times vary depending on origin and destination location. We will give you an estimate once the move is scheduled and do our best to both pick up/deliver within the window of the time we estimated. It is important to remember that drivers are limited by law to a specific number of miles and hours per day. Other variables that may affect transportation times include deliveries along the way, severe weather, road conditions and mechanical breakdowns. We will communicate with you during and before the move so that you are always updated of any changes in the schedule.</b>
+                    </li>
+                </ul>
+                @if (Model.IsShowSignButton == true)
+                {
+                    <div style="padding: 10px 0px; width: 100%;display: table;">
+                        <div style="display: inline-table; width: 200px; max-width: 50%;">
+                            <div style="display: table;border-bottom: 1px solid #000;">
+                                <div class="sign-box-left">
+
+                                    <canvas id="sig-canvas" width="250" style="touch-action: none;margin-top:10px;" height="80">
+                                        Please get a better browser.
+                                    </canvas>
+                                    <input type="hidden" id="sig-dataUrl" />
+                                </div>
+                                <div class="d-flex align-items-center" style="display:table;margin-bottom:0px;width:100%;">
+                                    <input type="text" id="signature-text-input" class="form-control type-here" style="width:100%;box-sizing:border-box;border:1px solid #ccc;" placeholder="Type here" />
+                                </div>
+                                <div style="display:table;width:100%;margin-bottom:10px;">
+                                    <button type="button" class="btn btn-dark" style="margin-left:0px;cursor:pointer;float:left;border-radius:4px;" id="sig-clearBtn">Clear Signature</button>
+                                    @* <button type="button" class="btn btn-primary mb-3" style="cursor:pointer;float:right;" id="add-sign-btn">Add Signature</button> *@
+                                </div>
+                                @* <input type="text" name="" style="border: none;border-bottom: 1px solid #5a9ded; width: 180px;padding: 8px 0px;display: table-row;" /> *@
+                                <span style="display: table-row; color: #5a9ded;font-size: 9px;letter-spacing: 0.2px;margin-top: 3px;">@Model.CustomerNameWithSignature</span>
+                            </div>
+                            <p style="margin: 0px;text-align: center;">Signature</p>
+                        </div>
+                        <div style="display: table-cell; width: 200px; max-width: 50%; vertical-align: bottom;">
+
+                            <div style="display: table;border-bottom: 1px solid #000;width: 252px;vertical-align: bottom;">
+                                <p style="margin: 0px;">
+                                    @Model.SignatureDate.ToDateFormat()
+                                    <input type="hidden" id="signatureDate" value="@Model.SignatureDate" />
+                                </p>
+                            </div>
+                            <p style="margin: 0px;text-align: center;">Date</p>
+                        </div>
+                    </div>
+                    <div class="error-message" style="display: none;font-size:13px;line-height:1.2;color:red;text-align:center;">Please add signature.</div>
+                    <div style="margin:5px auto;display:table;text-align:center;">
+                        <button class="btn btn-primary" id="sig-submitBtn" style="display: none;cursor:pointer;">Submit</button>
+                        <button type="button" class="btn btn-primary" id="submit-sign-btn" style="cursor:pointer;">Submit</button>
+                        <input type="hidden" asp-for="SignatureBase64String" value="" />
+                    </div>
+                }
+            </div>
+        </div>
+        <div id="custom-loader" style="display: none;">
+            <div class="loader-overlay"></div>
+            <div class="loader-content">
+                <div class="loader-spinner"></div>
+                <div class="loader-text">Submitting...</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function isCanvasEmpty(canvas) {
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            return !imageData.data.some(channel => channel !== 0);
+        }
+
+        function AddSignature() {
+            var canvas = document.getElementById("sig-canvas");
+            var dataUrl = canvas.toDataURL();
+            const blankCanvas = document.createElement('canvas');
+            blankCanvas.width = canvas.width;
+            blankCanvas.height = canvas.height;
+            const base64Canvas = canvas.toDataURL("image/png").split(';base64,')[1];
+
+            var signatureDate = document.getElementById("signatureDate").value;
+            var postData = {
+                signature: base64Canvas,
+                orderGuid: '@Model.DocumentGUID',
+                signatureDate: signatureDate
+            };
+            addAntiForgeryToken(postData);
+
+            document.getElementById("custom-loader").style.display = "flex";
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("OrderSignDetail", "OrderDocument"))",
+                data: postData,
+                success: function (data, textStatus, jqXHR) {
+                    document.getElementById("custom-loader").style.display = "none";
+                    if (data.Result) {
+                        window.location = data.url;
+                    }
+                    else {
+                        alert("An error occurred while processing the request.");
+                    }
+                    $("#submit-sign-btn").prop("disabled", false);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    document.getElementById("custom-loader").style.display = "none";
+                    alert("An error occurred while processing the request.");
+                    $("#submit-sign-btn").prop("disabled", false);
+                }
+            });
+        }
+
+        $(document).on('click', "#sig-clearBtn", function (e) {
+            e.preventDefault();
+            $('.signature-img').attr("src", "").hide();
+        });
+
+        $(document).on('click', "#add-sign-btn", function (e) {
+            e.preventDefault();
+
+            if (isCanvasEmpty(document.getElementById("sig-canvas"))) {
+                return false;
+            }
+
+            $(".error-message").hide();
+
+            var canvas = document.getElementById("sig-canvas");
+            var dataUrl = canvas.toDataURL();
+            $('.signature-img').attr("src", dataUrl).show();
+            $("#sig-dataUrl").html(dataUrl);
+        });
+
+        $(document).on('click', "#submit-sign-btn", function (e) {
+            e.preventDefault();
+
+            $(this).prop("disabled", true);
+
+            $(".error-message").hide();
+
+            if (isCanvasEmpty(document.getElementById("sig-canvas"))) {
+                $(".error-message").show();
+                $("#submit-sign-btn").prop("disabled", false);
+                return false;
+            }
+
+            $("#sig-submitBtn").click();
+        });
+
+    </script>
+}
+else
+{
+    <div class="template-bg">
+        <div class="template-container">
+            <div class="template-header-section">
+                <div class="temp-lego-left-col">
+                    <img src="/../Themes/DefaultClean/Content/images/logo-arm.svg" />
+                </div>
+                <div class="temp-lego-right-col">
+                    <h1>Sign Document</h1>
+                </div>
+            </div>
+            <div class="alert alert-warning" style="text-align:center; font-size:16px;">@Model.Result</div>
+        </div>
+    </div>
+}

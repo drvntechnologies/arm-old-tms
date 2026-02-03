@@ -1,0 +1,510 @@
+@model BookingSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Portal.Quote.Booking.List").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Portal Booking");
+}
+
+<form asp-controller="Quote" asp-action="BookingList" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Portal.Quote.Booking.List")
+        </h1>
+        <div class="float-right">
+            &nbsp;
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal d-form-horizontal">
+                <div class="cards-group">
+
+                    <div class="card card-default d-datatable d-card m-0 custom-card h-100 booking-list-card">
+                        <div class="card-body Quote-listing-tbl">
+                            @{
+                                var gridModel = new DataTablesModel
+                                {
+                                    Name = "portal-order-grid",
+                                    UrlRead = new DataUrl("BookingList", "Quote", null),
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                };
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(BookingModel.BookingDetails))
+                                {
+                                    Title = T("Portal.Booking.List.Columns.QuoteDetails").Text,
+                                    Encode = false,
+                                    Width = "200px",
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(BookingModel.TotalPrice))
+                                {
+                                    Title = T("Portal.Booking.List.Columns.TotalPrice").Text,
+                                    Encode = false,
+                                    Width = "100px",
+                                    Render = new RenderCustom("renderPriceColumnView")
+                                });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(BookingModel.Id))
+                                {
+                                    Title = T("Portal.Common.Action").Text,
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderCustom("renderBookingActionColumnView"),
+                                    Width = "50px",
+                                });
+                            }
+
+                            @await Html.PartialAsync("Table", gridModel)
+
+                            <script>
+                                function renderPriceColumnView(data, type, row, meta) {
+                                    return roundDecimal(data, 0, true, true);
+                                }
+
+                                function renderBookingActionColumnView(data, type, row, meta) {
+
+                                    var button = '<button type="button" class="btn btn-primary view-btn" data-orderId="' + row.Id + '">View</button>';
+
+                                    if (row.ShowCancelButton) {
+                                        button = button + '<button type="button" class="btn btn-secondary cancel-btn-new" data-orderId="' + row.Id + '">@T("Admin.Common.Cancel").Text</button>';
+                                    }
+
+                                    return `<div class="booking-action-btn">${button}</div>`;
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<div id="Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmation-popup-title" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    @T("Admin.Common.ActionConfirmation")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default close" data-dismiss="modal" aria-label="Close">@T("Admin.Common.No")</span>
+                    <button type="button" id="confirmation-submit-button" class="btn btn-primary">
+                        @T("Admin.Common.Yes")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="order-detail-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="order-detail-popup-title" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="order-detail-popup-title">@T("Portal.Book.Order.Detail")</h5>
+                <button type="button" class="close close--order-detail" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+            </div>
+            <div class="form-horizontal">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 custom-wrapper">
+                            <div class="row">
+                                <div class="col-lg-6 py-2">
+                                    @T("Portal.Quote.Fields.FirstPickupDate") : <span id="pickup-date"></span>
+                                </div>
+                                <div class="col-lg-6 py-2">
+                                    @T("Portal.Quote.Fields.FirstDeliveryDate") : <span id="delivery-date"></span>
+                                </div>
+                                @* <div class="col-lg-6 py-2" style="display:none">
+                                    @T("Portal.Quote.Fields.ActualPickupDate") : <span id="actual-pickup-date"></span>
+                                </div>
+                                <div class="col-lg-6 py-2" style="display:none">
+                                    @T("Portal.Quote.Fields.ActualDeliveryDate") : <span id="actual-delivery-date"></span>
+                                </div> *@
+                                <div class="col-lg-6 py-2">
+                                    @T("Portal.Quote.Booking.Order.Number") : <span id="order-number"></span>
+                                </div>
+                                <div class="col-lg-6 py-2">
+                                    @T("Portal.Quote.Booking.Order.CreatedOn") : <span id="order-createdOn"></span>
+                                </div>
+                                <div class="col-lg-6 py-2">
+                                    @T("Portal.Quote.Booking.Order.TotalPrice") : <span id="order-totalPrice"></span>
+                                </div>
+                                <div class="col-lg-6 py-2 break-word">
+                                    @T("Portal.Quote.Booking.Fields.Notes") : <span id="order-customer-note"></span>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-lg-6 d-flex">
+                                    <div class="card custom-card w-100">
+                                        <div class="card-header bg-light">
+                                            <strong class="d-block">@T("Portal.Quote.Booking.Section.ShipmentInformation") (@T("Portal.Quote.Booking.Section.ShipperContactInfo"))</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.FirstName") :
+                                                </div> 
+                                                <div class="input-name">
+                                                    <span id="shipper-firstName"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.LastName") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-lastName"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group" style="display:none">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.FullName") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-fullName"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.Email") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-email"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.Phone") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-phone"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.Reference") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-reference"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.Quote.Booking.Fields.PaymentType") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="shipper-paymentType"></span>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 d-flex">
+                                    <div class="card custom-card w-100">
+                                        <div class="card-header bg-light">
+                                            <strong class="d-block">@T("Portal.QuoteAddress.Section.OriginAddress")</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.Address1") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="origin-address1"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.City") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="origin-city"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.StateProvinceId") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="origin-state"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.ZipPostalCode") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="origin-zipCode"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 d-flex">
+                                    <div class="card custom-card w-100">
+                                        <div class="card-header bg-light">
+                                            <strong class="d-block">@T("Portal.QuoteAddress.Section.DestinationAddress")</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.Address1") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="destination-address1"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.City") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="destination-city"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.StateProvinceId") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="destination-state"></span>
+                                                </div>
+                                            </div>
+                                            <div class="custom-form-group">
+                                                <div class="label-name">
+                                                    @T("Portal.QuoteAddress.Fields.ZipPostalCode") :
+                                                </div>
+                                                <div class="input-name">
+                                                    <span id="destination-zipCode"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 d-flex">
+                                    <div class="card custom-card w-100">
+                                        <div class="card-header bg-light">
+                                            <strong class="d-block">@T("Portal.Quote.Booking.Order.VehicleInformation")</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="custom-form-group">
+                                                <div class="label-name w-100">
+                                                    <div id="vehicle-info"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-primary close--order-detail" style="width:65px;" data-dismiss="modal" aria-label="Close">@T("Admin.Common.Ok")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+
+    let orderId = 0;
+    let url = "";
+
+    $('#portal-order-grid').on('click', '.expand-vehicles', function () {
+        var $this = $(this);
+        var $extraVehicles = $this.siblings('.extra-vehicles');
+
+        if ($extraVehicles.is(':visible')) {
+            $extraVehicles.hide();
+            $this.text(' (Show More +' + ($this.data('count') - 1) + ')');
+        } else {
+            $extraVehicles.show();
+            $this.text(' (@T("Portal.Common.ShowLess"))');
+        }
+    });
+
+    $("#Confirmation-Popup .close").click(function () {
+        orderId = 0;
+        url = "";
+        $("#Confirmation-Popup").modal('hide');
+    });
+
+    $(document).on('click', '.cancel-btn-new', function (e) {
+        e.preventDefault();
+        orderId = $(this).attr("data-orderId");
+        url = "@Url.Action("BookingCancel")";
+        $("#Confirmation-Popup").modal('show');
+    });
+
+    $(document).on('click', '#order-detail-popup .close--order-detail', function (e) {
+        e.preventDefault();
+        $("#order-detail-popup").modal('hide');
+    });
+
+    $(document).on('click', '#confirmation-submit-button', function (e) {
+        e.preventDefault();
+
+        var postData = {
+            id: orderId
+        };
+        addAntiForgeryToken(postData);
+
+        $.post(url, postData, function (response) {
+            orderId = 0;
+            url = "";
+            $("#Confirmation-Popup").modal('hide');
+
+            if (response) {
+                if (response.Message) {
+                    if (!response.Status) {
+                        toastr.error(response.Message);
+                    }
+                    else{
+                        toastr.success(response.Message);
+                        updateTable('#portal-order-grid');
+                    }
+                }
+            }
+        });
+    });
+
+    $(document).on('click', ".view-btn", function(e){
+        e.preventDefault();
+
+        let id = $(this).attr("data-orderId");
+
+        $.get("@Url.Action("BookingDetails", "Quote")", {id: id}, function(data){
+            if (!data) return false;
+
+            if (!data.Status) {
+                if (data.Message) {
+                    toastr.error(data.Message);
+                }
+                return false;
+            }
+
+            $("#pickup-date").text(data.PickupDate);
+            $("#delivery-date").text(data.DeliverySpread);
+            $("#order-number").text(data.OrderId);
+            $("#order-createdOn").text(data.OrderCreatedDate);
+            $("#order-totalPrice").text(data.TotalPrice);
+
+            if (data.Notes?.length > 75){
+                var shortText = data.Notes.substring(0, 75) + '...';
+
+                var text = `
+                    <span class="short-text">
+                        ${escapeHtml(shortText)}
+                    </span>
+                    <span class="full-text" style="display: none;">
+                        ${escapeHtml(data.Notes)}
+                    </span>
+                    <a href="javascript:void(0);" class="toggle-text">Read More</a>`;
+
+                $("#order-customer-note").html(text);
+            } else {
+                $("#order-customer-note").html(escapeHtml(data.Notes));
+            }
+            
+            // $("#order-customer-note").text();
+
+            let hasFirstName = true;
+            let hasLastName = true;
+            if (typeof data.ShipperDetail.FirstName === "string" && data.ShipperDetail.FirstName.trim().length > 0){
+                $("#shipper-firstName").text(data.ShipperDetail.FirstName);
+                $("#shipper-firstName").closest('div.custom-form-group').show();
+            }
+            else {
+                hasFirstName = false;
+                $("#shipper-firstName").closest('div.custom-form-group').hide();
+            }
+
+            if (typeof data.ShipperDetail.LastName === "string" && data.ShipperDetail.LastName.trim().length > 0){
+                $("#shipper-lastName").text(data.ShipperDetail.LastName);
+                $("#shipper-lastName").closest('div.custom-form-group').show();
+            }
+            else {
+                hasLastName = false;
+                $("#shipper-lastName").closest('div.custom-form-group').hide();
+            }
+
+            if (!hasFirstName && !hasLastName) {
+                $("#shipper-fullName").text(data.ShipperDetail.FullName);
+                $("#shipper-fullName").closest('div.custom-form-group').show();
+            }
+            else {
+                $("#shipper-fullName").closest('div.custom-form-group').hide();
+            }
+
+            $("#shipper-email").text(data.ShipperDetail.Email);
+            $("#shipper-phone").text(data.ShipperDetail.Phone);
+            $("#shipper-paymentType").text(data.ShipperDetail.PaymentType);
+            $("#shipper-reference").text(data.ReferenceNumber);
+
+            $("#origin-address1").text(data.OriginAddress.Address);
+            $("#origin-city").text(data.OriginAddress.City);
+            $("#origin-state").text(data.OriginAddress.State);
+            $("#origin-zipCode").text(data.OriginAddress.ZipCode);
+
+            $("#destination-address1").text(data.DestinationAddress.Address);
+            $("#destination-city").text(data.DestinationAddress.City);
+            $("#destination-state").text(data.DestinationAddress.State);
+            $("#destination-zipCode").text(data.DestinationAddress.ZipCode);
+
+    //         if (data.ActualPickupDate && data.ActualPickupDate.length > 0){
+    //             $("#actual-pickup-date").text(data.ActualPickupDate).closest('div').show();
+    //         }
+    //         else{
+				// $("#actual-pickup-date").closest('div').hide();
+    //         }
+
+    //         if (data.ActualDeliveryDate && data.ActualDeliveryDate.length > 0){
+    //             $("#actual-delivery-date").text(data.ActualDeliveryDate).closest('div').show();
+    //         }
+    //         else{
+    //             $("#actual-delivery-date").closest('div').hide();
+    //         }
+
+            if (data.Vehicles.length > 0){
+                let listHtml = "<ul>";
+
+                $.each(data.Vehicles, function (index, vehicle) {
+                     listHtml += `<li>${vehicle}</li>`;
+                });
+
+                listHtml += "</ul>";
+                $("#vehicle-info").html(listHtml);
+            }
+
+            $("#order-detail-popup").modal('show');
+        });
+    });
+
+    $(document).on('click', '.toggle-text', function (e) {
+        e.preventDefault();
+
+        const container = $(this).closest('#order-customer-note');
+        const shortText = container.find('.short-text');
+        const fullText = container.find('.full-text');
+
+        if (shortText.is(':visible')) {
+            shortText.hide();
+            fullText.show();
+            $(this).text('Show Less');
+        } else {
+            fullText.hide();
+            shortText.show();
+            $(this).text('Read More');
+        }
+    });
+</script>

@@ -1,0 +1,481 @@
+﻿@model CompanyModel
+
+<div class="card-body">
+	@if (Model.Id > 0)
+	{
+		<div class="d-flex align-items-center mb-2">
+			<div class="ml-auto">
+				<button type="button" id="create-customer" class="btn btn-primary">
+					<i class="fa fa-plus"></i>
+                    @T("Admin.Company.Customer.List.AddCustomer")
+				</button>
+			</div>
+		</div>
+
+        <div class="row d-form">
+            <div class="col-md-6 col-xl-3">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="CustomerSearchModel.FirstName" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="CustomerSearchModel.FirstName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="CustomerSearchModel.LastName" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="CustomerSearchModel.LastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="CustomerSearchModel.Email" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="CustomerSearchModel.Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <nop-label asp-for="CustomerSearchModel.Phone" />
+                    </div>
+                    <div class="col-md-12">
+                        <nop-editor asp-for="CustomerSearchModel.Phone" html-attributes="@(new { placeholder = "Enter Phone" })" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-12 mt-3">
+                <div class="form-group text-center mb-0">
+                    <button type="button" id="search-customers" class="btn btn-primary ">
+                        <i class="fas fa-search" aria-hidden="true"></i>&nbsp;
+                        @T("Admin.Common.Search")
+                    </button>
+                    <button type="button" id="customer-btncancel" class="btn btn-primary">
+                        <i class="fas fa-times"></i>
+                        @T("Admin.Common.Clear")
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="border rounded-3 border-theme-yellowColor my-3 p-2">
+            <div class="card card-default d-datatable m-0">
+			    <div class="card-body">
+				     @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "customer-grid",
+                            UrlRead = new DataUrl("CustomerList", "Company", new RouteValueDictionary { [nameof(Model.CustomerSearchModel.CompanyId)] = Model.Id }),
+                            UrlDelete = new DataUrl("CustomerDelete", "Company", null),
+                            SearchButtonId = "search-customers",
+                            Length = Model.CustomerSearchModel.PageSize,
+                            LengthMenu = Model.CustomerSearchModel.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.CustomerSearchModel.FirstName), nameof(Model.CustomerSearchModel)),
+                                new FilterParameter(nameof(Model.CustomerSearchModel.LastName), nameof(Model.CustomerSearchModel)),
+                                new FilterParameter(nameof(Model.CustomerSearchModel.Email), nameof(Model.CustomerSearchModel)),
+                                new FilterParameter(nameof(Model.CustomerSearchModel.Phone), nameof(Model.CustomerSearchModel)),
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(CompanyCustomerModel.FullName))
+                                {
+                                    Title = T("Admin.Company.Customer.Fields.FullName").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(CompanyCustomerModel.Title))
+                                {
+                                    Title = T("Admin.Company.Customer.Fields.Title").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(CompanyCustomerModel.Email))
+                                {
+                                    Title = T("Admin.Company.Customer.Fields.Email").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(CompanyCustomerModel.Phone))
+                                {
+                                    Title = T("Admin.Company.Customer.Fields.Phone").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(CompanyCustomerModel.Id))
+                                {
+                                    Title = T("Admin.Common.Action").Text,
+                                    Width = "100",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderCustom("renderColumnEditDelete")
+                                }
+                            }
+                        })
+				    <script>
+                        $("#customer-grid").on("click", ".delete-link", function (e) {
+                            const id = $(this).attr("data-deleteId");
+                            $("#delete-id").val(id);
+                        });
+
+                        function renderColumnEditDelete(data, type, row, meta) {
+                            return '<button type="button" data-customer-id="' + data + '" class="btn btn-default edit-customer"><i class="fas fa-pencil-alt"></i></button><a data-deleteId="' + data + '" class="btn btn-default delete-link" data-toggle="modal" data-target="#delete-confirmation"><i class="far fa-trash-alt" title="Delete"></i>Delete</a>';
+                        }
+
+                        $("#delete-confirmation-popup").click(function(){
+                            var postData = {
+                                id: $("#delete-id").val()
+                            };
+                            addAntiForgeryToken(postData);
+
+                            $.post("@Url.Action("CustomerDelete")", postData, function(data){
+                                $("#delete-id").val("");
+                                $("#delete-confirmation").find('button.close').click();
+
+                                if (data) {
+                                    display_nop_error(data);
+                                } else {
+                                    //refresh grid
+                                    $('#customer-grid').DataTable().draw(false);
+                                }
+                            });
+                        });
+
+				    </script>
+			    </div>
+		    </div>
+		</div>
+
+        <div id="delete-confirmation" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">@T("Admin.Common.AreYouSure")</h4>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="delete-id" name="delete-id" />
+                        @T("Admin.Common.DeleteConfirmation")
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.NoCancel")</span>
+                        <button type="button" id="delete-confirmation-popup" class="btn btn-danger">@T("Admin.Common.Delete")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	}
+	else
+	{
+		<div class="card-default m-0">
+			<div class="">
+				@T("Admin.Company.Customer.List.SaveBeforeEdit")
+			</div>
+		</div>
+	}
+
+</div>
+
+@if (Model.Id > 0)
+{
+    <div id="customer-add-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="customer-add-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="customer-add-popup-title">@T("Admin.Company.Customer.List.AddCustomer")</h4>
+                    <button type="button" class="close" id="close-customer-add-popup" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body d-form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="CustomerId" name="CustomerId" type="hidden" />                            
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="FirstName">@T("Admin.Company.Customer.Fields.FirstName")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-9">
+                                    <input autocomplete="off" class="form-control text-box single-line" placeholder="Enter First Name" id="FirstName" name="FirstName" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="FirstName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="LastName">@T("Admin.Company.Customer.Fields.LastName")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-9">
+                                    <input autocomplete="off" class="form-control text-box single-line" id="LastName" placeholder="Enter Last Name" name="LastName" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="LastName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="Title">@T("Admin.Company.Customer.Fields.Title")</label>
+                                </div>
+                                <div class="col-md-9">
+                                    <input autocomplete="off" class="form-control text-box single-line" placeholder="Enter Job Title" id="Title" name="Title" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="Title" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="Email">@T("Admin.Company.Customer.Fields.Email")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-9">
+                                    <input autocomplete="off" class="form-control text-box single-line" id="Email" placeholder="Enter Email" name="Email" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label class="col-form-label" for="Phone">@T("Admin.Company.Customer.Fields.Phone")</label>
+                                        <nop-required />
+                                </div>
+                                <div class="col-md-9">
+                                    <input autocomplete="off" class="form-control text-box single-line" id="Phone" name="Phone" type="text" />
+                                    <span class="field-validation-valid" data-valmsg-for="Phone" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-3">                                    
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="field-validation-error" id="add-edit-contact-errorMessages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-customer" class="btn btn-primary">
+                        <i class="far fa-save"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        commonPhoneNumber("#Phone, #CustomerSearchModel_Phone");
+        removeSpecialCharactersAndNumber("#FirstName, #LastName, #CustomerSearchModel_FirstName, #CustomerSearchModel_LastName");
+        enforceLowerCase("#Email, #CustomerSearchModel_Email");
+
+        function resetCustomerForm() {
+            $("#Id").val("");
+            $("#Title").val("");
+            $("#FirstName").val("");
+            $("#LastName").val("");
+            $("#Email").val("");
+            $("#Phone").val("");
+
+            $('span[data-valmsg-for="Title"]').hide();
+            $('span[data-valmsg-for="FirstName"]').hide();
+            $('span[data-valmsg-for="LastName"]').hide();
+            $('span[data-valmsg-for="Email"]').hide();
+            $('span[data-valmsg-for="Phone"]').hide();
+            $('#add-edit-contact-errorMessages').html("");
+        }
+
+        $(function () {
+            $('#save-customer').click(function () {
+                $('#save-customer').attr('disabled', true);
+
+                let isValid = true;
+
+                const $id =  $("#CustomerId");
+                const $title =  $("#Title");
+                const $firstName = $("#FirstName");
+                const $lastName = $("#LastName");
+                const $email = $("#Email");
+                const $phone = $("#Phone");
+
+                let title = $title.val();
+                let firstName = $firstName.val();
+                let lastName = $lastName.val();
+                let email = $email.val();
+                let phone = $phone.val();
+
+                if (!firstName || firstName.trim() == "") {
+                    let message = "@T("Admin.Customer.Fields.Name.Required")";
+                    var validationSpan = $('span[data-valmsg-for="FirstName"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="FirstName-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!lastName || lastName.trim() == "") {
+                    let message = "@T("Admin.Customer.Fields.LastName.Required")";
+                    var validationSpan = $('span[data-valmsg-for="LastName"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="LastName-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!email || email.trim() == "") {
+                    let message = "@T("Admin.Customer.Fields.Email.Required")";
+                    var validationSpan = $('span[data-valmsg-for="Email"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="Email-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+                if (!phone || phone.trim() == "") {
+                    let message = "@T("Admin.Customers.Customers.Fields.Phone.Required")";
+                    var validationSpan = $('span[data-valmsg-for="Phone"]');
+                    validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="Phone-error" class="">${message}</span>`).show();
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    $('#save-customer').attr('disabled', false);
+                    return false;
+                }
+
+                var postData = {
+                    Id: $id.val(),
+                    Title: title,
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Email: email,
+                    Phone: phone,
+                    CompanyId: "@Model.Id"
+                };
+                addAntiForgeryToken(postData);
+
+                let url = "@Html.Raw(Url.Action("CustomerCreate", "Company", null))";
+                if($id.val() > 0){
+                    url = "@Html.Raw(Url.Action("CustomerEdit", "Company", null))";
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: url,
+                    data: postData,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Result) {
+                            //reload grid
+                            updateTable('#customer-grid');
+
+                            $("#close-customer-add-popup").trigger("click");
+                        } else if (typeof (data.error) === 'string'){
+                            toastr.error(data.error);
+                        } else {
+                            //display errors if returned
+                            var errorMessages = "";                            
+                            $.each(data.error, function (key, value) {
+                                if (key){
+                                    if (value.errors) {
+                                        const $error =  $(`span[data-valmsg-for='${key}']`);
+                                        let listHtml = "";
+
+                                        $.each(value.errors, function (index, error) {
+                                            listHtml = "<p class='m-0'>" + error +"</p>";
+                                        });
+
+                                        $error.html(`<span id="${key}-error" class="">${listHtml}</span>`);
+                                        $error.addClass("field-validation-error");
+                                        $error.removeClass("field-validation-valid");
+                                        $error.show();
+                                    }
+                                }
+                                else {
+                                    if (value.errors) {
+                                        $.each(value.errors, function (index, error) {
+                                            errorMessages += "<p class='m-0'>" + error +"</p>";
+                                        });
+                                    }
+                                }
+                            });
+                            $('#add-edit-contact-errorMessages').html(errorMessages);
+                        }
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $('#save-customer').attr('disabled', false);
+                    }
+                });
+            });
+        });
+
+        $('#CustomerSearchModel_FirstName, #CustomerSearchModel_LastName, #CustomerSearchModel_Email, #CustomerSearchModel_Phone').on('keydown', function (event) {
+            const isEnterKey = event.key === "Enter" || event.which === 13 || event.keyCode === 13;
+
+            if (isEnterKey) {
+                event.preventDefault();
+                $('#search-customers').click();
+            }
+        });
+
+        $('#FirstName, #LastName, #Title, #Email, #Phone').on('keydown', function (event) {
+            const isEnterKey = event.key === "Enter" || event.which === 13 || event.keyCode === 13;
+
+            if (isEnterKey) {
+                event.preventDefault();
+                $('#save-customer').click();
+            }
+        });
+
+        $("#customer-btncancel").on('click', function(){
+            $('#CustomerSearchModel_FirstName').val('');
+            $('#CustomerSearchModel_LastName').val('');
+            $('#CustomerSearchModel_Email').val('');
+            $('#CustomerSearchModel_Phone').val('');
+
+            $('#search-customers').click();
+        });
+
+        $(document).on('click', "#close-customer-add-popup",function () {
+            resetCustomerForm();
+            $("#customer-add-popup").modal('hide');
+        });
+
+        $(document).on('input', "#Title, #FirstName, #LastName, #Email, #Phone", function () {
+            var name = $(this).attr('name');
+            let value = $(this).val();
+            var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+            if (!value || value.trim() == "") {
+                validationSpan.show();
+            } else {
+                validationSpan.hide();
+            }
+        });
+
+        $(document).on('click', "#create-customer", function(e){
+            e.preventDefault();
+            $("#customer-add-popup-title").text("@T("Admin.Company.Customer.List.AddCustomer")");
+            resetCustomerForm();
+            $("#CustomerId").val("");
+            $("#customer-add-popup").modal('show');
+        });
+
+        $(document).on('click', ".edit-customer", function(e){
+            e.preventDefault();
+            $('#add-edit-contact-errorMessages').html("");
+            var customerId = $(this).attr('data-customer-id');
+            $("#CustomerId").val(customerId);
+            if (customerId > 0){
+                $("#customer-add-popup-title").text("@T("Admin.Company.Customer.List.EditCustomer")");
+                $.get("@Html.Raw(Url.Action("CustomerEdit", "Company"))", { id: customerId }, function (data) {
+                    if(data.Result){
+                        $("#Id").val(data.Id);
+                        $("#Title").val(data.Title);
+                        $("#FirstName").val(data.FirstName);
+                        $("#LastName").val(data.LastName);
+                        $("#Email").val(data.Email);
+                        $("#Phone").val(data.Phone);
+
+                        $("#customer-add-popup").modal('show');
+                    } else if (typeof (data.error) === 'string'){
+                        toastr.error(data.error);
+                    }
+                });
+            }
+            else {
+                return false;
+            }
+        });
+    </script>
+}

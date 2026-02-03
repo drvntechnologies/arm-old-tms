@@ -1,0 +1,83 @@
+﻿@model OrderModel
+@if (Model.VehicleInfos.Count > 0)
+{
+
+    <div class="card detail-info-card d-card">
+        <div class="card-header with-border clearfix">
+            <div class="card-title">
+                <i class="fas fa-car"></i>
+                @T("Admin.Order.VehicleInfo")
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-group row">
+                <div class="col-md-12">
+                    <div class="vehicle-information d-table-responsive">
+                        <table class="table table-hover table-borderless d-table table-striped m-0">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.VehicleYear")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.Make")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.Model")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.VehicleVINNumber")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.Odometer")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.Color")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.PlateNo")
+                                    </th>
+                                    <th>
+                                        @T("Admin.LogisticsVehicleInfo.Fields.State")
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.VehicleInfos)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.VehicleYear
+                                        </td>
+                                        <td>
+                                            @item.Make
+                                        </td>
+                                        <td>
+                                            @item.VehicleModel
+                                        </td>
+                                        <td>
+                                            @item.VehicleVINNumber
+                                        </td>
+                                        <td>
+                                            @item.Odometer
+                                        </td>
+                                        <td>
+                                            @item.Color
+                                        </td>
+                                        <td>
+                                            @item.PlateNo
+                                        </td>
+                                        <td>
+                                            @item.StateName
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

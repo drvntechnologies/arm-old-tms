@@ -1,0 +1,64 @@
+﻿@model LogisticsQuoteSearchModel
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.QuoteHistory").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Quotes");
+}
+
+<form asp-controller="LogisticsQuote" asp-action="HistoryList" method="post">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Admin.QuoteHistory")
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="List">@T("Admin.LogisticsQuote.Quotes.BackToList")</a>
+			</small>
+		</h1>
+	</div>
+	<section class="content">
+		<div class="container-fluid">
+			<div class="form-horizontal">
+				<div class="cards-group">
+					<div class="card card-default">
+						<div class="card-body">
+
+							@{
+								var gridModel = new DataTablesModel
+								{
+									Name = "logisticsquote-history-grid",
+									UrlRead = new DataUrl("LogisticsQuoteHistoryList", "LogisticsQuote", new RouteValueDictionary { [nameof(Model.QuoteId)] = Model.QuoteId }),
+									Length = Model.PageSize,
+									LengthMenu = Model.AvailablePageSizes
+								};
+
+								gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.ActivityLogTypeName))
+								{
+									Title = T("Admin.LogisticsQuote.Fields.ActivityLogTypeName").Text,
+									ClassName = NopColumnClassDefaults.CenterAll,
+									Width = "100",
+								});
+								gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.Comment))
+								{
+									Title = T("Admin.LogisticsQuote.Fields.Comment").Text,
+									Width = "100",
+									ClassName = NopColumnClassDefaults.CenterAll
+								});
+								gridModel.ColumnCollection.Add(new ColumnProperty(nameof(LogisticsQuoteModel.CreatedOnUTC))
+								{
+									Title = T("Admin.LogisticsQuote.Fields.CreatedOnUTC").Text,
+									Width = "100",
+									ClassName = NopColumnClassDefaults.CenterAll,
+									Render = new RenderDate()
+								});
+							}
+							@await Html.PartialAsync("Table", gridModel)
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</form>

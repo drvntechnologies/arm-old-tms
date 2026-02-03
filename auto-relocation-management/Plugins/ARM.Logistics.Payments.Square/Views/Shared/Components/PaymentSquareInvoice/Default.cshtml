@@ -1,0 +1,332 @@
+﻿@model InvoiceInfoModel
+
+@if (Model.AllowToSendDepositInvoice || Model.IsSubOrder)
+{
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2 square-btn" data-bs-toggle="modal" data-bs-target="#invoiceDepositModal">
+
+        <svg class="LogoJewel svelte-14driwk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.6 995.7" height="22">
+            <path fill="#fff" d="M828.4,0H166.2C74.4,0,0,74.4,0,166.2v662.2c0,91.8,74.4,166.2,166.2,166.2h662.2
+    c91.8,0,166.2-74.4,166.2-166.2V166.2C994.6,74.4,920.2,0,828.4,0z M813.8,761.3c0,29-23.5,52.5-52.5,52.5h-528
+    c-29,0-52.5-23.5-52.5-52.5v-528c0-29,23.5-52.5,52.5-52.5h528c29,0,52.5,23.5,52.5,52.5V761.3z M391.8,632.3
+    c-16.7,0-30.1-13.5-30.1-30.2V391.3c0-16.7,13.4-30.3,30.1-30.3h211.1c16.6,0,30.1,13.5,30.1,30.3V602c0,16.7-13.5,30.2-30.1,30.2
+    H391.8z" class="svelte-14driwk"></path>
+        </svg>
+
+        @if (Model.IsSubOrder)
+        {
+            @T("ARM.Logistics.Payments.Square.Invoice.Field.Button.SendSquareInvoice")
+        }
+        else
+        {
+            @T("ARM.Logistics.Payments.Square.Invoice.Field.Button.CreateDepositInvoice")
+        }
+    </button>
+
+    <div class="modal fade" id="invoiceDepositModal" tabindex="-1" aria-labelledby="invoiceDepositModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invoiceDepositModalLabel">
+                        @T("ARM.Logistics.Payments.Square.Invoice.Detail.Heading")
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    @if (Model.IsSubOrder)
+                    {
+                        @Html.Raw(Model.SubOrderInvoiceNote)
+                    }
+                    else
+                    {
+                        @Html.Raw(Model.DepositInvoiceNote)
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" id="send-deposit-invoice" 
+                    asp-controller="PaymentSquare"
+                    asp-action="CreateDepositInvoice" class="btn btn-primary">
+                        @if (Model.IsSubOrder)
+                        {
+                            @T("ARM.Logistics.Payments.Square.Invoice.Field.Button.SendSquareInvoice.Text")
+                        }
+                        else
+                        {
+                            @T("ARM.Logistics.Payments.Square.Invoice.Field.Button.CreateDepositInvoice.Text")
+                        }
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@T("ARM.Logistics.Payments.Square.Common.Button.Cancel")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSquareDepositInvoiceRequestSent = false;
+        $("#send-deposit-invoice").closest('form').on('submit', function() {
+            $("#send-deposit-invoice").prop("disabled", true);
+            isSquareDepositInvoiceRequestSent = true;
+        });
+
+        $("#invoiceDepositModal").on("hidden.bs.modal", function () {
+            if (!isSquareDepositInvoiceRequestSent){
+                $("#send-deposit-invoice").prop("disabled", false);
+            }
+        });
+    </script>
+}
+
+@if (Model.AllowToSendFullInvoice && !Model.IsSubOrder)
+{
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2 square-btn" data-bs-toggle="modal" data-bs-target="#fullInvoiceModal">
+
+        <svg class="LogoJewel svelte-14driwk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.6 995.7" height="22">
+            <path fill="#fff" d="M828.4,0H166.2C74.4,0,0,74.4,0,166.2v662.2c0,91.8,74.4,166.2,166.2,166.2h662.2
+    c91.8,0,166.2-74.4,166.2-166.2V166.2C994.6,74.4,920.2,0,828.4,0z M813.8,761.3c0,29-23.5,52.5-52.5,52.5h-528
+    c-29,0-52.5-23.5-52.5-52.5v-528c0-29,23.5-52.5,52.5-52.5h528c29,0,52.5,23.5,52.5,52.5V761.3z M391.8,632.3
+    c-16.7,0-30.1-13.5-30.1-30.2V391.3c0-16.7,13.4-30.3,30.1-30.3h211.1c16.6,0,30.1,13.5,30.1,30.3V602c0,16.7-13.5,30.2-30.1,30.2
+    H391.8z" class="svelte-14driwk"></path>
+        </svg>
+
+        @T("ARM.Logistics.Payments.Square.FullAmount.Invoice.Button")
+    </button>
+
+    <div class="modal fade" id="fullInvoiceModal" tabindex="-1" aria-labelledby="fullInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fullInvoiceModalLabel">
+                        @T("ARM.Logistics.Payments.Square.Invoice.Detail.Heading")
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="HasFullAmount" id="HasFullAmount" />
+                    @if (string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                    {
+
+                        if (!string.IsNullOrWhiteSpace(Model.FullInvoiceNote))
+                        {
+                            @Html.Raw(Model.FullInvoiceNote)
+                        }
+                        else
+                        {
+                            @Html.Raw(Model.InvoiceNote)
+
+                            @T("ARM.Logistics.Payments.Square.Invoice.Note.FullAmount.Postfix")
+                        }
+                    }
+                    else
+                    {
+                        <div class="field-validation-error">@Model.ErrorMessage</div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" id="send-full-invoice" asp-controller="PaymentSquare" asp-action="SendInvoice" class="btn btn-primary">@T("ARM.Logistics.Payments.Square.FullAmount.Invoice.Button.Text")</button>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@T("ARM.Logistics.Payments.Square.Common.Button.Cancel")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSquareFullInvoiceRequestSent = false;
+        $("#send-full-invoice").closest('form').on('submit', function() {
+            $("#send-full-invoice").prop("disabled", true);
+            isSquareFullInvoiceRequestSent = true;
+        });
+
+        $("#fullInvoiceModal").on("hidden.bs.modal", function () {
+            $("#HasFullAmount").val("false");
+            if (!isSquareFullInvoiceRequestSent){
+                $("#send-full-invoice").prop("disabled", false);
+            }
+        });
+
+        $("#fullInvoiceModal").on("shown.bs.modal", function () {
+            $("#HasFullAmount").val("true");
+        });
+    </script>
+}
+else
+{
+    if (Model.IsSubOrder)
+    {
+        return;
+    }
+
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2 square-btn" disabled>
+
+        <svg class="LogoJewel svelte-14driwk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.6 995.7" height="22">
+            <path fill="#fff" d="M828.4,0H166.2C74.4,0,0,74.4,0,166.2v662.2c0,91.8,74.4,166.2,166.2,166.2h662.2
+    c91.8,0,166.2-74.4,166.2-166.2V166.2C994.6,74.4,920.2,0,828.4,0z M813.8,761.3c0,29-23.5,52.5-52.5,52.5h-528
+    c-29,0-52.5-23.5-52.5-52.5v-528c0-29,23.5-52.5,52.5-52.5h528c29,0,52.5,23.5,52.5,52.5V761.3z M391.8,632.3
+    c-16.7,0-30.1-13.5-30.1-30.2V391.3c0-16.7,13.4-30.3,30.1-30.3h211.1c16.6,0,30.1,13.5,30.1,30.3V602c0,16.7-13.5,30.2-30.1,30.2
+    H391.8z" class="svelte-14driwk"></path>
+        </svg>
+
+        @T("ARM.Logistics.Payments.Square.FullAmount.Invoice.Button")
+    </button>
+}
+
+@if (!Model.HasOpenOrderStatus && !Model.IsSubOrder)
+{
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2 square-btn" data-bs-toggle="modal" data-bs-target="#invoiceModal">
+
+        <svg class="LogoJewel svelte-14driwk" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.6 995.7" height="22">
+            <path fill="#fff" d="M828.4,0H166.2C74.4,0,0,74.4,0,166.2v662.2c0,91.8,74.4,166.2,166.2,166.2h662.2
+        c91.8,0,166.2-74.4,166.2-166.2V166.2C994.6,74.4,920.2,0,828.4,0z M813.8,761.3c0,29-23.5,52.5-52.5,52.5h-528
+        c-29,0-52.5-23.5-52.5-52.5v-528c0-29,23.5-52.5,52.5-52.5h528c29,0,52.5,23.5,52.5,52.5V761.3z M391.8,632.3
+        c-16.7,0-30.1-13.5-30.1-30.2V391.3c0-16.7,13.4-30.3,30.1-30.3h211.1c16.6,0,30.1,13.5,30.1,30.3V602c0,16.7-13.5,30.2-30.1,30.2
+        H391.8z" class="svelte-14driwk"></path>
+        </svg>
+
+        @T("ARM.Logistics.Payments.Square.AdditionalAmount.Invoice.Button")
+    </button>
+
+    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invoiceModalLabel">
+                        @T("ARM.Logistics.Payments.Square.Invoice.Detail.Heading")
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    @if (string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                    {
+                        @Html.Raw(Model.InvoiceNote)
+
+                        @if (Model.HasAdditionalInvoiceWithDepositOrFullInvoice)
+                        {
+                            @T("ARM.Logistics.Payments.Square.Invoice.Note.AdditionalAmount.Postfix")
+                        }
+                    }
+                    else
+                    {
+                        <div class="field-validation-error">@Model.ErrorMessage</div>
+                    }
+
+                    <div class="form-horizontal mt-3" id="invoice-line-items">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <label for="ContactName">
+                                    @T("ARM.Logistics.Payments.Square.Invoice.AdditionalAmount.Field.LineItemName")
+                                    <nop-required />
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" id="line-item-name" class="form-control" placeholder="Enter Line Item Name" />
+                                <span class="field-validation-error" id="error-line-item-name" style="display: none;">@T("ARM.Logistics.Payments.Square.Invoice.AdditionalAmount.Field.LineItemName.Required")</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <label for="ContactName">@T("ARM.Logistics.Payments.Square.Invoice.Field.Amount")</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" id="line-item-amount" class="form-control" value="0" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="send-custom-invoice" asp-controller="PaymentSquare" asp-action="SendInvoice" class="btn btn-primary">@T("ARM.Logistics.Payments.Square.AdditionalAmount.Invoice.Button.Text")</button>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@T("ARM.Logistics.Payments.Square.Common.Button.Cancel")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $("#line-item-amount").kendoNumericTextBox({
+            value: $("#line-item-amount").val(),
+            decimals: 2,
+            restrictDecimals: false,
+            format: "c2",
+            //min: 0,
+            spinners: false
+        }).focus(function () {
+            if ($(this).data("kendoNumericTextBox").value() == 0) {
+                $(this).data("kendoNumericTextBox").value('');
+            }
+            else {
+                var input = $(this).data("kendoNumericTextBox").element[0];
+                setTimeout(function () {
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }, 0);
+            }
+        }).blur(function () {
+            if ($(this).data("kendoNumericTextBox").value() == null || $(this).data("kendoNumericTextBox").value() == '') {
+                $(this).data("kendoNumericTextBox").value(0);
+            }
+        });
+
+        $(document).on("click", "#send-custom-invoice", function(e){
+            e.preventDefault();
+            $(this).prop("disabled", true);
+
+            var lineItemName = $("#line-item-name").val();
+            var lineItemAmount = $("#line-item-amount").val();
+
+            if (lineItemName == '') {
+                $("#error-line-item-name").show();
+                $(this).prop("disabled", false);
+
+                return false;
+            }
+
+            function appendLineItem(id, name, value){
+                var hiddenInput = $('<input>', {
+                    type: 'hidden',
+                    id: id,
+                    name: name,
+                    value: value,
+                    class: 'inv-line-items'
+                });
+
+                $("#invoice-line-items").append(hiddenInput);
+            };
+
+            appendLineItem('LineItems_0_Name', 'LineItems[0].Name', lineItemName);
+            appendLineItem('LineItems_0_Amount', 'LineItems[0].Amount', lineItemAmount);
+
+            $(this).closest('form')
+                    .attr('action', $("#send-custom-invoice")[0].formAction)
+                    .submit();
+        });
+
+        $(document).on("input", "#line-item-name", function(e){
+            const value = $(this).val()?.trim() ?? "";
+
+            if (value.length === 0){
+                $("#error-line-item-name").show();
+            }
+            else{
+                $("#error-line-item-name").hide();
+            }
+        });
+
+        $("#invoiceModal").on("hidden.bs.modal", function () {
+            $("#line-item-name").val("");
+            $("#line-item-amount").data("kendoNumericTextBox").value(0);
+            $("#error-line-item-name").hide();
+            $(".inv-line-items").remove();
+
+            $("#send-custom-invoice").prop("disabled", false);
+        });
+
+    </script>
+}

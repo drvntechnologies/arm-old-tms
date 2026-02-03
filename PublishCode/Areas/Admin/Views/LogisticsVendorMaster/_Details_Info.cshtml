@@ -1,0 +1,425 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+
+<div class="carrier-information vendor-detail-pg">
+    <div class="row">
+        <div class="col-lg-6 col-xl-6">
+            <div class="card detail-info-card d-card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-info" aria-hidden="true"></i> Company Overview</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(Model.CompanyName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.CompanyName")</b> </div>
+                            <div class="input-name"><span>@Model.CompanyName</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.Address1))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.Address1")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.Address1</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.Address2))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.Address2")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.Address2</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.City))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.City")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.City</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.StateProvinceName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.StateProvince")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.StateProvinceName</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.ZipPostalCode))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.ZipPostalCode")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.ZipPostalCode</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.Region))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Admin.Address.Fields.Region")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.Region</span></div>
+                        </div>
+                    } 
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentAddress.CountryName))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("Address.Fields.Country")</b></div>
+                            <div class="input-name"><span>@Model.PaymentAddress.CountryName</span></div>
+                        </div>
+                    }                  
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentFaxNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.PaymentFaxNumber")</b></div>
+                            <div class="input-name"><span>@Model.PaymentFaxNumber</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PaymentEmailAddress))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.PaymentEmailAddress")</b></div>
+                            <div class="input-name"><span>@Model.PaymentEmailAddress</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.AlternateEmailAddress))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.AlternateEmailAddress")</b></div>
+                            <div class="input-name"><span>@Model.AlternateEmailAddress</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.AlternateFaxNumber))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.AlternateFaxNumber")</b></div>
+                            <div class="input-name"><span>@Model.AlternateFaxNumber</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.PayTerms))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name">@T("Admin.VendorMaster.Fields.PayTerms")</div>
+                            <div class="input-name"><span>@Model.PayTerms</span></div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.Notes")</b></div>
+                            <div class="input-name"><span>@Model.Notes</span></div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.PrimaryContactName) ||
+            !string.IsNullOrWhiteSpace(Model.PrimaryContactPhone) ||
+            !string.IsNullOrWhiteSpace(Model.SecondaryContactName) ||
+            !string.IsNullOrWhiteSpace(Model.SecondaryContactPhone) ||
+            (Model.RemittanceAddress != null &&
+            (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address1) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address2) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.City) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.StateProvinceName) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.ZipPostalCode) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Region) ||
+            !string.IsNullOrWhiteSpace(Model.RemittanceAddress.CountryName))))
+        {
+            <div class="col-lg-6 col-xl-6">
+                @if (!string.IsNullOrWhiteSpace(Model.PrimaryContactName) ||
+                !string.IsNullOrWhiteSpace(Model.PrimaryContactPhone) ||
+                !string.IsNullOrWhiteSpace(Model.SecondaryContactName) ||
+                !string.IsNullOrWhiteSpace(Model.SecondaryContactPhone))
+                {
+                    <div class="card detail-info-card d-card">
+                        <div class="card-header with-border">
+                            <h3 class="card-title"><i class="fa fa-user" aria-hidden="true"></i> Contact Information</h3>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrWhiteSpace(Model.PrimaryContactName))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("VendorMaster.Fields.PrimaryContactName")</b></div>
+                                    <div class="input-name"><span>@Model.PrimaryContactName</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.PrimaryContactPhone))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("VendorMaster.Fields.PrimaryContactPhone")</b></div>
+                                    <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.PrimaryContactPhone)</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.SecondaryContactName))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("VendorMaster.Fields.SecondaryContactName")</b></div>
+                                    <div class="input-name"><span>@Model.SecondaryContactName</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.SecondaryContactPhone))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("VendorMaster.Fields.SecondaryContactPhone")</b></div>
+                                    <div class="input-name"><span>@PhoneNumberFormatter.FormatToUSPhoneNumber(Model.SecondaryContactPhone)</span></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.RemittanceAddress != null &&
+                (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address1) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address2) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.City) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.StateProvinceName) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.ZipPostalCode) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.Region) ||
+                !string.IsNullOrWhiteSpace(Model.RemittanceAddress.CountryName)))
+                {
+                    <div class="card detail-info-card d-card">
+                        <div class="card-header with-border">
+                            <h3 class="card-title"><i class="fa fa-user" aria-hidden="true"></i> Remittance Information</h3>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address1))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.Address1")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.Address1</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Address2))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.Address2")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.Address2</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.City))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.City")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.City</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.StateProvinceName))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.StateProvince")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.StateProvinceName</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.ZipPostalCode))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.ZipPostalCode")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.ZipPostalCode</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.Region))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Admin.Address.Fields.Region")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.Region</span></div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.RemittanceAddress.CountryName))
+                            {
+                                <div class="custom-form-group">
+                                    <div class="label-name"><b>@T("Address.Fields.Country")</b></div>
+                                    <div class="input-name"><span>@Model.RemittanceAddress.CountryName</span></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.BankName) ||
+        !string.IsNullOrWhiteSpace(Model.AccountType) ||
+        !string.IsNullOrWhiteSpace(Model.AccountNumber) ||
+        !string.IsNullOrWhiteSpace(Model.RoutingNumber) ||
+        !string.IsNullOrWhiteSpace(Model.ZelleEmail) ||
+        !string.IsNullOrWhiteSpace(Model.ZellePhoneNumber) ||
+        !string.IsNullOrWhiteSpace(Model.PayPalEmail) ||
+        !string.IsNullOrWhiteSpace(Model.PayPalPhoneNumber) ||
+        !string.IsNullOrWhiteSpace(Model.CashAppEmail) ||
+        !string.IsNullOrWhiteSpace(Model.CashAppPhoneNumber) ||
+        !string.IsNullOrWhiteSpace(Model.VenmoEmail) ||
+        !string.IsNullOrWhiteSpace(Model.VenmoPhoneNumber))
+        {
+            <div class="col-lg-12 col-xl-12">
+                <div class="card detail-info-card d-card">
+                    <div class="card-header with-border">
+                        <h3 class="card-title"><i class="fa fa-solid fa-credit-card" aria-hidden="true"></i> @T("Admin.VendorMaster.Fields.Payment.Section")</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @if (!string.IsNullOrWhiteSpace(Model.BankName) ||
+                                !string.IsNullOrWhiteSpace(Model.AccountType) ||
+                                !string.IsNullOrWhiteSpace(Model.AccountNumber) ||
+                                !string.IsNullOrWhiteSpace(Model.RoutingNumber))
+                            {
+                                <div class="col-md-6">
+                                    <div class="card-body px-0 pt-0">
+                                        <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.ACH")</h6>
+                                        <div class="card-header"></div>
+                                        @if (!string.IsNullOrWhiteSpace(Model.BankName))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.BankName")</b></div>
+                                                <div class="input-name"><span>@Model.BankName</span></div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.AccountType))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.AccountType")</b></div>
+                                                <div class="input-name"><span>@Model.AccountType</span></div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.AccountNumber))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.AccountNumber")</b></div>
+                                                <div class="input-name"><span>@Model.AccountNumber</span></div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.RoutingNumber))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.RoutingNumber")</b></div>
+                                                <div class="input-name"><span>@Model.RoutingNumber</span></div>
+                                            </div>
+                                        }
+							        </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.ZelleEmail) ||
+                                !string.IsNullOrWhiteSpace(Model.ZellePhoneNumber))
+                            {
+                                <div class="col-md-6">
+                                    <div class="card-body px-0 pt-0">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.Zelle")</h6>
+                                    <div class="card-header"></div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ZelleEmail))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name"><b>@T("Admin.VendorMaster.Fields.Email")</b></div>
+                                            <div class="input-name"><span>@Model.ZelleEmail</span></div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.ZellePhoneNumber))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name"><b>@T("Admin.VendorMaster.Fields.PhoneNumber")</b></div>
+                                            <div class="input-name"><span>@Model.ZellePhoneNumber</span></div>
+                                        </div>
+                                    }
+							    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.PayPalEmail) ||
+                                !string.IsNullOrWhiteSpace(Model.PayPalPhoneNumber))
+                            {
+                                <div class="col-md-6">
+                                    <div class="card-body px-0 pt-0">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.PayPal")</h6>
+                                    <div class="card-header"></div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.PayPalEmail))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name"><b>@T("Admin.VendorMaster.Fields.Email")</b></div>
+                                            <div class="input-name"><span>@Model.PayPalEmail</span></div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.PayPalPhoneNumber))
+                                    {
+                                        <div class="custom-form-group">
+                                            <div class="label-name"><b>@T("Admin.VendorMaster.Fields.PhoneNumber")</b></div>
+                                            <div class="input-name"><span>@Model.PayPalPhoneNumber</span></div>
+                                        </div>
+                                    }
+							    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.CashAppEmail) ||
+                                !string.IsNullOrWhiteSpace(Model.CashAppPhoneNumber))
+                            {
+                                <div class="col-md-6">
+                                    <div class="card-body px-0 pt-0">
+                                        <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.CashApp")</h6>
+                                        <div class="card-header"></div>
+                                        @if (!string.IsNullOrWhiteSpace(Model.CashAppEmail))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.Email")</b></div>
+                                                <div class="input-name"><span>@Model.CashAppEmail</span></div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.CashAppPhoneNumber))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.PhoneNumber")</b></div>
+                                                <div class="input-name"><span>@Model.CashAppPhoneNumber</span></div>
+                                            </div>
+                                        }
+						            </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.VenmoEmail) ||
+                                !string.IsNullOrWhiteSpace(Model.VenmoPhoneNumber))
+                            {
+                                <div class="col-md-6">
+                                    <div class="card-body px-0 pt-0">
+                                        <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.Venmo")</h6>
+                                        <div class="card-header"></div>
+                                        @if (!string.IsNullOrWhiteSpace(Model.VenmoEmail))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.Email")</b></div>
+                                                <div class="input-name"><span>@Model.VenmoEmail</span></div>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.VenmoPhoneNumber))
+                                        {
+                                            <div class="custom-form-group">
+                                                <div class="label-name"><b>@T("Admin.VendorMaster.Fields.PhoneNumber")</b></div>
+                                                <div class="input-name"><span>@Model.VenmoPhoneNumber</span></div>
+                                            </div>
+                                        }
+						            </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="col-lg-6 col-xl-6">
+            <div class="card detail-info-card d-card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-legal" aria-hidden="true"></i> Legal Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name"><b>@T("VendorMaster.Fields.Need1099")?</b></div>
+                        <div class="input-name"><span>@(Model.Need1099 ? T("Admin.Common.Yes").Text : T("Admin.Common.No").Text)</span></div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.EIN))
+                    {
+                        <div class="custom-form-group">
+                            <div class="label-name"><b>@T("VendorMaster.Fields.EIN")</b></div>
+                            <div class="input-name"><span>@Model.EIN</span></div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

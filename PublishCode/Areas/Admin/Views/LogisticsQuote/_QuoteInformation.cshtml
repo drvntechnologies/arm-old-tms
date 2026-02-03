@@ -1,0 +1,123 @@
+﻿@model LogisticsQuoteModel
+
+<div class="card d-card detail-info-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-user"></i>
+            @T("Admin.QuoteInformation")
+        </div>
+    </div>
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.ShipperCompany))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.ShipperCompany")
+                </div>
+                <div class="input-name">
+                    @Model.ShipperCompany
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.FullName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Customer")
+                </div>
+                <div class="input-name">
+                    @Model.FullName
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Phone1) || !string.IsNullOrWhiteSpace(Model.Phone2))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Phones")
+                </div>
+                <div class="input-name">
+                    @if (!string.IsNullOrWhiteSpace(Model.Phone1))
+                    {
+                        @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone1)
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Phone1) && !string.IsNullOrWhiteSpace(Model.Phone2))
+                    {
+                        <br />
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Phone2))
+                    {
+                        @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Phone2)
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Email")
+                </div>
+                <div class="input-name">
+                    @Model.Email
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.QuoteAddress))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Location")
+                </div>
+                <div class="input-name">
+                    @Model.QuoteAddress
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Mobile))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.Mobile")
+                </div>
+                <div class="input-name">
+                    @PhoneNumberFormatter.FormatToUSPhoneNumber(Model.Mobile)
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.ReferredBy) && 
+            !Model.ReferredBy.Equals("0") && 
+            !Model.ReferredBy.Equals("-1"))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.ReferredBy")
+                </div>
+                <div class="input-name">
+                    @Model.ReferredBy (@Model.ReferralAmount)
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.AssignedTo))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.LogisticsQuote.Fields.AssignedTo")
+                </div>
+                <div class="input-name">
+                    @Model.AssignedTo
+                </div>
+            </div>
+        }
+
+
+    </div>
+</div>

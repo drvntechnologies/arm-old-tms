@@ -1,0 +1,71 @@
+﻿@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+@{
+    // Page title
+    ViewBag.PageTitle = T("Admin.VendorMaster.Create").Text;
+    // Active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("VendorMaster");
+
+    var formId = "vendor-form";
+    ViewData["FormId"] = formId;
+}
+
+<form asp-controller="LogisticsVendorMaster" asp-action="Create" method="post" id="@formId">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.VendorMaster.Create")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.VendorMaster.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Cancel-Confirmation-Popup">
+                <i class="fa fa-times" aria-hidden="true"></i>
+                @T("Admin.Common.Cancel")
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        @await Html.PartialAsync("_CreateOrUpdate", Model)
+        <div class="content-header clearfix border-0 m-0">
+            <div class="float-left"></div>
+            <div class="float-right">
+                <button type="submit" name="save" class="btn btn-primary">
+                    <i class="far fa-save"></i>
+                    @T("Admin.Common.Save")
+                </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Cancel-Confirmation-Popup">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                    @T("Admin.Common.Cancel")
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div id="Cancel-Confirmation-Popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancel-confirmation-popup-title">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@T("Admin.Common.Cancel")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @T("Admin.Common.Cancel.Confirmation.Popup.Text")
+                </div>
+                <div class="modal-footer">
+                    <span class="btn btn-default" data-dismiss="modal">@T("Admin.Common.No")</span>
+                    <a asp-action="List" class="btn btn-primary">@T("Admin.Common.Yes")</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

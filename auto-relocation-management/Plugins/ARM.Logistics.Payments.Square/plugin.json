@@ -1,0 +1,11 @@
+﻿{
+    "Group": "Payment methods",
+    "FriendlyName": "Credit Card",
+    "SystemName": "Logistics.Payments.Square",
+    "Version": "2.13",
+    "SupportedVersions": [ "4.60" ],
+    "Author": "Sigma Solve team",
+    "DisplayOrder": 1,
+    "FileName": "ARM.Logistics.Payments.Square.dll",
+    "Description": "This plugin allows paying with Square"
+}

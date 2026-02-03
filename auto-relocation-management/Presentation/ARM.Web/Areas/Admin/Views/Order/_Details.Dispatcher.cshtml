@@ -1,0 +1,267 @@
+﻿@model LogisticsOrderCarrierMappingModel
+
+<div class="row">
+	<div class="col-md-12 mt-3">
+		<div class="card detail-info-card order-dispatcher mb-1">
+
+			<div class="card-header with-border clearfix d-flex align-items-center flex-wrap">
+				<div class="card-title w-auto">
+					<i class="far fa-regular fa-id-card"></i>
+					@T("Admin.LogisticsCarriers.Dispatcher")
+				</div>
+				<a class="btn btn-primary ml-auto" href="#" id="addnew-dispatcher">@T("Admin.LogisticsDispatcher.View.AddDispatcher")</a>
+			</div>
+			<div class="card-body">
+				<input id="DispatcherId" name="DispatcherId" type="hidden" />
+				<div class="content" id="dispatcher-info-card-section" style="display:none;">
+					<div class="form-horizontal">
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DispatcherModel.FirstName" asp-required="Model.DispatcherModel.FirstNameRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DispatcherModel.FirstName" html-attributes="@(new { placeholder = "Enter First Name" })" />
+								<span asp-validation-for="DispatcherModel.FirstName"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DispatcherModel.LastName" asp-required="Model.DispatcherModel.LastNameRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DispatcherModel.LastName" html-attributes="@(new { placeholder = "Enter Last Name" })" />
+								<span asp-validation-for="DispatcherModel.LastName"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DispatcherModel.Email" asp-required="Model.DispatcherModel.EmailRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DispatcherModel.Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+								<span asp-validation-for="DispatcherModel.Email"></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3 col-md-3 col-lg-3 col-xl-4">
+								<nop-label asp-for="DispatcherModel.PhoneNumber" asp-required="Model.DispatcherModel.PhoneNumberRequired" />
+							</div>
+							<div class="col-sm-9 col-md-9 col-lg-9 col-xl-8">
+								<nop-editor asp-for="DispatcherModel.PhoneNumber" />
+								<span asp-validation-for="DispatcherModel.PhoneNumber"></span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="text-center col-12">
+								<button type="button" id="save-dispatcher" class="btn btn-primary btn-search">
+									<i class="far fa-save"></i>
+									@T("Admin.Common.Save")
+								</button>
+								<button type="button" id="dispatcher-btncancel" class="btn btn-primary btn-cancel-search">
+									<i class="fas fa-times"></i>
+									@T("Admin.Common.Cancel")
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					commonPhoneNumber("#DispatcherModel_PhoneNumber");
+					removeSpecialCharactersAndNumber("#DispatcherModel_FirstName, #DispatcherModel_LastName");
+					enforceLowerCase("#DispatcherModel_Email");
+
+					$(document).on('click', "#addnew-dispatcher", function (e) {
+						e.preventDefault();
+						$("#dispatcher-info-card-section").slideDown();
+						$(this).hide();
+
+						$('#save-dispatcher').attr('disabled', false);
+					});
+
+					$(document).on('click', "#dispatcher-btncancel", function (e) {
+						e.preventDefault();
+						$("#dispatcher-info-card-section").slideUp();
+						$("#addnew-dispatcher").show();
+						//clear input value
+						$("#@Html.IdFor(model => model.DispatcherModel.FirstName)").val('');
+						$("#@Html.IdFor(model => model.DispatcherModel.LastName)").val('');
+						$("#@Html.IdFor(model => model.DispatcherModel.PhoneNumber)").val('');
+						$("#@Html.IdFor(model => model.DispatcherModel.Email)").val('');
+
+						//clear validation
+						$('span[data-valmsg-for="DispatcherModel.FirstName"]').hide();
+						$('span[data-valmsg-for="DispatcherModel.LastName"]').hide();
+						$('span[data-valmsg-for="DispatcherModel.PhoneNumber"]').hide();
+						$('span[data-valmsg-for="DispatcherModel.Email"]').hide();
+
+						$('#save-dispatcher').attr('disabled', false);
+					});
+
+					$(document).on('input', "#DispatcherModel_FirstName, #DispatcherModel_LastName, #DispatcherModel_Email, #DispatcherModel_PhoneNumber", function () {
+						var name = $(this).attr('name');
+						let value = $(this).val();
+						var validationSpan = $(`span[data-valmsg-for="${name}"]`);
+
+						if (!value || value.trim() == "") {
+							validationSpan.show();
+						} else {
+							validationSpan.hide();
+						}
+					});
+
+					$('#save-dispatcher').click(function () {
+						$('#save-dispatcher').attr('disabled', true);
+
+						let isValid = true;
+
+						var firstNameValue = $("#@Html.IdFor(model => model.DispatcherModel.FirstName)").val();
+						if (!firstNameValue || firstNameValue.trim() == "") {
+							let message = "@T("Admin.LogisticsDispatcher.FirstName.Required")";
+							var validationSpan = $('span[data-valmsg-for="DispatcherModel.FirstName"]');
+							validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherModel.FirstName-error" class="">${message}</span>`).show();
+							isValid = false;
+						}
+
+						var lastNameValue = $("#@Html.IdFor(model => model.DispatcherModel.LastName)").val();
+						// if(!lastNameValue  || lastNameValue .trim() == "") {
+						//     let message = "@T("Admin.LogisticsDispatcher.LastName.Required")";
+						//     var validationSpan = $('span[data-valmsg-for="DispatcherModel.LastName"]');
+						//     validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherModel.LastName-error" class="">${message}</span>`).show();
+						//     isValid = false;
+						// }
+
+						var phoneNumberValue = $("#@Html.IdFor(model => model.DispatcherModel.PhoneNumber)").val();
+						if (!phoneNumberValue || phoneNumberValue.trim() == "") {
+							let message = "@T("Admin.LogisticsDispatcher.Phone.Required")";
+							var validationSpan = $('span[data-valmsg-for="DispatcherModel.PhoneNumber"]');
+							validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherModel.PhoneNumber-error" class="">${message}</span>`).show();
+							isValid = false;
+						}
+
+						var emailValue = $("#@Html.IdFor(model => model.DispatcherModel.Email)").val();
+						// if (!emailValue || emailValue.trim() == "") {
+						//     let message = "@T("Admin.LogisticsDispatcher.Email.Required")";
+						//     var validationSpan = $('span[data-valmsg-for="DispatcherModel.Email"]');
+						//     validationSpan.removeClass('field-validation-valid').addClass('field-validation-error').html(`<span id="DispatcherModel.Email-error" class="">${message}</span>`).show();
+						//     isValid = false;
+						// }
+
+						if (!isValid) {
+							$('#save-dispatcher').attr('disabled', false);
+							return false;
+						}
+
+						var postData = {
+							FirstName: firstNameValue,
+							LastName: lastNameValue,
+							PhoneNumber: phoneNumberValue,
+							Email: emailValue,
+							CarrierId: "@Model.CarrierId",
+						};
+						addAntiForgeryToken(postData);
+
+						$.ajax({
+							cache: false,
+							type: "POST",
+							url: "@Html.Raw(Url.Action("CreateDispatcher", "Order", null))",
+							data: postData,
+							success: function (data, textStatus, jqXHR) {
+								if (data.Result) {
+									//reload grid
+									updateTable('#dispatcher-grid');
+									$("#DispatcherId").val(data.DispatcherId);
+
+									const dispatcherInterval = setInterval(function(){
+										const $dispatcher = $(`input[name='checkbox_dispatcher'][value='${data.DispatcherId}']`);
+
+										if ($dispatcher.length > 0){
+											$(`input[name='checkbox_dispatcher']`).prop('checked', false);
+											$dispatcher.prop('checked', true);
+
+											clearInterval(dispatcherInterval);
+											return false;
+										}
+									},250);
+
+									$("#dispatcher-info-card-section").slideUp();
+									$("#addnew-dispatcher").show();
+
+									//clear input value
+									$("#@Html.IdFor(model => model.DispatcherModel.FirstName)").val('');
+									$("#@Html.IdFor(model => model.DispatcherModel.LastName)").val('');
+									$("#@Html.IdFor(model => model.DispatcherModel.PhoneNumber)").val('');
+									$("#@Html.IdFor(model => model.DispatcherModel.Email)").val('');
+								} else {
+									//display errors if returned
+									display_nop_error(data);
+								}
+							},
+							complete: function (jqXHR, textStatus) {
+								$('#save-dispatcher').attr('disabled', false);
+							}
+						});
+					});
+				</script>
+				<div class="card card-default d-datatable order-detail-dispatcher-tbl d-datatable-small mb-0">
+					<div class="card-body">
+						@await Html.PartialAsync("Table", new DataTablesModel
+						{
+							Name = "dispatcher-grid",
+							UrlRead = new DataUrl("DispatcherList", "LogisticsCarriers", new RouteValueDictionary { [nameof(Model.LogisticsDispatcherSearchModel.CarrierId)] = Model.DispatcherModel.CarrierId }),
+							Length = Model.LogisticsDispatcherSearchModel.PageSize,
+							LengthMenu = Model.LogisticsDispatcherSearchModel.AvailablePageSizes,
+							ColumnCollection = new List<ColumnProperty>
+							{
+								new ColumnProperty(nameof(LogisticsDispatcherModel.Id))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Dispatcher.SelectOne").Text,
+									Render = new RenderCustom("checkboxDispatcher"),
+									ClassName =  NopColumnClassDefaults.CenterAll,
+									Width = "70"
+								},
+								new ColumnProperty(nameof(LogisticsDispatcherModel.Name))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Name").Text,
+									Width = "110"
+								},
+								new ColumnProperty(nameof(LogisticsDispatcherModel.Phone))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Phone").Text,
+									Width = "100"
+								},							
+								new ColumnProperty(nameof(LogisticsDispatcherModel.Email))
+								{
+									Title = T("Admin.LogisticsCarriers.View.Dispatcher.Fields.Email").Text,
+									Width = "120"
+								}
+							}
+						})
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function checkboxDispatcher(data, type, row, meta){
+		return '<input name="checkbox_dispatcher" value="'+row.Id +'" type="radio">';
+	}
+
+	$(document).on('click', "input[name='checkbox_dispatcher']", function() {
+		$("input[name='checkbox_dispatcher']").prop('checked', false);
+		$(this).prop('checked', true);
+		$("#DispatcherId").val($(this).val());
+	});
+
+	// let hasRefreshDispatcherGrid = false;
+
+	// setInterval(function () {
+	// 	if(hasRefreshDispatcherGrid) return false;
+
+	// 	if($("#dispatcher-grid_info").text()){
+	// 		updateTable('#dispatcher-grid');
+	// 		hasRefreshDispatcherGrid = true;
+	// 	}
+	// }, 50);
+</script>

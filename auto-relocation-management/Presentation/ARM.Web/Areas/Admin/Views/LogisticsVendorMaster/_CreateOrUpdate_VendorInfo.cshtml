@@ -1,0 +1,570 @@
+﻿@using Nop.Core.Domain.LogisticsVendorMaster
+@using Nop.Web.Areas.Admin.Models.LogiscticsVendor
+@model VendorMasterModel
+
+@inject VendorMasterRequiredFieldSetting vendorRequiredSetting;
+
+<div class="card-body vendor-information vendor-edit">
+    <div class="row">
+        <!-- Company Overview -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header with-border">
+                    <h3 class="card-title">
+                        <i class="fa fa-info" aria-hidden="true"></i>
+                        Company Overview
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="CompanyName" asp-required="vendorRequiredSetting.CompanyNameRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="CompanyName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+                            <span asp-validation-for="CompanyName"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.Address1" asp-required="vendorRequiredSetting.PrimaryAddressStreetAddressRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentAddress.Address1" html-attributes="@(new { placeholder = "Enter Address 1" })" />
+                            <span asp-validation-for="PaymentAddress.Address1"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.Address2" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentAddress.Address2" html-attributes="@(new { placeholder = "Enter Address 2" })" />
+                            <span asp-validation-for="PaymentAddress.Address2"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.City" asp-required="vendorRequiredSetting.PrimaryAddressCityRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentAddress.City" html-attributes="@(new { placeholder = "Enter City" })" />
+                            <span asp-validation-for="PaymentAddress.City"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.StateProvinceId" asp-required="vendorRequiredSetting.PrimaryAddressStateRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="PaymentAddress.StateProvinceId" asp-items="Model.PaymentAddress.AvailableStates" class="form-select form-control" />
+                            <span asp-validation-for="PaymentAddress.StateProvinceId"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.ZipPostalCode" asp-required="vendorRequiredSetting.PrimaryAddressZipRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentAddress.ZipPostalCode" />
+                            <span asp-validation-for="PaymentAddress.ZipPostalCode"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.Region" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentAddress.Region" html-attributes="@(new { placeholder = "Enter Region / Province" })" />
+                            <span asp-validation-for="PaymentAddress.Region"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentAddress.CountryId" asp-required="vendorRequiredSetting.PrimaryAddressCountryRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="PaymentAddress.CountryId" asp-items="Model.PaymentAddress.AvailableCountries" class="form-select form-control" />
+                            <span asp-validation-for="PaymentAddress.CountryId"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentEmailAddress" asp-required="vendorRequiredSetting.PaymentEmailAddressRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentEmailAddress" html-attributes="@(new { placeholder = "Enter Email" })" />
+                            <span asp-validation-for="PaymentEmailAddress"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PaymentFaxNumber" asp-required="vendorRequiredSetting.PaymentFaxNumberRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="PaymentFaxNumber" />
+                            <span asp-validation-for="PaymentFaxNumber"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AlternateEmailAddress" asp-required="vendorRequiredSetting.AlternateEmailAddressRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="AlternateEmailAddress" html-attributes="@(new { placeholder = "Enter Alternate Email" })" />
+                            <span asp-validation-for="AlternateEmailAddress"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="AlternateFaxNumber" asp-required="vendorRequiredSetting.AlternateFaxNumberRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="AlternateFaxNumber" />
+                            <span asp-validation-for="AlternateFaxNumber"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="PayTerms" asp-required="true" />
+                        </div>
+                        <div class="input-name">
+                            <nop-select asp-for="PayTerms" asp-items="Model.AvailableCarrierPayTerms" class="form-select form-control" />
+                            <span asp-validation-for="PayTerms"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="Notes" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Notes" html-attributes="@(new { placeholder = "Enter Notes" })" />
+                            <span asp-validation-for="Notes"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="row">
+                <!-- Contact Information -->
+                <div class="col-md-12 mb-4">
+                    <div class="card mb-0">
+                        <div class="card-header with-border">
+                            <h3 class="card-title"><i class="fa fa-user" aria-hidden="true"></i> Contact Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="PrimaryContactName" asp-required="vendorRequiredSetting.PrimaryContactNameRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="PrimaryContactName" html-attributes="@(new { placeholder = "Enter Primary Contact Name" })" />
+                                    <span asp-validation-for="PrimaryContactName"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="PrimaryContactPhone" asp-required="vendorRequiredSetting.PrimaryContactPhoneRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="PrimaryContactPhone" />
+                                    <span asp-validation-for="PrimaryContactPhone"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="SecondaryContactName" asp-required="vendorRequiredSetting.SecondaryContactNameRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="SecondaryContactName" html-attributes="@(new { placeholder = "Enter Secondary Contact Name" })" />
+                                    <span asp-validation-for="SecondaryContactName"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="SecondaryContactPhone" asp-required="vendorRequiredSetting.SecondaryContactPhoneRequired" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="SecondaryContactPhone" />
+                                    <span asp-validation-for="SecondaryContactPhone"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Address Information -->
+                <div class="col-md-12">
+                    <div class="card mb-0">
+                        <div class="card-header with-border">
+                            <h3 class="card-title"><i class="fa fa-map-marker" aria-hidden="true"></i> Remittance Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.Address1"/>
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="RemittanceAddress.Address1" html-attributes="@(new { placeholder = "Enter Address 1" })" />
+                                    <span asp-validation-for="RemittanceAddress.Address1"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.Address2" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="RemittanceAddress.Address2" html-attributes="@(new { placeholder = "Enter Address 2" })" />
+                                    <span asp-validation-for="RemittanceAddress.Address2"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.City" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="RemittanceAddress.City" html-attributes="@(new { placeholder = "Enter City" })" />
+                                    <span asp-validation-for="RemittanceAddress.City"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.StateProvinceId" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-select asp-for="RemittanceAddress.StateProvinceId" asp-items="Model.RemittanceAddress.AvailableStates" class="form-select form-control" />
+                                    <span asp-validation-for="RemittanceAddress.StateProvinceId"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.ZipPostalCode"/>
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="RemittanceAddress.ZipPostalCode" />
+                                    <span asp-validation-for="RemittanceAddress.ZipPostalCode"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.Region" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-editor asp-for="RemittanceAddress.Region" html-attributes="@(new { placeholder = "Enter Region / Province" })" />
+                                    <span asp-validation-for="RemittanceAddress.Region"></span>
+                                </div>
+                            </div>
+                            <div class="custom-form-group">
+                                <div class="label-name">
+                                    <nop-label asp-for="RemittanceAddress.CountryId" />
+                                </div>
+                                <div class="input-name">
+                                    <nop-select asp-for="RemittanceAddress.CountryId" asp-items="Model.RemittanceAddress.AvailableCountries" class="form-select form-control" />
+                                    <span asp-validation-for="RemittanceAddress.CountryId"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Payment Information -->
+        <div class="col-md-12 mb-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-solid fa-credit-card" aria-hidden="true"></i> @T("Admin.VendorMaster.Fields.Payment.Section")</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card-body px-1 pt-0">
+                                <div class="card-header px-1 pt-0 mb-2">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.ACH")</h6>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="BankName" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="BankName" html-attributes="@(new { placeholder = "Enter Bank Name" })" />
+                                        <span asp-validation-for="BankName"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="AccountType" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="AccountType" html-attributes="@(new { placeholder = "Enter Account Type" })" />
+                                        <span asp-validation-for="AccountType"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="AccountNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="AccountNumber" html-attributes="@(new { placeholder = "Enter Account Number" })" />
+                                        <span asp-validation-for="AccountNumber"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="RoutingNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="RoutingNumber" html-attributes="@(new { placeholder = "Enter Routing Number" })" />
+                                        <span asp-validation-for="RoutingNumber"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body px-1 pt-0">
+                                <div class="card-header px-1 pt-0 mb-2">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.Zelle")</h6>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="ZelleEmail" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="ZelleEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                        <span asp-validation-for="ZelleEmail"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="ZellePhoneNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="ZellePhoneNumber" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+                                        <span asp-validation-for="ZellePhoneNumber"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body px-1 pt-0">
+                                <div class="card-header px-1 pt-0 mb-2">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.PayPal")</h6>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="PayPalEmail" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="PayPalEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                        <span asp-validation-for="PayPalEmail"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="PayPalPhoneNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="PayPalPhoneNumber" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+                                        <span asp-validation-for="PayPalPhoneNumber"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body px-1 pt-0">
+                                <div class="card-header px-1 pt-0 mb-2">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.CashApp")</h6>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="CashAppEmail" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="CashAppEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                        <span asp-validation-for="CashAppEmail"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="CashAppPhoneNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="CashAppPhoneNumber" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+                                        <span asp-validation-for="CashAppPhoneNumber"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body px-1 pt-0">
+                                <div class="card-header px-1 pt-0 mb-2">
+                                    <h6 class="card-title">@T("Admin.VendorMaster.Fields.PaymentMethod.Venmo")</h6>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VenmoEmail" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="VenmoEmail" html-attributes="@(new { placeholder = "Enter Email" })" />
+                                        <span asp-validation-for="VenmoEmail"></span>
+                                    </div>
+                                </div>
+                                <div class="custom-form-group">
+                                    <div class="label-name">
+                                        <nop-label asp-for="VenmoPhoneNumber" />
+                                    </div>
+                                    <div class="input-name">
+                                        <nop-editor asp-for="VenmoPhoneNumber" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+                                        <span asp-validation-for="VenmoPhoneNumber"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Legal Information -->
+        <div class="col-md-6 mb-2">
+            <div class="card h-100 mb-0">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><i class="fa fa-legal" aria-hidden="true"></i> Legal Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="custom-form-group">
+                        <div class="label-name">
+                            <nop-label asp-for="EIN" asp-required="vendorRequiredSetting.EINRequired" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="EIN" html-attributes="@(new { placeholder = "Enter EIN" })" />
+                            <span asp-validation-for="EIN"></span>
+                        </div>
+                    </div>
+                    <div class="custom-form-group custom-checkbox-ui">
+                        <div class="label-name">
+                            <nop-label asp-for="Need1099" asp-required="vendorRequiredSetting.Need1099Required" />
+                        </div>
+                        <div class="input-name">
+                            <nop-editor asp-for="Need1099" />
+                            <span asp-validation-for="Need1099"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function getStateFromCountry(selectedItem, $stateKendoDropDownList) {
+        if (!selectedItem || !$stateKendoDropDownList) return false;
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+            data: {
+                "countryId": selectedItem,
+                "addSelectStateItem": "false"
+            },
+            success: function (data, textStatus, jqXHR) {
+                var dataSource = $stateKendoDropDownList.dataSource;
+                dataSource.data([]);
+                $.each(data,
+                    function (id, option) {
+                        dataSource.add({
+                            text: option.name,
+                            value: option.id
+                        });
+                    });
+                $stateKendoDropDownList.value(0);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
+        });
+    };
+
+    commonPhoneNumber("#PrimaryContactPhone, #SecondaryContactPhone, #PaymentFaxNumber, #AlternateFaxNumber, #ZellePhoneNumber, #PayPalPhoneNumber, #CashAppPhoneNumber, #VenmoPhoneNumber");
+    removeSpecialCharactersAndNumber("#PrimaryContactName, #SecondaryContactName", true);
+    restrictToCityNameFormat("#PaymentAddress_City, #RemittanceAddress_City");
+    enforceLowerCase("#PaymentEmailAddress, #AlternateEmailAddress, #ZelleEmail, #PayPalEmail, #CashAppEmail, #VenmoEmail");
+    allowUniversalZip("#PaymentAddress_ZipPostalCode, #RemittanceAddress_ZipPostalCode");
+    allowNumericWithMaxLength("#RoutingNumber", 9);
+    allowNumberOnly("#AccountNumber");
+
+    let previousZipCode = {};
+
+    const debounceFunc = debounce(fetchZipCodes, 500);
+
+    function fetchZipCodes(field) {
+        var zipCodeId = field.attr('id');
+        var txtZipCode = $("#" + zipCodeId).val();
+
+        let previousPostalCode = previousZipCode[zipCodeId];
+
+        if (previousPostalCode == txtZipCode){
+            return false;
+        }
+
+        previousZipCode[zipCodeId] = txtZipCode;
+
+        if (txtZipCode.length === 5) {
+
+            $("#"+ zipCodeId).prop('readonly', true);
+            var postData = { zipCode: txtZipCode };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetLocationInfoUsingGoogleAPI", "LogisticsCommon"))",
+                data: postData,
+                success: function (response) {
+                    $("#"+ zipCodeId).prop('readonly', false);
+
+                    if (zipCodeId === "@Html.IdFor(model => model.RemittanceAddress.ZipPostalCode)") {
+
+                        if (response.country != $("#@Html.IdFor(model => model.RemittanceAddress.CountryId)").val()){
+                            return;
+                        }
+
+                        $("#@Html.IdFor(model => model.RemittanceAddress.City)").val(response.city);
+                        $("#@Html.IdFor(model => model.RemittanceAddress.StateProvinceId)").data("kendoDropDownList").value(response.state);
+                    }
+
+                    if (zipCodeId === "@Html.IdFor(model => model.PaymentAddress.ZipPostalCode)") {
+
+                        if (response.country != $("#@Html.IdFor(model => model.PaymentAddress.CountryId)").val()){
+                            return;
+                        }
+
+                        $("#@Html.IdFor(model => model.PaymentAddress.City)").val(response.city);
+                        $("#@Html.IdFor(model => model.PaymentAddress.StateProvinceId)").data("kendoDropDownList").value(response.state);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#"+ zipCodeId).prop('readonly', false);
+                }
+            });
+        }
+        else {
+            $("#"+ zipCodeId).prop('readonly', false);
+        }
+    }
+
+    $("#@Html.IdFor(model => model.RemittanceAddress.ZipPostalCode), #@Html.IdFor(model => model.PaymentAddress.ZipPostalCode)").keyup(function () {
+        debounceFunc($(this));
+    });
+
+    $("#@Html.IdFor(model => model.RemittanceAddress.CountryId)").change(function () {
+        var selectedItem = $(this).data("kendoDropDownList").value();
+        var ddlStates = $("#@Html.IdFor(model => model.RemittanceAddress.StateProvinceId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+
+    $("#@Html.IdFor(model => model.PaymentAddress.CountryId)").change(function () {
+        var selectedItem = $(this).data("kendoDropDownList").value();
+        var ddlStates = $("#@Html.IdFor(model => model.PaymentAddress.StateProvinceId)").data("kendoDropDownList");
+
+        getStateFromCountry(selectedItem, ddlStates);
+    });
+</script>

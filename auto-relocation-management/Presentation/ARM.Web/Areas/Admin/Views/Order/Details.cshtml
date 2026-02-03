@@ -1,0 +1,665 @@
+﻿@model OrderModel
+
+<input type="hidden" value="@Model.Id" name="Id" id="Id" />
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Orders.Details").Text;
+
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Orders");
+    var allowedStatuses = new List<string>(5)
+    {
+        LogisticsStatusDefaults.Order.New,
+        LogisticsStatusDefaults.Order.Open,
+        LogisticsStatusDefaults.Order.Covered,
+        LogisticsStatusDefaults.Order.Dispatched,
+        LogisticsStatusDefaults.Order.InTransit,
+        LogisticsStatusDefaults.Order.Delivered
+    };
+
+    var isDisabled = !allowedStatuses.Contains(Model.Status) ? "disabled" : "";
+
+    var contactName = !string.IsNullOrWhiteSpace(Model.PickupAddress?.ContactName) ? Model.PickupAddress.ContactName : "";
+    var contactEmail = !string.IsNullOrWhiteSpace(Model.PickupAddress?.Email) ? Model.PickupAddress.Email : "";
+
+    if (Model.IsNewOrder || Model.IsChildOrder)
+    {
+        if (!string.IsNullOrWhiteSpace(Model.ShipperFullName))
+        {
+            contactName = Model.ShipperFullName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Model.ShipperEmail))
+        {
+            contactEmail = Model.ShipperEmail;
+        }
+    }
+
+    var hasContactDetail = !string.IsNullOrWhiteSpace(contactName) && !string.IsNullOrWhiteSpace(contactEmail);
+
+    var isCarrierAssign = Model.IsCarrierAssign.HasValue && Model.IsCarrierAssign.Value;
+}
+
+<form asp-controller="Order" asp-action="Details" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+
+            @T("Admin.Orders.Details")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                @if (Model.IsChildOrder)
+                {
+                    <a asp-action="Details" asp-route-id="@Model.ParentOrderLeadId">@T("Admin.Orders.BackTo.ParentOrder") - @Model.ParentOrderLeadId</a>
+                }
+                else
+                {
+                    <a asp-action="List">@T("Admin.Orders.BackToList")</a>
+                }
+            </small>
+        </h1>
+        <div class="float-right">
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="LeadId" type="hidden" />
+
+			<div class="add-child-order-btn ml-auto">
+                <a asp-action="ChildOrderCreate" asp-route-id="@(Model.IsChildOrder ? Model.ParentOrderLeadId : Model.LeadId)" class="btn btn-primary ">
+					<i class="fas fa-plus-square"></i>
+					@T("Admin.Orders.ChildOrders")
+				</a>
+			</div>
+
+            @if (!Model.IsOrderDelivered || Model.HasPermissionToUpdateDeliveredOrder)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.LeadId" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    @T("Admin.Order.Button.Edit")
+                </a>
+            }
+
+            @if (!Model.IsChildOrder)
+            {
+                <a asp-action="MakeCopy" asp-route-id="@Model.LeadId" class="btn btn-info">
+                    <i class="fas fa-copy"></i>
+                    @T("Admin.Orders.MakeCopy")
+                </a>
+            }
+
+            <div class="">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="selectDocumentButton" data-bs-toggle="dropdown" aria-expanded="false" @isDisabled>
+                        Select Document
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="selectDocumentButton">
+                        @if(!Model.IsChildOrder)
+                        {
+                            <li><a class="dropdown-item email-document" data-docType="RateCon" href="javascript:void(0)">Rate Con</a></li>
+                            <li><a class="dropdown-item email-document" data-docType="TermsAndConditions" href="javascript:void(0)">Terms and Conditions</a></li>
+                        }
+                        <li><a class="dropdown-item email-document" data-docType="BillableSchedulingEmail" href="javascript:void(0)">Billable Scheduling Email</a></li>
+                        <li><a class="dropdown-item email-document" data-docType="CODSchedulingEmail" href="javascript:void(0)">COD Scheduling Email</a></li>
+                    </ul>
+                </div>
+            </div>
+            @if ((Model.HasCentralDispatchPluginEnable || Model.HasSuperDispatchPluginEnable) && isCarrierAssign)
+            {
+
+                @if (!Model.IsPostSuperDispatch && Model.HasSuperDispatchPluginEnable && Model.ShowLoadBoardPostDispatch)
+                {
+                    <button type="button" class="btn btn-primary loadboard-btn" data-loadboard="post-to-super-dispatch">
+                        @T("Admin.Orders.LoadBoard.Post.SuperDispatch")
+                        <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/super-dispatch.png")" alt="super-dispatch" />
+                    </button>
+                }
+                else if (Model.IsPostSuperDispatch && Model.HasSuperDispatchPluginEnable && Model.ShowLoadBoardUnpostDispatch)
+                {
+                    <button type="button" class="btn btn-danger loadboard-btn" data-loadboard="unpost-to-super-dispatch">
+                        @T("Admin.Orders.LoadBoard.Unpost.SuperDispatch")
+                        <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/super-dispatch.png")" alt="super-dispatch" />
+                    </button>
+                }
+
+                @if (!Model.IsPostCentralDispatch && Model.HasCentralDispatchPluginEnable && Model.ShowLoadBoardPostDispatch)
+                {
+                    <button type="button" class="btn btn-primary loadboard-btn" data-loadboard="post-to-central-dispatch">
+                        @T("Admin.Orders.LoadBoard.Post.CentralDispatch")
+                        <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/central-dispatch.png")" alt="central-dispatch" />
+                    </button>
+                }
+                else if (Model.IsPostCentralDispatch && Model.HasCentralDispatchPluginEnable && Model.ShowLoadBoardUnpostDispatch)
+                {
+                    <button type="button" class="btn btn-danger loadboard-btn" data-loadboard="unpost-to-central-dispatch">
+                        @T("Admin.Orders.LoadBoard.Unpost.CentralDispatch")
+                        <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/central-dispatch.png")" alt="central-dispatch" />
+                    </button>
+                }
+            }
+
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_invoice_buttons", additionalData = Model.LeadId })
+
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_bill_buttons", additionalData = Model.LeadId })
+
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_square_payment_invoice_buttons", additionalData = Model.LeadId })
+        </div>
+    </div>
+    <section class="content order-detail-page detail-pg-common-design">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div asp-validation-summary="All" id="orderErrorSummary" class="validation-summary-errors"></div>
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.StatusAndLoadBoard", Model)
+                </div>
+
+                <div class="col-lg-12 col-xl-7">
+                    @await Html.PartialAsync("_Details.CustomerInformation", Model)
+                </div>
+
+                <div class="col-lg-12 col-xl-5">
+                    <div class="row">
+                        @if (Model.IsNewOrder || Model.IsChildOrder)
+                        {
+                            <div class="col-lg-6 col-xl-12">@await Html.PartialAsync("_Details.ShipperInformation", Model)</div>
+                        }
+                        <div class="col-lg-6 col-xl-12">@await Html.PartialAsync("_Details.OriginInformation", Model)</div>
+                        <div class="col-lg-6 col-xl-12">@await Html.PartialAsync("_Details.DestinationInformation", Model)</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-7">
+                    @await Html.PartialAsync("_Details.RouteInformation", Model)
+                </div>
+
+                <div class="col-lg-6 col-xl-5">
+                    @await Html.PartialAsync("_Details.FinanceInformation", Model)
+                </div>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_quickbook_information", additionalData = Model.Id })
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = "admin_order_details_invoice_section", additionalData = Model.LeadId })
+
+                @if (!Model.IsChildOrder)
+                {
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("_Details.ChildOrders", Model)
+                    </div>
+                }
+
+                <div class="col-md-12">
+                    @{
+                        ViewData["ShowQuickBoolBillId"] = Model.ShowQuickBoolBillId;
+                        ViewData["IsNewOrder"] = !Model.IsChildOrder;
+                        ViewData["IsOrder"] = true;
+                    }
+                    @await Html.PartialAsync("_AccessorialDetails", Model.LogisticsAccessorials)
+                </div>
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.VehicleInformation", Model)
+                </div>
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.InternalNotes", Model)
+                </div>
+
+                @if (!Model.IsChildOrder)
+                {
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("_Details.Files", Model)
+                    </div>
+
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("_Details.SignDocument", Model)
+                    </div>
+                }
+
+                @if (Model.HasPermissionForManageCarriers && (!Model.IsNewOrder || Model.IsChildOrder) && (!Model.IsOrderDelivered || Model.HasPermissionToUpdateDeliveredOrder) && isCarrierAssign)
+                {
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("_Details.OrderCarrierListPopup", Model.OrderCarrierListModel)
+                    </div>
+                }
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.DispatchInformation", Model)
+                </div>
+
+                <div class="col-md-12">
+                    @await Html.PartialAsync("_Details.OrderHistory", Model)
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="carrier-error-popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="carrier-error-popup-title" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <div class="field-validation-error" id="error-notification"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-primary close-popup" data-dismiss="modal" aria-label="Close">@T("Admin.Common.Ok")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<link href="~/lib/daterangepicker/css/daterangepicker.css" rel="stylesheet" />
+<script asp-exclude-from-bundle="true" src="~/lib_npm/moment/moment.min.js"></script>
+<script asp-exclude-from-bundle="true" src="~/lib/daterangepicker/js/daterangepicker.min.js"></script>
+
+<div id="EmailPopup" class="modal fade order-email-popup" tabindex="-1" role="dialog" aria-labelledby="modalLabel-EmailPopup" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel-EmailPopup">Contact Details</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" id="emailConfirm-close">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <div class="form-horizontal">
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label for="ContactType">Contact</label>
+                                </div>
+                                <div class="col-md-9">
+                                    <select id="ContactType" class="form-select form-control">
+                                        <option value="System">System</option>
+                                        <option value="Manual">Manual</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label for="ContactName">Name</label>
+                                </div>
+                                <div class="col-md-9">
+                                    <input type="text" id="ContactName" name="ContactName" class="form-control" placeholder="Enter Contact Name">
+                                    <span class="field-validation-error" id="idContactNameError"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <label for="ContactEmail">Email</label>
+                                </div>
+                                <div class="col-md-9">
+                                    <input type="email" id="ContactEmail" name="ContactEmail" class="form-control" placeholder="Enter Contact Email">
+                                    <span class="field-validation-error" id="idContactEmailError"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function () {
+                            enforceLowerCase("#ContactEmail");
+                            toggleContactFields($('#ContactType').val());
+
+                            $(document).off('change', '#ContactType').on('change', '#ContactType', function () {
+                                var selectedType = $(this).val();
+                                toggleContactFields(selectedType);
+                            });
+
+                            $('#ContactType,#CustomerInformation_CompanyId,#CustomerInformation_CustomerId').kendoDropDownList({
+                                filter: "contains",
+                                height: 200,
+                                popup: {
+                                    appendTo: $("#EmailPopup")
+                                },
+                                filtering: function (e) {
+                                    var filter = e.filter;
+                                }
+                            });
+                            $('#CustomerInformation_CompanyId').change(function () {
+                                const companyId = $(this).val();
+
+                                var ddlCustomers = $("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").data("kendoDropDownList");
+                                $.ajax({
+                                    cache: false,
+                                    type: "GET",
+                                    url: "@(Url.Action("GetCompanyDetailsById", "Company"))",
+                                    data: {
+                                        id: companyId,
+                                    },
+                                    success: function (data, textStatus, jqXHR) {
+                                        if (data) {
+                                            var dataSource = ddlCustomers.dataSource;
+                                            dataSource.data([]);
+                                            $.each(data.CustomerList, function (id, option) {
+                                                dataSource.add({
+                                                    text: option.Text,
+                                                    value: option.Value
+                                                });
+                                            });
+                                            $("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").data("kendoDropDownList").value(0);
+                                            $("#@Html.IdFor(model => model.CustomerInformation.CustomerId)").trigger('change');
+                                        }
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        console.error("Error fetching company details: ", errorThrown);
+                                    }
+                                });
+                            });
+
+                            function toggleContactFields(type) {
+                                $('#idContactNameError').text("");
+                                $('#idContactEmailError').text("");
+
+                                if (type === "Manual") {
+                                    $("#ContactName").val("");
+                                    $("#ContactEmail").val("");
+
+                                    $("#ContactName").prop("disabled", false);
+                                    $("#ContactEmail").prop("disabled", false);
+                                } else {
+                                    @if (hasContactDetail){
+                                        <text>
+                                            $("#ContactName").val("@contactName");
+                                            $("#ContactEmail").val("@contactEmail");
+
+                                            $("#ContactName").prop("disabled", true);
+                                            $("#ContactEmail").prop("disabled", true);
+                                        </text>
+                                    }
+                                }
+                            }
+                        });
+
+                    </script>
+                    <div class="modal-footer">
+                        <button type="button" id="preview-btn" name="preview" class="btn theme-btn btn-dark" data-toggle="modal">Preview</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="PreviewPopup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel-PreviewPopup" style="display: none;">
+    <div class="modal-dialog modal-xl PreviewPopup">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel-PreviewPopup">Preview</h4>
+                <button id="btn-preview-close" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-12" id="dvHTML">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn theme-btn btn-dark" data-dismiss="modal" id="btnSend">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+
+    let docType = "";
+
+    function CheckOrderEmailForCODAndBillable(){
+        let isCODOrder = false;
+        let isBillableOrder = false;
+
+        if (docType === "CODSchedulingEmail"){
+             isCODOrder = true;
+             isBillableOrder = false;
+        } else if(docType === "BillableSchedulingEmail"){
+             isBillableOrder = true;
+             isCODOrder = false;
+        } else{
+            isCODOrder = false;
+            isBillableOrder = false;
+        }
+
+        return { IsCODOrder: isCODOrder, IsBillableOrder: isBillableOrder };
+    }
+
+    $(".email-document").on('click', function(e){
+        $('#EmailPopup').modal('show');
+        docType = $(this).attr('data-docType');
+    });
+
+    $('#emailConfirm-close').click(function () {
+        $('#EmailPopup').modal('hide');
+        docType = "";
+    });
+
+    $('#btn-preview-close').click(function () {
+        $('#PreviewPopup').modal('hide');
+    });
+
+    $('#preview-btn').click(function (e) {
+        let contactName = $('#ContactName').val();
+        let contactEmail = $('#ContactEmail').val();
+        let isValid = true;
+
+        $('#idContactNameError').text("");
+        $('#idContactEmailError').text("");
+
+        if (contactName != null && contactName.trim() == ""){
+            $('#idContactNameError').text("Please enter contact name.");
+            isValid = false;
+        }
+
+        if (!isValidEmail(contactEmail)) {
+            $('#idContactEmailError').text("Please enter a valid email address.");
+            isValid = false;
+        }
+
+        if (!isValid) return false;
+
+        var orderScheduleEmailDocType = CheckOrderEmailForCODAndBillable();
+
+        $('#EmailPopup').modal('hide');
+        
+        let postData = {
+            contactName: contactName,
+            contactEmail: contactEmail,
+            orderId: "@Model.Id",
+            isCODOrder: orderScheduleEmailDocType.IsCODOrder,
+            isBillableOrder: orderScheduleEmailDocType.IsBillableOrder
+        };
+
+        addAntiForgeryToken(postData);
+
+        $.ajax({
+            url: '@Url.Action("Preview", "Order")',
+            type: 'POST',
+            data: postData,
+            success: function (response) {
+                if (!response) {
+                    toastr.error("Failed to generate the preview.");
+                    docType = "";
+                    return;
+                }
+
+                if (response.Error){
+                    toastr.error(response.Error);
+                    docType = "";
+                    return;
+                }
+
+                if (response.Result){
+                    $('#PreviewPopup').modal('show');
+                    $('#dvHTML').html(response.Html);
+                    $('#btnSend').data('recipientEmail', response.Email);
+                    $('#btnSend').data('contactName', response.Name);
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Failed to generate the preview.");
+            }
+        });
+    });
+
+    $("#btnSend").off("click").on("click", function () {
+        let recipientEmail = $(this).data('recipientEmail');
+        let contactName = $(this).data('contactName');
+        let orderId = '@Model.LeadId';
+
+        $("#PreviewPopup").modal("hide");
+
+        var orderScheduleEmailDocType = CheckOrderEmailForCODAndBillable();
+
+        if (recipientEmail) {
+            let postData = {
+                orderId: orderId,
+                recipientEmail: recipientEmail,
+                contactName: contactName,
+                isCODOrder: orderScheduleEmailDocType.IsCODOrder,
+                isBillableOrder: orderScheduleEmailDocType.IsBillableOrder
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                type: "POST",
+                url: "@(Url.Action("SendEmail", "Order"))",
+                data: postData,
+                success: function (response) {
+                    if (response.Message) {
+                        if (response.Result){
+                            toastr.success(response.Message);
+                        }
+                        else{
+                            toastr.error(response.Message);
+                        }
+                    }
+
+                    docType = "";
+                },
+                error: function () {
+                     toastr.error("An error occurred while sending the email.");
+                }
+            });
+        } else {
+            toastr.error("Unable to find the recipient's email.");
+        }
+    });
+
+    function showErrorNotificationPopup(message = "") {
+        $("#error-notification").text(message);
+        $("#carrier-error-popup").modal('show');
+    }
+
+    $(".close-popup").click(function (e) {
+        $("#carrier-error-popup").modal('hide');
+        $("#error-notification").text("");
+    });
+
+    $(".loadboard-btn").click(function (e) {
+        e.preventDefault();
+
+        const loadboard = $(this).attr('data-loadboard') ?? "";
+        const loadboardTitle = $(this).text() ?? "";
+
+        if (loadboard === "post-to-super-dispatch") {
+            $("#save-dispatch").attr('name', "post-to-super-dispatch").val(true);
+        }
+
+        else if (loadboard === "post-to-central-dispatch") {
+            $("#save-dispatch").attr('name', "post-to-central-dispatch").val(true);
+        }
+
+        else if (loadboard === "unpost-to-super-dispatch") {
+            $("#save-dispatch").attr('name', "unpost-to-super-dispatch").val(true);
+        }
+
+        else if (loadboard === "unpost-to-central-dispatch") {
+            $("#save-dispatch").attr('name', "unpost-to-central-dispatch").val(true);
+        }
+
+        else
+            $("#save-dispatch").attr('name', "").val(false);
+
+        $("#Loadboard-confirmation-popup-title").text(loadboardTitle);
+
+        $("#Loadboard-Confirmation-Popup").modal("show");
+    });
+
+    $(".loadboard-request-btn").closest('form').on('submit', function(e){
+        $(".loadboard-request-btn").prop("disabled", true);
+    });
+
+    $("#Loadboard-Confirmation-Popup .close").click(function (e) {
+        e.preventDefault();
+        $("#Loadboard-Confirmation-Popup").modal("hide");
+        $("#save-dispatch").attr('name', "").val(false);
+    });
+
+    @if (Model.IsPostSuperDispatch && Model.HasSuperDispatchPluginEnable && Model.ShowLoadBoardUnpostDispatch)
+    {
+        <text>
+            //SignalR implementation
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/admin/notificationHub")
+                .configureLogging(signalR.LogLevel.Error)
+                .build();
+
+            connection.on("ReceiveWebhookEvent", function (orderData) {
+                if (orderData.OrderId == '@Model.Id') {
+                    if (orderData.IsPostSuperDispatch) {
+                        let loadboard = $(".loadboard-btn[data-loadboard='post-to-super-dispatch']");
+                        if (loadboard){
+                            loadboard.attr('data-loadboard', "unpost-to-super-dispatch")
+                                    .html('@T("Admin.Orders.LoadBoard.Unpost.SuperDispatch") <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/super-dispatch.png")" alt="super-dispatch" />')
+                                    .removeClass('btn-primary')
+                                    .addClass('btn-danger');
+                        }
+                    }
+                    else {
+                        let loadboard = $(".loadboard-btn[data-loadboard='unpost-to-super-dispatch']");
+                        if (loadboard){
+                            loadboard.attr('data-loadboard', "post-to-super-dispatch")
+                                    .html('@T("Admin.Orders.LoadBoard.Post.SuperDispatch") <img class="loadboard-icon" src="@Url.Content("~/css/admin/images/super-dispatch.png")" alt="super-dispatch" />')
+                                    .removeClass('btn-danger')
+                                    .addClass('btn-primary');
+                        }
+                    }
+
+                    $.get("@Url.Action("UpdateLoadboardStatus", "Order")", {leadId: '@Model.LeadId'}, function (data){
+                        if (!data || !data.Status || !data.Html) {
+                            return;
+                        }
+
+                        if (data.Html) {
+                            const $statusAndLoadboardHtml = $(".status-loadboard-section");
+                            const $loadboardHtml = $statusAndLoadboardHtml.find(".loadboard-section");
+                            if ($loadboardHtml){
+                                $loadboardHtml.remove();
+                            }
+
+                            $statusAndLoadboardHtml.append(data.Html);
+                        }
+                    });
+                }
+            });
+
+            connection.start()
+            .then(() => {
+                setTimeout(() => {
+                    connection.stop().then(() => {
+                        // console.log("Disconnected after timeout");
+                        return;
+                    });
+                }, 18000);
+
+                return connection.invoke("JoinOrderGroup", '@Model.Id');
+            })
+            .catch(err => console.error("SignalR Connection Error: ", err));
+        </text>
+    }
+
+</script>

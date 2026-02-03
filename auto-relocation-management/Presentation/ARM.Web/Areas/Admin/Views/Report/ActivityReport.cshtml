@@ -1,0 +1,693 @@
+﻿@using Nop.Core.Domain.Payments
+@model ActivityReportSearchModel
+
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.Activity.Reports").Text;
+
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Activity report");
+
+	const string hideActivityReportAttributeName = "ActivityReportPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideActivityReportAttributeName);
+}
+
+<form asp-controller="Report" asp-action="ActivityReportList" method="post">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Admin.Activity.Reports")
+		</h1>
+		<div class="float-right">
+			<button asp-action="ExportToExcelActivityReport" class="btn btn-green" type="submit">
+				<i class="far fa-file-excel"></i>
+				@T("Admin.Common.ExportToExcel.All")
+			</button>
+		</div>
+	</div>
+
+	<section class="content">
+		<div class="container-fluid">
+			<div class="form-horizontal d-form-horizontal">
+				<div class="cards-group">
+					<div class="card card-default card-search d-card-search d-card">
+						<div class="card-body">
+							<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideActivityReportAttributeName">
+								<div class="search-text">@T("Admin.Common.Search")</div>
+								<div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+								<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+							</div>
+
+							<div class="search-body @(hideSearchBlock ? "closed" : "")">
+								<div class="row">
+									<div class="col-md-6 col-lg-6 col-xl-3">
+										<div class="form-group row">
+											<div class="col-md-12">
+												<nop-label asp-for="LeadNumber" />
+											</div>
+											<div class="col-md-12">
+												<nop-editor asp-for="LeadNumber" html-attributes="@(new { placeholder = "Enter Order Number" })" />
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-lg-6 col-xl-3">
+										<div class="form-group row">
+											<div class="col-md-12">
+												<nop-label asp-for="OrderStatusIds" />
+											</div>
+											<div class="col-md-12">
+												<nop-select asp-for="OrderStatusIds" asp-items="Model.AvailableOrderStatuses" asp-multiple="true" />
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-lg-6 col-xl-3">
+										<div class="form-group row">
+											<div class="col-md-12">
+												<div class="label-wrapper">
+													<label class="col-form-label" asp-for="Email"></label>
+												</div>
+											</div>
+											<div class="col-md-12">
+												<nop-editor asp-for="Email" html-attributes="@(new { placeholder = "Enter Email" })" />
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-lg-6 col-xl-3">
+										<div class="form-group row">
+											<div class="col-md-12">
+												<nop-label asp-for="ReferenceNumber" />
+											</div>
+											<div class="col-md-12">
+												<nop-editor asp-for="ReferenceNumber" html-attributes="@(new { placeholder = "Enter Reference Number" })" />
+											</div>
+										</div>
+									</div>
+									<div class="Advanced-search hide">
+										<div class="row">
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="CompanyName" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="CompanyName" html-attributes="@(new { placeholder = "Enter Company Name" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<div class="label-wrapper">
+															<label class="col-form-label" asp-for="Phone"></label>
+														</div>
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="Phone" html-attributes="@(new { placeholder = "Enter Phone Number" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="OriginCity" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="OriginCity" html-attributes="@(new { placeholder = "Enter Origin City" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="OriginStateId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="OriginStateId" asp-items="Model.AvailableOriginStates" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="OriginZip" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="OriginZip" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="OriginCountryId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="OriginCountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											@if (Model.IsAdmin || Model.IsManager || Model.IsCustomerService || Model.IsDispatch)
+											{
+												<div class="col-md-6 col-lg-6 col-xl-3">
+													<div class="form-group row">
+														<div class="col-md-12">
+															<nop-label asp-for="CreatedBy" />
+														</div>
+														<div class="col-md-12">
+															<nop-select asp-for="CreatedBy" asp-items="Model.AvailableCreatedByCustomers" class="form-select form-control" />
+														</div>
+													</div>
+												</div>
+											}
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DestinationCity" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="DestinationCity" html-attributes="@(new { placeholder = "Enter Destination City" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DestinationStateId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="DestinationStateId" asp-items="Model.AvailableDestinationStates" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DestinationZip" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="DestinationZip" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DestinationCountryId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="DestinationCountryId" asp-items="Model.AvailableCountries" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="CarrierId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="CarrierId" asp-items="Model.AvailableCarrierName" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="PaymentOption" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="PaymentOption" asp-items="Model.AvailablePaymentOptions" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="StartDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="StartDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="EndDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="EndDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="PickupStartDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="PickupStartDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="PickupEndDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="PickupEndDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DeliveryStartDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="DeliveryStartDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DeliveryEndDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="DeliveryEndDate" />
+													</div>
+												</div>
+											</div>
+											@* <div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualPickupDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualPickupDate" />
+													</div>
+												</div>
+											</div> *@
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualPickupDateFrom" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualPickupDateFrom" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualPickupDateTo" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualPickupDateTo" />
+													</div>
+												</div>
+											</div>
+											@* <div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualDeliveryDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualDeliveryDate" />
+													</div>
+												</div>
+											</div> *@
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualDeliveryDateFrom" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualDeliveryDateFrom" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ActualDeliveryDateTo" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ActualDeliveryDateTo" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="CsrFuDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="CsrFuDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="DispFuDate" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="DispFuDate" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="BookedOrder" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="BookedOrder" asp-items="Model.AvailableBookedOrders" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<div class="label-wrapper">
+															<label class="col-form-label" asp-for="PaymentStatusId">
+															</label>
+														</div>
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ShipperFirstName" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ShipperFirstName" html-attributes="@(new { placeholder = "Enter Shipper First Name" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ShipperLastName" />
+													</div>
+													<div class="col-md-12">
+														<nop-editor asp-for="ShipperLastName" html-attributes="@(new { placeholder = "Enter Shipper Last Name" })" />
+													</div>
+												</div>
+											</div>
+											<div class="col-md-6 col-lg-6 col-xl-3">
+												<div class="form-group row">
+													<div class="col-md-12">
+														<nop-label asp-for="ShipmentTypeId" />
+													</div>
+													<div class="col-md-12">
+														<nop-select asp-for="ShipmentTypeId" asp-items="Model.AvailableShipmentTypes" class="form-select form-control" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="text-center col-12">
+										<button type="button" id="search-activity-report" class="btn btn-primary btn-search">
+											<i class="fas fa-chart-line"></i>
+											@T("Admin.Reports.Search.RunReport")
+										</button>
+										<a href="javascript:void(0);" id="advanced-btn" class="d-advanced-search-btn">@T("Admin.LogisticsQuote.Button.AdvancedSearch")</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card card-default d-datatable activity-report-tbl d-card m-0">
+				<div class="card-body">
+					@await Html.PartialAsync("Table", new DataTablesModel
+					{
+						Name = "activity-report-grid",
+						UrlRead = new DataUrl("ActivityReportList", "Report", null),
+						SearchButtonId = "search-activity-report",
+						Length = Model.PageSize,
+						LengthMenu = Model.AvailablePageSizes,
+						Filters = new List<FilterParameter>
+						{
+							new FilterParameter(nameof(Model.StartDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.EndDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.PickupStartDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.PickupEndDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.DeliveryStartDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.DeliveryEndDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualPickupDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualPickupDateFrom), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualPickupDateTo), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualDeliveryDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualDeliveryDateFrom), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.ActualDeliveryDateTo), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.CsrFuDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.DispFuDate), typeof(DateTime?)),
+							new FilterParameter(nameof(Model.CompanyName)),
+							new FilterParameter(nameof(Model.CreatedBy)),
+							new FilterParameter(nameof(Model.OrderStatusIds)),
+							new FilterParameter(nameof(Model.LeadNumber)),
+							new FilterParameter(nameof(Model.Phone)),
+							new FilterParameter(nameof(Model.Email)),	
+							new FilterParameter(nameof(Model.ShipperFirstName)),
+							new FilterParameter(nameof(Model.ShipperLastName)),
+							new FilterParameter(nameof(Model.OriginCity)),
+							new FilterParameter(nameof(Model.OriginStateId)),
+							new FilterParameter(nameof(Model.OriginZip)),
+							new FilterParameter(nameof(Model.OriginCountryId)),
+							new FilterParameter(nameof(Model.DestinationCity)),
+							new FilterParameter(nameof(Model.DestinationStateId)),
+							new FilterParameter(nameof(Model.DestinationZip)),
+							new FilterParameter(nameof(Model.DestinationCountryId)),
+							new FilterParameter(nameof(Model.ReferenceNumber)),
+							new FilterParameter(nameof(Model.CarrierId)),
+							new FilterParameter(nameof(Model.PaymentOption)),
+							new FilterParameter(nameof(Model.ShipmentTypeId)),
+							new FilterParameter(nameof(Model.BookedOrder)),
+							new FilterParameter(nameof(Model.PaymentStatusId)),
+						},
+						ColumnCollection = new List<ColumnProperty>
+						{
+							new ColumnProperty(nameof(ActivityReportModel.OrderDetail))
+							{
+								Title = $"<span class=\"d-th\">{T("Admin.Orders.Fields.OrderId").Text}</span>",
+								Width = "50",
+								Encode = false
+							},
+							new ColumnProperty(nameof(ActivityReportModel.Status))
+							{
+								Title = $"<span class=\"d-th\">{T("Admin.Orders.Fields.Status").Text}</span>",
+								Width = "200",
+								Encode = false,
+								Render = new RenderCustom("renderColumnLogisticsStatus")
+							},
+							new ColumnProperty(nameof(ActivityReportModel.CustomerDetails))
+							{
+								Title = T("Admin.Orders.Fields.CustomerDetails").Text,
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ActivityReportModel.ShipperDetail))
+							{
+								Title = T("Admin.Orders.Fields.ShipperDetail").Text,
+								Encode = false,
+								Width = "100"
+							},
+							new ColumnProperty(nameof(ActivityReportModel.Lane))
+							{
+								Title = T("Admin.Report.Fields.Lane").Text,
+								Width = "150",
+								Encode = false
+							},
+							new ColumnProperty(nameof(ActivityReportModel.FirstAvailablePickupDateValue))
+							{
+								Title = T("Admin.Orders.Fields.FirstAvailablePickupDateValue").Text,
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ActivityReportModel.FirstAvailablePickupEndDateValue))
+							{
+								Title = T("Admin.Orders.Fields.FirstAvailablePickupEndDateValue").Text,
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ActivityReportModel.EstimatedDeliveryDateValue))
+							{
+								Title = T("Admin.Orders.Fields.EstimatedDeliveryDateValue").Text,
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ActivityReportModel.EstimatedDeliveryEndDateValue))
+							{
+								Title = T("Admin.Orders.Fields.EstimatedDeliveryEndDateValue").Text,
+								Encode = false,
+							},
+							new ColumnProperty(nameof(ActivityReportModel.CarrierPay))
+							{
+								Title = T("Admin.Orders.Fields.CarrierPay").Text,
+								Encode = false,
+								ClassName="text-center",
+							},
+							new ColumnProperty(nameof(ActivityReportModel.AccessorialAPRate))
+							{
+								Title = T("Admin.Orders.Fields.AccessorialAPRate").Text,
+								Encode = false,
+								ClassName="text-center",
+							},
+							new ColumnProperty(nameof(ActivityReportModel.CustomerRate))
+							{
+								Title = T("Admin.ActivityReport.Fields.CustomerRate").Text,
+								Encode = false,
+								ClassName="text-center",
+							},
+							new ColumnProperty(nameof(ActivityReportModel.Profit))
+							{
+								Title = T("Admin.Orders.Fields.Profit").Text,
+								Encode = false,
+								ClassName="text-center",
+							},
+							new ColumnProperty(nameof(ActivityReportModel.PaymentStatus))
+							{
+								Title = T("Admin.Orders.Fields.PaymentStatus").Text,
+								Encode = false,
+								Render = new RenderCustom("renderPaymentStatus")
+							},
+							new ColumnProperty(nameof(ActivityReportModel.CreatedOn))
+							{
+								Title = T("Admin.ActivityReport.Fields.CreatedOn").Text,
+								Encode = false,
+							},
+						}
+					})
+
+					<script>
+						allowNumberOnly("#LeadNumber");
+						commonPhoneNumber("#Phone");
+						removeSpecialCharactersAndNumber("#ShipperFirstName, #ShipperLastName");
+						restrictToCityNameFormat("#OriginCity, #DestinationCity");
+						enforceLowerCase("#Email");
+						allowUniversalZip("#OriginZip, #DestinationZip");
+
+						$("#StartDate").attr("placeholder", "Select Order Created From");
+						$("#EndDate").attr("placeholder", "Select Order Created To");
+						$("#PickupStartDate").attr("placeholder", "Select PU Start Date");
+						$("#PickupEndDate").attr("placeholder", "Select PU End Date");
+						$("#DeliveryStartDate").attr("placeholder", "Select Delv Start Date");
+						$("#DeliveryEndDate").attr("placeholder", "Select Delv End Date");
+						$("#ActualPickupDate").attr("placeholder", "Select Actual Pickup Date");
+						$("#ActualPickupDateFrom").attr("placeholder", "Select Actual PU Date From");
+						$("#ActualPickupDateTo").attr("placeholder", "Select Actual PU Date To");
+						$("#ActualDeliveryDate").attr("placeholder", "Select Actual Delivery Date");
+						$("#ActualDeliveryDateFrom").attr("placeholder", "Select Actual Delv Date From");
+						$("#ActualDeliveryDateTo").attr("placeholder", "Select Actual Delv Date To");
+						$("#CsrFuDate").attr("placeholder", "Select CSR FU Date");
+						$("#DispFuDate").attr("placeholder", "Select DISP FU Date");
+
+						function renderColumnLogisticsStatus(data, type, row, meta) {
+							let color;
+							let OpenStatusColor = "white";
+
+							var dateString = row.FirstAvailablePickupDateValue;
+
+							if (dateString != null && dateString != undefined && dateString.trim() != ""){
+								var dateParts = dateString.split('/');
+
+								if (dateParts.length === 3){
+									var dateObject = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+
+									var currentDate = new Date();
+									currentDate.setHours(0, 0, 0, 0);
+
+									if (dateObject < currentDate) {
+										OpenStatusColor = "red";
+									}
+								}
+							}
+
+							switch (row.Status) {
+								case "@LogisticsStatusDefaults.Order.Open":
+									color = OpenStatusColor;
+									break;
+								case "@LogisticsStatusDefaults.Order.Covered":
+									color = 'NeonYellow';
+									break;
+								case "@LogisticsStatusDefaults.Order.Dispatched":
+									color = 'PapayaOrange';
+									break;
+								case "@LogisticsStatusDefaults.Order.InTransit":
+									color = 'blue';
+									break;
+								case "@LogisticsStatusDefaults.Order.Delivered":
+									color = 'green';
+									break;
+							}
+							return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+						}
+
+						function renderPaymentStatus(data, type, row, meta) {
+							let color = 'red';
+
+							if (row.PaymentStatusId == "@((int)PaymentStatus.Paid)"){
+								color = 'green';
+							}
+							return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+						}
+
+						$("#advanced-btn").click(function () {
+							$('.Advanced-search.hide').toggle(500);
+						});
+
+						function getStateFromCountry(selectedItem, $stateKendoDropDownList, preSelectedValue = "0"){
+							if(!selectedItem || !$stateKendoDropDownList) return false;
+
+							$.ajax({
+								cache: false,
+								type: "GET",
+								url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+								data: {
+									"countryId": selectedItem,
+									"addSelectStateItem": "false"
+								},
+								success: function (data, textStatus, jqXHR) {
+									var dataSource = $stateKendoDropDownList.dataSource;
+									dataSource.data([]);
+									$.each(data,
+										function (id, option) {
+											dataSource.add({
+												text: option.name,
+												value: option.id
+											});
+										});
+									$stateKendoDropDownList.value(preSelectedValue);
+								},
+								error: function (jqXHR, textStatus, errorThrown) {
+								}
+							});
+						};
+
+						$("#@Html.IdFor(model => model.OriginCountryId)").change(function () {
+							let selectedItem = $(this).data("kendoDropDownList").value();
+							let ddlStates = $("#@Html.IdFor(model => model.OriginStateId)").data("kendoDropDownList");
+
+							getStateFromCountry(selectedItem, ddlStates);
+						});
+
+						$("#@Html.IdFor(model => model.DestinationCountryId)").change(function () {
+							let selectedItem = $(this).data("kendoDropDownList").value();
+							let ddlStates = $("#@Html.IdFor(model => model.DestinationStateId)").data("kendoDropDownList");
+
+							getStateFromCountry(selectedItem, ddlStates);
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</section>
+</form>

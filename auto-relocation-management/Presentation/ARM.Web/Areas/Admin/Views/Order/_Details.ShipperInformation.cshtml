@@ -1,0 +1,64 @@
+﻿@model OrderModel
+
+@if (string.IsNullOrWhiteSpace(Model.PickupAddress.ContactName) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber) &&
+    string.IsNullOrWhiteSpace(Model.PickupAddress.Email) &&
+    string.IsNullOrWhiteSpace(Model.ShipperFullName) &&
+    string.IsNullOrWhiteSpace(Model.ShipperPhoneNumber) &&
+    string.IsNullOrWhiteSpace(Model.ShipperEmail))
+{
+    return;
+}
+
+<div class="card detail-info-card order-origin-info d-card">
+    <div class="card-header with-border clearfix">
+        <div class="card-title">
+            <i class="fas fa-user"></i>
+            @T("Admin.ShipperInformation")
+        </div>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.ContactName) ||
+             !string.IsNullOrWhiteSpace(Model.ShipperFullName))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Contact")
+                </div>
+                <div class="input-name">
+                    @(!string.IsNullOrWhiteSpace(Model.ShipperFullName)
+                        ? Model.ShipperFullName
+                        : Model.PickupAddress.ContactName)
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.PhoneNumber) ||
+             !string.IsNullOrWhiteSpace(Model.ShipperPhoneNumber))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.PhoneNumber")
+                </div>
+                <div class="input-name">
+                    @(!string.IsNullOrWhiteSpace(Model.ShipperPhoneNumber)
+                        ? Model.ShipperPhoneNumber
+                        : PhoneNumberFormatter.FormatToUSPhoneNumber(Model.PickupAddress.PhoneNumber))
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.PickupAddress.Email) ||
+             !string.IsNullOrWhiteSpace(Model.ShipperEmail))
+        {
+            <div class="custom-form-group">
+                <div class="label-name">
+                    @T("Admin.Address.Fields.Email")
+                </div>
+                <div class="input-name">
+                    @(!string.IsNullOrWhiteSpace(Model.ShipperEmail)
+                        ? Model.ShipperEmail
+                        : Model.PickupAddress.Email)
+                </div>
+            </div>
+        }
+    </div>
+</div>

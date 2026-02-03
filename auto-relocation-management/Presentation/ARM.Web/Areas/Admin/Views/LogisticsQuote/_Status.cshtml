@@ -1,0 +1,17 @@
+﻿@model LogisticsQuoteModel
+
+<div class="card card-primary card-outline">
+	<div class="card-header with-border clearfix">
+		<div class="card-title">
+			<i class="far fa-newspaper"></i>
+			@T("Admin.QuoteStatus")
+		</div>
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="quote-status">
+				@Model.QuoteStatus) : @Model.CreatedOnUtc
+			</div>
+		</div>
+	</div>
+</div>
